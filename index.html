@@ -1,43 +1,136 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="ja">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2685.3">
-  <style type="text/css">
-    body {background-color: #f2f2f5}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 15.0px 'Helvetica Neue'; color: #ffffff; -webkit-text-stroke: #ffffff}
-    p.p4 {margin: 0.0px 0.0px 10.0px 0.0px; font: 12.0px 'Hiragino Sans'; color: #161618; -webkit-text-stroke: #161618}
-    p.p6 {margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px 'Helvetica Neue'; color: #ffffff; -webkit-text-stroke: #ffffff; background-color: #0a60ff}
-    p.p7 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 14.0px 'Helvetica Neue'; color: #535353; -webkit-text-stroke: #535353}
-    p.p8 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 14.0px 'Helvetica Neue'; color: #0000e9; -webkit-text-stroke: #0000e9}
-    span.s1 {font-kerning: none; background-color: #0e0e0e}
-    span.s2 {font: 22.0px '.AppleJapaneseFont'; font-kerning: none; background-color: #ffffff}
-    span.s3 {font: 22.0px 'Helvetica Neue'; font-kerning: none; background-color: #ffffff}
-    span.s4 {font: 12.0px '.AppleJapaneseFont'; font-kerning: none; background-color: #eaeaea}
-    span.s5 {font-kerning: none; background-color: #ffffff}
-    span.s6 {font: 12.0px 'Helvetica Neue'; font-kerning: none; background-color: #ffffff}
-    span.s7 {font: 12.0px 'Helvetica Neue'; font-kerning: none}
-    span.s8 {font-kerning: none}
-    span.s9 {font-kerning: none; color: #535353; -webkit-text-stroke: 0px #535353}
-    span.s10 {text-decoration: underline ; font-kerning: none; color: #0000e9; -webkit-text-stroke: 0px #0000e9}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>lamiliuq works</title>
+  <style>
+    :root {
+      --primary: #0a60ff;
+      --text: #161618;
+      --light-text: #535353;
+      --link: #0000e9;
+      --bg: #f2f2f5;
+      --white: #ffffff;
+      --dark: #0e0e0e;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.8rem;
+      color: var(--white);
+      background-color: var(--dark);
+      padding: 1.2rem;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+    }
+
+    h1 span.subtitle {
+      display: block;
+      font-size: 1.1rem;
+      margin-top: 0.5rem;
+      color: var(--white);
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      margin: 2.5rem 0 1rem;
+      color: var(--text);
+    }
+
+    h2 .wip {
+      font-size: 0.9rem;
+      color: #888;
+      vertical-align: super;
+    }
+
+    p {
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      color: var(--text);
+    }
+
+    .highlight {
+      background-color: var(--primary);
+      color: var(--white);
+      padding: 0.8rem 1.2rem;
+      border-radius: 6px;
+      text-align: center;
+      margin: 1.5rem 0;
+      font-size: 1.1rem;
+    }
+
+    .highlight a {
+      color: var(--white);
+      text-decoration: underline;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 3rem;
+      color: var(--light-text);
+      font-size: 0.95rem;
+    }
+
+    .contact {
+      text-align: center;
+      margin-top: 1rem;
+      color: var(--link);
+    }
+
+    .contact a {
+      color: var(--link);
+      text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 2.2rem; }
+      h2 { font-size: 1.6rem; }
+    }
   </style>
 </head>
 <body>
-<h1 style="margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 32.0px 'Helvetica Neue'; color: #ffffff; -webkit-text-stroke: #ffffff"><span class="s1"><b>lamiliuq works</b><b></b></span></h1>
-<p class="p2"><span class="s1">Simple tools for everyday work.</span></p>
-<h2 style="margin: 0.0px 0.0px 18.2px 0.0px; font: 22.0px 'Hiragino Sans'; color: #161618; -webkit-text-stroke: #161618"><span class="s2"><b>マルセイ会計</b></span><span class="s3"><b> </b></span><span class="s4"><b>制作中</b><b></b></span></h2>
-<p class="p4"><span class="s5">個人事業主向けのシンプルなスマートフォン会計アプリ。</span></p>
-<p class="p4"><span class="s5">仕訳帳、総勘定元帳、試算表、</span><span class="s6">B/S</span><span class="s5">、</span><span class="s6">P/L</span><span class="s5">を搭載。</span><span class="s7"><br>
-</span><span class="s5">固定資産台帳や消費税申告ヘルパーなど、</span><span class="s6"> </span><span class="s5">実務で必要な機能をスマートフォンで使いやすくまとめています。</span></p>
-<p class="p4"><span class="s5">現在開発中。</span></p>
-<h2 style="margin: 0.0px 0.0px 18.2px 0.0px; font: 22.0px 'Helvetica Neue'; color: #161618; -webkit-text-stroke: #161618"><span class="s5"><b>HardInk</b><b></b></span></h2>
-<p class="p4"><span class="s5">紙とペンの感覚で使える手書きメモアプリ。</span></p>
-<p class="p4"><span class="s5">二本指スワイプによる軽快な操作で、</span><span class="s6"> </span><span class="s5">思考を止めずに書き続けることができます。</span></p>
-<p class="p6"><span class="s8"><a href="https://apps.apple.com/us/app/hardink/id6758379589">View on App Store</a></span></p>
-<p class="p7"><span class="s8">© 2026 lamiliuq works</span></p>
-<p class="p8"><span class="s9">Contact: <a href="mailto:lamiliuq@lamiliuq.com"><span class="s10">lamiliuq@lamiliuq.com</span></a></span></p>
+
+  <h1>lamiliuq works
+    <span class="subtitle">Simple tools for everyday work.</span>
+  </h1>
+
+  <h2>マルセイ会計 <span class="wip">制作中</span></h2>
+  <p>個人事業主向けのシンプルなスマートフォン会計アプリ。</p>
+  <p>仕訳帳、総勘定元帳、試算表、B/S、P/Lを搭載。</p>
+  <p>固定資産台帳や消費税申告ヘルパーなど、実務で必要な機能をスマートフォンで使いやすくまとめています。</p>
+  <p>現在開発中。</p>
+
+  <h2>HardInk</h2>
+  <p>紙とペンの感覚で使える手書きメモアプリ。</p>
+  <p>二本指スワイプによる軽快な操作で、思考を止めずに書き続けることができます。</p>
+
+  <div class="highlight">
+    <a href="https://apps.apple.com/us/app/hardink/id6758379589">View on App Store</a>
+  </div>
+
+  <div class="footer">
+    © 2026 lamiliuq works
+  </div>
+
+  <div class="contact">
+    Contact: <a href="mailto:lamiliuq@lamiliuq.com">lamiliuq@lamiliuq.com</a>
+  </div>
+
 </body>
 </html>

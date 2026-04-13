@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>特定商取引法に基づく表示 — マルセイ会計</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #2E6FD9;
+    --blue-light: #e8f0fc;
+    --bg: #F6F7F9;
+    --white: #ffffff;
+    --gray: #6b7280;
+    --gray-light: #e5e7eb;
+    --text: #1a1a2e;
+    --serif: 'Noto Serif JP', serif;
+    --sans: 'Noto Sans JP', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+
+  header {
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--gray-light);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  header a { text-decoration: none; }
+  .logo { font-family: var(--serif); font-size: 1rem; font-weight: 700; color: var(--blue); }
+  .breadcrumb { font-size: 0.75rem; color: var(--gray); }
+  .breadcrumb span { color: var(--gray-light); margin: 0 6px; }
+
+  main { max-width: 720px; margin: 0 auto; padding: 48px 28px 80px; }
+
+  .page-label { font-size: 0.68rem; font-weight: 500; letter-spacing: 0.2em; color: var(--blue); text-transform: uppercase; margin-bottom: 10px; }
+  .page-title { font-family: var(--serif); font-size: 1.5rem; font-weight: 700; margin-bottom: 36px; line-height: 1.5; }
+
+  .table-wrap {
+    background: var(--white);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    margin-bottom: 24px;
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+
+  tr { border-bottom: 1px solid var(--gray-light); }
+  tr:last-child { border-bottom: none; }
+
+  th {
+    width: 36%;
+    padding: 18px 20px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--blue);
+    background: var(--blue-light);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  td {
+    padding: 18px 20px;
+    font-size: 0.84rem;
+    font-weight: 300;
+    color: #374151;
+    line-height: 1.9;
+    vertical-align: top;
+  }
+
+  .note {
+    font-size: 0.8rem;
+    font-weight: 300;
+    color: var(--gray);
+    line-height: 2;
+    padding: 20px 24px;
+    background: var(--white);
+    border-radius: 12px;
+    border-left: 3px solid var(--gray-light);
+  }
+
+  @media (max-width: 480px) {
+    th, td { display: block; width: 100%; }
+    th { padding: 14px 20px 6px; background: var(--blue-light); }
+    td { padding: 6px 20px 16px; }
+  }
+
+  footer { text-align: center; padding: 32px 28px; color: var(--gray); font-size: 0.75rem; font-weight: 300; }
+  footer a { color: var(--blue); text-decoration: none; margin: 0 8px; }
+</style>
+</head>
+<body>
+<header>
+  <a href="index.html" class="logo">マルセイ会計</a>
+  <span class="breadcrumb"><span>›</span>特定商取引法に基づく表示</span>
+</header>
+
+<main>
+  <p class="page-label">Tokushoho</p>
+  <h1 class="page-title">特定商取引法に基づく表示</h1>
+
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>事業者</th>
+        <td>lamiliuq works きりまる商事<br>代表　きりまる</td>
+      </tr>
+      <tr>
+        <th>住所</th>
+        <td>請求を頂ければ遅滞なく開示いたします</td>
+      </tr>
+      <tr>
+        <th>電話番号</th>
+        <td>請求を頂ければ遅滞なく開示いたします</td>
+      </tr>
+      <tr>
+        <th>メールアドレス</th>
+        <td><a href="mailto:lamiliuq@lamiliuq.com" style="color:var(--blue);">lamiliuq@lamiliuq.com</a></td>
+      </tr>
+      <tr>
+        <th>役務の対価</th>
+        <td>各サービスの申込ページに表示</td>
+      </tr>
+      <tr>
+        <th>対価以外に必要となる費用</th>
+        <td>なし<br><small style="color:var(--gray);font-size:0.78rem;">但し、インターネット接続料金その他の電気通信回線の通信に関する費用及び通信機器はユーザーにて負担して頂きます。</small></td>
+      </tr>
+      <tr>
+        <th>代金の支払方法</th>
+        <td>App Storeによる決済</td>
+      </tr>
+      <tr>
+        <th>代金の支払時期</th>
+        <td>各サービスの申込時に入力したクレジットカードに課金します。</td>
+      </tr>
+      <tr>
+        <th>役務の提供時期</th>
+        <td>即時</td>
+      </tr>
+      <tr>
+        <th>キャンセル（返品・交換／返品特約）</th>
+        <td>申込後のキャンセルはできません。</td>
+      </tr>
+      <tr>
+        <th>対応機種</th>
+        <td>iOS 18.6以上のiPhone</td>
+      </tr>
+    </table>
+  </div>
+
+  <p class="note">※ サブスクリプションの購入・管理・返金はすべてApp Storeの規則に従います。解約はiPhoneの「設定」→「Apple ID」→「サブスクリプション」から行えます。</p>
+</main>
+
+<footer>
+  <a href="index.html">ホーム</a>
+  <a href="privacy.html">プライバシーポリシー</a>
+  <a href="terms.html">利用規約</a>
+  <p style="margin-top:16px;">© 2026 lamiliuq works. All rights reserved.</p>
+</footer>
+</body>
+</html>

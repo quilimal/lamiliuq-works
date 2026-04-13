@@ -91,11 +91,12 @@
     pointer-events: none;
   }
 
-  .hero-bg-logo {
+  .features-bg-logo {
     position: absolute;
-    bottom: -60px;
-    right: -80px;
-    width: min(420px, 90vw);
+    top: 50%;
+    right: -60px;
+    transform: translateY(-50%);
+    width: min(380px, 70vw);
     pointer-events: none;
     user-select: none;
   }
@@ -257,7 +258,7 @@
   }
 
   /* ── FEATURES ── */
-  .features { background: var(--white); }
+  .features { background: var(--white); position: relative; overflow: hidden; }
 
   .feature-item {
     padding: 40px 0;
@@ -736,7 +737,6 @@
 
 <!-- HERO -->
 <section class="hero">
-  <img src="logo_bg.png" alt="" class="hero-bg-logo" aria-hidden="true">
   <div class="hero-content">
     <p class="hero-label">個人事業主のための青色申告アプリ</p>
     <h1 class="hero-title">
@@ -763,6 +763,7 @@
 
 <!-- FEATURES -->
 <section class="features">
+  <img src="logo_bg.png" alt="" class="features-bg-logo" aria-hidden="true">
   <p class="section-label">Features</p>
   <div class="features-grid">
 

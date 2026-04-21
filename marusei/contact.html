@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>お問い合わせ — マルセイ会計</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #2E6FD9;
+    --blue-dark: #1a4fa8;
+    --blue-light: #e8f0fc;
+    --bg: #F6F7F9;
+    --white: #ffffff;
+    --gray: #6b7280;
+    --gray-light: #e5e7eb;
+    --text: #1a1a2e;
+    --serif: 'Noto Serif JP', serif;
+    --sans: 'Noto Sans JP', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.8; -webkit-font-smoothing: antialiased; }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--gray-light);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  header a { text-decoration: none; }
+  .logo { font-family: var(--serif); font-size: 1rem; font-weight: 700; color: var(--blue); }
+  .breadcrumb { font-size: 0.75rem; color: var(--gray); }
+  .breadcrumb span { color: var(--gray-light); margin: 0 6px; }
+
+  main { max-width: 640px; margin: 0 auto; padding: 52px 28px 80px; }
+
+  .page-label {
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    color: var(--blue);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .page-title {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .page-intro {
+    font-size: 0.86rem;
+    font-weight: 300;
+    color: var(--gray);
+    line-height: 2;
+    margin-bottom: 36px;
+  }
+
+  /* ── NOTICE BOXES ── */
+  .notice {
+    background: var(--blue-light);
+    border-left: 3px solid var(--blue);
+    border-radius: 0 10px 10px 0;
+    padding: 16px 20px;
+    margin-bottom: 32px;
+    font-size: 0.83rem;
+    font-weight: 300;
+    color: #1e3a5f;
+    line-height: 1.9;
+  }
+  .notice strong { font-weight: 500; }
+
+  /* ── FORM CARD ── */
+  .form-card {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 36px 32px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    margin-bottom: 24px;
+  }
+
+  .field { margin-bottom: 24px; }
+
+  .field label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--gray);
+    margin-bottom: 8px;
+    letter-spacing: 0.04em;
+  }
+
+  .field label .required {
+    color: var(--blue);
+    margin-left: 4px;
+    font-size: 0.7rem;
+  }
+
+  .field select,
+  .field input,
+  .field textarea {
+    width: 100%;
+    font-family: var(--sans);
+    font-size: 0.92rem;
+    font-weight: 300;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--gray-light);
+    border-radius: 10px;
+    padding: 12px 16px;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .field select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 40px;
+    cursor: pointer;
+  }
+
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(46,111,217,0.1);
+    background: var(--white);
+  }
+
+  .field textarea {
+    resize: vertical;
+    min-height: 160px;
+    line-height: 1.8;
+  }
+
+  /* ── SEND BUTTON ── */
+  .send-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    background: var(--blue);
+    color: var(--white);
+    font-family: var(--sans);
+    font-size: 0.95rem;
+    font-weight: 500;
+    padding: 16px 28px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: background 0.2s, transform 0.15s;
+    box-shadow: 0 6px 20px rgba(46,111,217,0.25);
+  }
+  .send-btn:hover {
+    background: var(--blue-dark);
+    transform: translateY(-2px);
+  }
+  .send-btn svg { width: 18px; height: 18px; }
+
+  /* ── DIRECT MAIL ── */
+  .direct-mail {
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: 300;
+    color: var(--gray);
+    margin-top: 16px;
+  }
+  .direct-mail a {
+    color: var(--blue);
+    text-decoration: none;
+    border-bottom: 1px solid var(--blue-light);
+  }
+  .direct-mail a:hover { border-color: var(--blue); }
+
+  footer {
+    text-align: center;
+    padding: 32px 28px;
+    color: var(--gray);
+    font-size: 0.75rem;
+    font-weight: 300;
+  }
+  footer a { color: var(--blue); text-decoration: none; margin: 0 8px; }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="logo">マルセイ会計</a>
+  <span class="breadcrumb"><span>›</span>お問い合わせ</span>
+</header>
+
+<main>
+  <p class="page-label">Contact</p>
+  <h1 class="page-title">お問い合わせ</h1>
+  <p class="page-intro">
+    バグの報告・ご意見・ご要望はこちらからどうぞ。<br>
+    内容を確認のうえ、対応できる範囲でご返信します。
+  </p>
+
+  <div class="notice">
+    <strong>ご注意：</strong>税務・仕訳の相談には対応できません。また、ひとりで開発しているため、返信にお時間をいただく場合があります。あらかじめご了承ください。
+  </div>
+
+  <div class="form-card">
+    <div class="field">
+      <label for="category">お問い合わせの種類<span class="required">必須</span></label>
+      <select id="category">
+        <option value="" disabled selected>選択してください</option>
+        <option value="bug">バグ・不具合の報告</option>
+        <option value="feature">ご要望・機能の提案</option>
+        <option value="subscription">サブスクリプションについて</option>
+        <option value="other">その他</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="email">返信先メールアドレス<span class="required">必須</span></label>
+      <input type="email" id="email" placeholder="example@email.com" autocomplete="email">
+    </div>
+
+    <div class="field">
+      <label for="body">お問い合わせ内容<span class="required">必須</span></label>
+      <textarea id="body" placeholder="できるだけ詳しく教えていただけると助かります。&#10;（バグの場合：操作手順、発生した状況など）"></textarea>
+    </div>
+
+    <button class="send-btn" onclick="sendMail()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+      </svg>
+      メーラーで送信する
+    </button>
+  </div>
+
+  <p class="direct-mail">
+    直接メールで送る場合：<a href="mailto:lamiliuq@lamiliuq.com">lamiliuq@lamiliuq.com</a>
+  </p>
+</main>
+
+<footer>
+  <a href="index.html">ホーム</a>
+  <a href="privacy.html">プライバシーポリシー</a>
+  <a href="terms.html">利用規約</a>
+  <a href="tokushoho.html">特定商取引法に基づく表示</a>
+  <p style="margin-top:16px;">© 2026 lamiliuq works. All rights reserved.</p>
+</footer>
+
+<script>
+  function sendMail() {
+    const category = document.getElementById('category');
+    const email    = document.getElementById('email').value.trim();
+    const body     = document.getElementById('body').value.trim();
+
+    if (!category.value) {
+      alert('お問い合わせの種類を選択してください。');
+      return;
+    }
+    if (!email) {
+      alert('返信先メールアドレスを入力してください。');
+      return;
+    }
+    if (!body) {
+      alert('お問い合わせ内容を入力してください。');
+      return;
+    }
+
+    const categoryLabel = category.options[category.selectedIndex].text;
+    const subject = encodeURIComponent('【マルセイ会計】' + categoryLabel);
+    const mailBody = encodeURIComponent(
+      '【種類】' + categoryLabel + '\n' +
+      '【返信先】' + email + '\n\n' +
+      '【内容】\n' + body + '\n\n' +
+      '---\nマルセイ会計 お問い合わせフォームより'
+    );
+
+    window.location.href =
+      'mailto:lamiliuq@lamiliuq.com?subject=' + subject + '&body=' + mailBody;
+  }
+</script>
+</body>
+</html>

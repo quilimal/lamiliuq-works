@@ -13,9 +13,7 @@
 <body>
 <h2>マルセイミニレジ 署名検証デバッグ</h2>
 <p>URLの # 以降にQRのBase64urlを貼り付けてアクセスしてください。</p>
-
 <div id="out"></div>
-
 <script>
 (function(){
   function b64decode(s){
@@ -25,6 +23,7 @@
     for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);
     return new TextDecoder('utf-8').decode(u);
   }
+
   function b64toAb(s){
     s=s.replace(/-/g,'+').replace(/_/g,'/');
     while(s.length%4)s+='=';
@@ -37,7 +36,7 @@
     if(Array.isArray(obj)) return obj.map(sortKeysRecursive);
     if(obj!==null&&typeof obj==='object'){
       const s={};
-      Object.keys(obj).sort().forEach(k=>{s[k]=sortKeysRecursive(obj[k]);});
+      Object.keys(obj).sort().forEach(function(k){ s[k]=sortKeysRecursive(obj[k]); });
       return s;
     }
     return obj;
@@ -51,17 +50,25 @@
         return '\\u'+('0000'+c.charCodeAt(0).toString(16)).slice(-4);
       });
   }
-  }
 
   async function main(){
     const hash=location.hash.slice(1);
-    if(!hash){ document.getElementById('out').innerHTML='<p>URLに#以降がありません</p>'; return; }
+    if(!hash){
+      document.getElementById('out').innerHTML='<p>URLに#以降がありません</p>';
+      return;
+    }
 
-    const jsonStr=b64decode(hash);
-    const d=JSON.parse(jsonStr);
+    let d;
+    try{
+      d=JSON.parse(b64decode(hash));
+    }catch(e){
+      document.getElementById('out').innerHTML='<p>JSONパースエラー: '+e.message+'</p>';
+      return;
+    }
 
     const clone=Object.assign({},d);
-    delete clone.sig; delete clone.pub;
+    delete clone.sig;
+    delete clone.pub;
     const sortedClone=sortKeysRecursive(clone);
     const msgStr=toSwiftJSON(sortedClone);
     const msgBytes=new TextEncoder().encode(msgStr);
@@ -80,25 +87,16 @@
       }
     }
 
-    document.getElementById('out').innerHTML=`
-      <h3>デコードされたJSON（生）</h3>
-      <pre>${jsonStr}</pre>
-
-      <h3>署名対象JSON（sig・pub除去・ソート・Unicodeエスケープ）</h3>
-      <pre>${msgStr}</pre>
-
-      <h3>pub（公開鍵）</h3>
-      <pre>${d.pub||'なし'}</pre>
-
-      <h3>sig（署名）</h3>
-      <pre>${d.sig||'なし'}</pre>
-
-      <h3>検証結果</h3>
-      <pre class="${ok===true?'ok':'ng'}">${verifyResult}</pre>
-
-      <h3>msgBytes（署名対象バイト列 先頭50バイト）</h3>
-      <pre>${Array.from(msgBytes.slice(0,50)).map(b=>b.toString(16).padStart(2,'0')).join(' ')}</pre>
-    `;
+    const raw=b64decode(hash);
+    document.getElementById('out').innerHTML=
+      '<h3>デコードされたJSON（生）</h3><pre>'+raw+'</pre>'+
+      '<h3>署名対象JSON（sig・pub除去・ソート・エスケープ）</h3><pre>'+msgStr+'</pre>'+
+      '<h3>pub（公開鍵）</h3><pre>'+(d.pub||'なし')+'</pre>'+
+      '<h3>sig（署名）</h3><pre>'+(d.sig||'なし')+'</pre>'+
+      '<h3>検証結果</h3><pre class="'+(ok===true?'ok':'ng')+'">'+verifyResult+'</pre>'+
+      '<h3>msgBytes先頭50バイト</h3><pre>'+
+        Array.from(msgBytes.slice(0,50)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join(' ')+
+      '</pre>';
   }
 
   if(document.readyState==='loading'){
@@ -108,4 +106,3 @@
 </script>
 </body>
 </html>
-HTMLEOF

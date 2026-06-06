@@ -137,6 +137,14 @@
       return new TextDecoder('utf-8').decode(u);
     }
 
+    function b64toAb(s){
+      s=s.replace(/-/g,'+').replace(/_/g,'/');
+      while(s.length%4)s+='=';
+      const b=atob(s),u=new Uint8Array(b.length);
+      for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);
+      return u.buffer;
+    }
+
     function fmt(n){
       return '\u00a5\u00a0'+Math.abs(n).toLocaleString('ja-JP');
     }
@@ -262,59 +270,18 @@
     }
 
     // ── Ed25519署名検証（Web Crypto API）──
-    async function verifySig(d) {
-      if (!d.sig || !d.pub) return null;  // 署名なし = 検証スキップ
+    // 新フォーマット: outer={p,s,k} 署名対象=outer.pのUTF-8バイト列
+    async function verifySig(outer) {
+      if (!outer.s || !outer.k || !outer.p) return null;
       try {
-        // Base64url → ArrayBuffer
-        function b64toAb(s) {
-          s = s.replace(/-/g,'+').replace(/_/g,'/');
-          while(s.length%4) s+='=';
-          const b = atob(s), u = new Uint8Array(b.length);
-          for(let i=0;i<b.length;i++) u[i]=b.charCodeAt(i);
-          return u.buffer;
-        }
-        // sig・pubを除いたJSONを再構築（Swift JSONSerialization .sortedKeys準拠）
-        const clone = Object.assign({}, d);
-        delete clone.sig; delete clone.pub;
-
-        // Swiftと同じUnicodeエスケープ形式で再現する関数
-        function toSwiftJSON(obj) {
-          const raw = JSON.stringify(obj, null, 0);
-          // Swift JSONSerializationの2つのデフォルトエスケープを再現:
-          // 1. / → \/  (スラッシュエスケープ)
-          // 2. 非ASCII → \uXXXX (Unicodeエスケープ)
-          return raw
-            .replace(/\//g, '\\/')
-            .replace(/[\u0080-\uFFFF]/g, function(c) {
-              return '\\u' + ('0000' + c.charCodeAt(0).toString(16)).slice(-4);
-            });
-        }
-
-        // トップレベルのキーをアルファベット順にソート（再帰的）
-        function sortKeysRecursive(obj) {
-          if (Array.isArray(obj)) return obj.map(sortKeysRecursive);
-          if (obj !== null && typeof obj === 'object') {
-            const sorted = {};
-            Object.keys(obj).sort().forEach(k => { sorted[k] = sortKeysRecursive(obj[k]); });
-            return sorted;
-          }
-          return obj;
-        }
-
-        const sortedClone = sortKeysRecursive(clone);
-        const msgStr = toSwiftJSON(sortedClone);
-        const msgBytes = new TextEncoder().encode(msgStr);
-
+        const msgBytes = new TextEncoder().encode(outer.p);
         const pubKey = await crypto.subtle.importKey(
-          'raw', b64toAb(d.pub),
-          { name: 'Ed25519' }, false, ['verify']
+          'raw', b64toAb(outer.k), {name:'Ed25519'}, false, ['verify']
         );
-        const ok = await crypto.subtle.verify(
-          'Ed25519', pubKey, b64toAb(d.sig), msgBytes
-        );
-        return { ok, pub: d.pub };
+        const ok = await crypto.subtle.verify('Ed25519', pubKey, b64toAb(outer.s), msgBytes);
+        return { ok, pub: outer.k };
       } catch(e) {
-        return { ok: false, pub: d.pub };
+        return { ok: false, pub: (outer.k||'') };
       }
     }
 
@@ -337,23 +304,37 @@
         showError('QRコードのURLが正しくありません。<br>マルセイミニレジから発行されたQRコードをお使いください。');
         return;
       }
-      let d;
-      try{ d=JSON.parse(b64decode(hash)); }
+      let outer, d;
+      try{ outer=JSON.parse(b64decode(hash)); }
       catch(e){
         showError('データの読み取りに失敗しました。<br>QRコードが破損している可能性があります。');
         return;
       }
+
+      // フォーマット判定: 新={p,s,k} 旧={v,...}
+      const isNew = outer.p && outer.s && outer.k;
+      if(isNew){
+        try{ d=JSON.parse(b64decode(outer.p)); }
+        catch(e){
+          showError('ペイロードの読み取りに失敗しました。');
+          return;
+        }
+      } else {
+        d = outer;
+      }
+
       if(d.v!=='1'){
         showError('対応していない形式です（v'+esc(d.v||'?')+'）。<br>アプリを最新版にアップデートしてください。');
         return;
       }
-      // まず署名なしで表示（即時）
+
+      // 表示（即時）
       document.getElementById('main').innerHTML=
         d.overflow===true ? buildRyoshucho(d,'') : buildReceipt(d,'');
       document.title=esc(d.shop||'マルセイミニレジ')+' 電子レシート';
 
       // 署名検証（非同期・完了後に差し込む）
-      const sigResult = await verifySig(d);
+      const sigResult = isNew ? await verifySig(outer) : null;
       if(sigResult !== null) {
         const noticeEls = document.querySelectorAll('.sec:last-child');
         if(noticeEls.length > 0) {

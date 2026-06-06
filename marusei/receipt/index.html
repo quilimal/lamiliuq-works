@@ -9,115 +9,110 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --main-blue:  #1a6fba;
-      --text-black: #111111;
-      --text-gray:  #666666;
-      --text-light: #999999;
-      --border:     #dddddd;
-      --bg:         #f5f5f5;
-      --card-bg:    #ffffff;
-      --warn-bg:    #fff8e1;
-      --warn-fg:    #b45309;
-      --error-bg:   #fff0f0;
-      --error-fg:   #cc0000;
-      --font:       'Noto Sans Mono', 'Courier New', 'Osaka-Mono', monospace;
-      --w:          360px;
+      --blue:    #1a6fba;
+      --black:   #111111;
+      --gray:    #666666;
+      --light:   #999999;
+      --border:  #dddddd;
+      --bg:      #f5f5f5;
+      --card:    #ffffff;
+      --warn-bg: #fff8e1;
+      --warn-fg: #b45309;
+      --err-bg:  #fff0f0;
+      --err-fg:  #cc0000;
+      --font:    'Noto Sans Mono','Courier New','Osaka-Mono',monospace;
+      --w:       360px;
     }
-
     body {
       font-family: var(--font);
-      background:  var(--bg);
-      color:       var(--text-black);
-      min-height:  100vh;
-      display:     flex;
+      background: var(--bg);
+      color: var(--black);
+      min-height: 100vh;
+      display: flex;
       flex-direction: column;
       align-items: center;
-      padding:     24px 16px 48px;
+      padding: 24px 16px 48px;
     }
-
     .site-header {
-      width: 100%;
-      max-width: var(--w);
-      text-align: center;
-      margin-bottom: 20px;
-      font-size: 12px;
-      color: var(--text-light);
+      width: 100%; max-width: var(--w);
+      text-align: center; margin-bottom: 20px;
+      font-size: 12px; color: var(--light);
     }
-
-    /* カード */
     .card {
-      width: 100%;
-      max-width: var(--w);
-      background: var(--card-bg);
+      width: 100%; max-width: var(--w);
+      background: var(--card);
       border-radius: 12px;
       box-shadow: 0 2px 12px rgba(0,0,0,0.08);
       overflow: hidden;
     }
-
     .sec {
-      padding: 16px 20px;
+      padding: 14px 20px;
       border-bottom: 1px solid var(--border);
     }
     .sec:last-child { border-bottom: none; }
 
-    /* ショップヘッダー */
+    /* ── ショップヘッダー ── */
     .shop-name    { font-size: 18px; font-weight: 700; text-align: center; margin-bottom: 4px; }
-    .shop-invoice { font-size: 11px; color: var(--text-gray); text-align: center; margin-bottom: 2px; }
-    .rec-meta     { font-size: 12px; color: var(--text-gray); text-align: center; }
-    .rec-no       { font-size: 11px; color: var(--text-light); text-align: center; margin-top: 2px; }
+    .shop-invoice { font-size: 11px; color: var(--gray); text-align: center; margin-bottom: 2px; }
+    .shop-zip     { font-size: 12px; color: var(--gray); text-align: center; margin-bottom: 1px; }
+    .shop-addr    { font-size: 12px; color: var(--gray); text-align: center; margin-bottom: 1px; }
+    .shop-tel     { font-size: 12px; color: var(--gray); text-align: center; margin-bottom: 1px; }
+    .shop-url     { font-size: 11px; color: var(--blue);  text-align: center; margin-bottom: 1px; }
+    .shop-note-top{ font-size: 11px; color: var(--gray); text-align: center; margin-top: 4px; }
 
-    /* 明細テーブル */
+    /* ── 日時・ID ── */
+    .rec-meta { font-size: 12px; color: var(--gray); text-align: center; }
+    .rec-no   { font-size: 11px; color: var(--light); text-align: center; margin-top: 2px; }
+
+    /* ── 明細テーブル ── */
     .tbl { width: 100%; border-collapse: collapse; }
     .tbl td { padding: 4px 0; font-size: 14px; vertical-align: top; }
     .td-name  { text-align: left; }
-    .td-qty   { text-align: center; color: var(--text-gray); font-size: 12px; width: 36px; }
+    .td-qty   { text-align: center; color: var(--gray); font-size: 12px; width: 36px; }
     .td-price { text-align: right; white-space: nowrap; }
     .td-price.minus { color: #cc6600; }
-
     .tbl tfoot tr.total td {
-      font-size: 17px;
-      font-weight: 700;
+      font-size: 17px; font-weight: 700;
       padding-top: 10px;
       border-top: 1px solid var(--border);
     }
 
-    /* 税区分内訳 */
-    .tax-row td { font-size: 11px; color: var(--text-gray); padding: 2px 0; }
-    .tax-indent { padding-left: 12px !important; }
+    /* ── 税区分 ── */
+    .tax-row td    { font-size: 11px; color: var(--gray); padding: 2px 0; }
+    .tax-indent    { padding-left: 12px !important; }
 
-    /* 領収書ゾーン */
+    /* ── 自由表記（下） ── */
+    .note-bottom { font-size: 11px; color: var(--gray); text-align: center; }
+
+    /* ── 領収書 ── */
     .ryoshucho { text-align: center; }
-    .ryo-title  { font-size: 16px; font-weight: 700; letter-spacing: 0.3em; margin-bottom: 10px; }
-    .ryo-atena  { font-size: 15px; margin-bottom: 6px; }
-    .ryo-total  { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
-    .ryo-tadashi{ font-size: 13px; color: var(--text-gray); }
+    .ryo-title   { font-size: 16px; font-weight: 700; letter-spacing: 0.3em; margin-bottom: 10px; }
+    .ryo-atena   { font-size: 15px; margin-bottom: 6px; }
+    .ryo-total   { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+    .ryo-tadashi { font-size: 13px; color: var(--gray); }
 
-    /* 注意文 */
+    /* ── 注意文 ── */
     .notice {
-      font-size: 11px;
-      color: var(--warn-fg);
-      background: var(--warn-bg);
-      padding: 10px 14px;
-      border-radius: 6px;
-      line-height: 1.7;
+      font-size: 11px; color: var(--warn-fg); background: var(--warn-bg);
+      padding: 10px 14px; border-radius: 6px; line-height: 1.7;
     }
     .notice + .notice { margin-top: 8px; }
 
-    /* エラー */
+    /* ── エラー ── */
     .error-card {
-      width: 100%;
-      max-width: var(--w);
-      background: var(--error-bg);
-      border-radius: 12px;
-      padding: 24px 20px;
-      text-align: center;
+      width: 100%; max-width: var(--w);
+      background: var(--err-bg); border-radius: 12px;
+      padding: 24px 20px; text-align: center;
     }
-    .error-card h2 { font-size: 16px; color: var(--error-fg); margin-bottom: 8px; }
-    .error-card p  { font-size: 13px; color: var(--text-gray); line-height: 1.6; }
+    .error-card h2 { font-size: 16px; color: var(--err-fg); margin-bottom: 8px; }
+    .error-card p  { font-size: 13px; color: var(--gray); line-height: 1.6; }
+    #loading { font-size: 14px; color: var(--gray); padding: 40px; }
 
-    #loading { font-size: 14px; color: var(--text-gray); padding: 40px; }
+    /* 署名検証 */
+    .sig-ok  { font-size:11px; color:#16a34a; background:#f0fdf4; padding:8px 12px; border-radius:6px; margin-bottom:8px; }
+    .sig-ng  { font-size:11px; color:#dc2626; background:#fef2f2; padding:8px 12px; border-radius:6px; margin-bottom:8px; }
+    .sig-pub { font-size:10px; color:var(--light); word-break:break-all; margin-top:4px; }
 
     @media (max-width: 400px) {
       .shop-name { font-size: 16px; }
@@ -127,97 +122,97 @@
   </style>
 </head>
 <body>
-
   <header class="site-header">マルセイミニレジ</header>
-
-  <main id="main">
-    <div id="loading">読み込み中...</div>
-  </main>
+  <main id="main"><div id="loading">読み込み中...</div></main>
 
   <script>
-  (function() {
+  (function(){
     'use strict';
 
-    // Base64url デコード
-    function b64decode(str) {
-      str = str.replace(/-/g, '+').replace(/_/g, '/');
-      while (str.length % 4 !== 0) str += '=';
-      const bin = atob(str);
-      const bytes = new Uint8Array(bin.length);
-      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-      return new TextDecoder('utf-8').decode(bytes);
+    function b64decode(s){
+      s=s.replace(/-/g,'+').replace(/_/g,'/');
+      while(s.length%4)s+='=';
+      const b=atob(s),u=new Uint8Array(b.length);
+      for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);
+      return new TextDecoder('utf-8').decode(u);
     }
 
-    // 金額フォーマット
-    function fmt(n, minus) {
-      const prefix = minus ? '-\u00a5\u00a0' : '\u00a5\u00a0';
-      return prefix + Math.abs(n).toLocaleString('ja-JP');
+    function fmt(n){
+      return '\u00a5\u00a0'+Math.abs(n).toLocaleString('ja-JP');
     }
 
-    // 日付フォーマット "2026-06-06" → "2026年6月6日"
-    function fmtDate(s) {
-      const m = (s || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
-      return m ? m[1] + '年' + parseInt(m[2]) + '月' + parseInt(m[3]) + '日' : (s || '');
+    function fmtDate(s){
+      const m=(s||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      return m?m[1]+'年'+parseInt(m[2])+'月'+parseInt(m[3])+'日':(s||'');
     }
 
-    // HTMLエスケープ
-    function esc(s) {
-      return String(s)
-        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    function esc(s){
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
         .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    // エラー表示
-    function showError(msg) {
-      document.getElementById('main').innerHTML =
+    function showError(msg){
+      document.getElementById('main').innerHTML=
         `<div class="error-card"><h2>⚠️ 読み取りエラー</h2><p>${msg}</p></div>`;
     }
 
-    // レシート形式（明細あり・25件以下）
-    function buildReceipt(d) {
-      const items = d.items || [];
+    // ショップヘッダーHTML生成
+    function shopHeader(d){
+      let h='';
+      h+=`<div class="shop-name">${esc(d.shop||'')}</div>`;
+      if(d.invoice) h+=`<div class="shop-invoice">${esc(d.invoice)}</div>`;
+      if(d.zip)     h+=`<div class="shop-zip">\u3012${esc(d.zip)}</div>`;
+      if(d.addr){
+        for(const a of d.addr){
+          if(a) h+=`<div class="shop-addr">${esc(a)}</div>`;
+        }
+      }
+      if(d.tel) h+=`<div class="shop-tel">TEL ${esc(d.tel)}</div>`;
+      if(d.url) h+=`<div class="shop-url">${esc(d.url)}</div>`;
+      if(d.ntop) h+=`<div class="shop-note-top">${esc(d.ntop)}</div>`;
+      return h;
+    }
 
-      // ショップヘッダー
-      const invoiceLine = d.invoice
-        ? `<div class="shop-invoice">${esc(d.invoice)}</div>` : '';
-
-      // 明細行
-      let rows = '';
-      for (const item of items) {
-        const qty = item.q || 1;
-        rows += `<tr>
-          <td class="td-name">${esc(item.n || '')}</td>
-          <td class="td-qty">${qty > 1 ? '&times;' + qty : ''}</td>
-          <td class="td-price">${fmt(item.p || 0)}</td>
+    // レシート形式（明細あり）
+    function buildReceipt(d, sigHtmlStr){
+      const items=d.items||[];
+      let rows='';
+      for(const item of items){
+        const qty=item.q||1;
+        rows+=`<tr>
+          <td class="td-name">${esc(item.n||'')}</td>
+          <td class="td-qty">${qty>1?'&times;'+qty:''}</td>
+          <td class="td-price">${fmt(item.p||0)}</td>
         </tr>`;
       }
 
-      // 税区分内訳（課税事業者のみ）
-      let taxRows = '';
-      if (d.tax && d.tax.length > 0) {
-        for (const t of d.tax) {
-          taxRows += `<tr class="tax-row">
+      // 税区分
+      let taxRows='';
+      if(d.tax&&d.tax.length){
+        for(const t of d.tax){
+          taxRows+=`<tr class="tax-row">
             <td class="td-name">${esc(t.r)}%対象</td>
             <td class="td-qty"></td>
             <td class="td-price">${fmt(t.t)}</td>
-          </tr>
-          <tr class="tax-row">
+          </tr><tr class="tax-row">
             <td class="td-name tax-indent">消費税</td>
             <td class="td-qty"></td>
             <td class="td-price">${fmt(t.x)}</td>
           </tr>`;
         }
       }
+      const taxSec=taxRows
+        ?`<div class="sec"><table class="tbl"><tbody>${taxRows}</tbody></table></div>`:'';
 
-      const taxSection = taxRows
-        ? `<div class="sec"><table class="tbl"><tbody>${taxRows}</tbody></table></div>` : '';
+      // 自由表記（下）
+      const noteBtm=d.nbtm
+        ?`<div class="sec"><div class="note-bottom">${esc(d.nbtm)}</div></div>`:'';
 
       return `<div class="card">
+        <div class="sec">${shopHeader(d)}</div>
         <div class="sec">
-          <div class="shop-name">${esc(d.shop || '')}</div>
-          ${invoiceLine}
           <div class="rec-meta">${fmtDate(d.date)}</div>
-          <div class="rec-no">No. ${esc(d.no || '')}</div>
+          <div class="rec-no">No. ${esc(d.no||'')}</div>
         </div>
         <div class="sec">
           <table class="tbl">
@@ -225,83 +220,128 @@
             <tfoot>
               <tr class="total">
                 <td class="td-name" colspan="2">合　計</td>
-                <td class="td-price">${fmt(d.total || 0)}</td>
+                <td class="td-price">${fmt(d.total||0)}</td>
               </tr>
             </tfoot>
           </table>
         </div>
-        ${taxSection}
+        ${taxSec}
+        ${noteBtm}
         <div class="sec">
-          <div class="notice">
-            ⚠️ 本レシートはサーバーに記録されておりません。スクリーンショットをお忘れないようお願いいたします。
-          </div>
+          <div class="notice">⚠️ 本レシートはサーバーに記録されておりません。スクリーンショットをお忘れないようお願いいたします。</div>
         </div>
       </div>`;
     }
 
-    // 領収書形式（明細なし・26件以上）
-    function buildRyoshucho(d) {
-      const atena   = d.atena   || '上様';
-      const tadashi = d.tadashi || '商品代として';
+    // 領収書形式（明細なし）
+    function buildRyoshucho(d, sigHtmlStr){
+      const atena=d.atena||'上様';
+      const tadashi=d.tadashi||'商品代として';
 
-      const invoiceLine = d.invoice
-        ? `<div class="shop-invoice">${esc(d.invoice)}</div>` : '';
+      const noteBtm=d.nbtm
+        ?`<div class="sec"><div class="note-bottom">${esc(d.nbtm)}</div></div>`:'';
 
       return `<div class="card">
+        <div class="sec">${shopHeader(d)}</div>
         <div class="sec">
-          <div class="shop-name">${esc(d.shop || '')}</div>
-          ${invoiceLine}
           <div class="rec-meta">${fmtDate(d.date)}</div>
-          <div class="rec-no">No. ${esc(d.no || '')}</div>
+          <div class="rec-no">No. ${esc(d.no||'')}</div>
         </div>
         <div class="sec ryoshucho">
           <div class="ryo-title">領 収 書</div>
           <div class="ryo-atena">${esc(atena)}</div>
-          <div class="ryo-total">${fmt(d.total || 0)}</div>
+          <div class="ryo-total">${fmt(d.total||0)}</div>
           <div class="ryo-tadashi">${esc(tadashi)}</div>
         </div>
+        ${noteBtm}
         <div class="sec">
-          <div class="notice">
-            ⚠️ 品目数が多いため明細を含められません。明細は別途ご確認ください。
-          </div>
-          <div class="notice">
-            ⚠️ 本レシートはサーバーに記録されておりません。スクリーンショットをお忘れないようお願いいたします。
-          </div>
+          <div class="notice">⚠️ 品目数が多いため明細を含められません。明細は別途ご確認ください。</div>
+          <div class="notice">⚠️ 本レシートはサーバーに記録されておりません。スクリーンショットをお忘れないようお願いいたします。</div>
         </div>
       </div>`;
     }
 
-    // メイン
-    function main() {
-      const hash = location.hash.slice(1);
-      if (!hash) {
+    // ── Ed25519署名検証（Web Crypto API）──
+    async function verifySig(d) {
+      if (!d.sig || !d.pub) return null;  // 署名なし = 検証スキップ
+      try {
+        // Base64url → ArrayBuffer
+        function b64toAb(s) {
+          s = s.replace(/-/g,'+').replace(/_/g,'/');
+          while(s.length%4) s+='=';
+          const b = atob(s), u = new Uint8Array(b.length);
+          for(let i=0;i<b.length;i++) u[i]=b.charCodeAt(i);
+          return u.buffer;
+        }
+        // sig・pubを除いたJSONを再構築（sortedKeys相当）
+        const clone = Object.assign({}, d);
+        delete clone.sig; delete clone.pub;
+        const keys = Object.keys(clone).sort();
+        const sorted = {};
+        for(const k of keys) sorted[k] = clone[k];
+        const msgBytes = new TextEncoder().encode(JSON.stringify(sorted));
+
+        const pubKey = await crypto.subtle.importKey(
+          'raw', b64toAb(d.pub),
+          { name: 'Ed25519' }, false, ['verify']
+        );
+        const ok = await crypto.subtle.verify(
+          'Ed25519', pubKey, b64toAb(d.sig), msgBytes
+        );
+        return { ok, pub: d.pub };
+      } catch(e) {
+        return { ok: false, pub: d.pub };
+      }
+    }
+
+    function sigHTML(result) {
+      if (!result) return '';
+      if (result.ok) {
+        return `<div class="sig-ok">✅ このレシートは改竄されていません
+          <div class="sig-pub">検証用公開鍵: ${esc(result.pub)}</div>
+        </div>`;
+      } else {
+        return `<div class="sig-ng">❌ 署名が一致しません。このレシートは改竄されている可能性があります。
+          <div class="sig-pub">検証用公開鍵: ${esc(result.pub)}</div>
+        </div>`;
+      }
+    }
+
+    async function main(){
+      const hash=location.hash.slice(1);
+      if(!hash){
         showError('QRコードのURLが正しくありません。<br>マルセイミニレジから発行されたQRコードをお使いください。');
         return;
       }
-
       let d;
-      try {
-        d = JSON.parse(b64decode(hash));
-      } catch (e) {
+      try{ d=JSON.parse(b64decode(hash)); }
+      catch(e){
         showError('データの読み取りに失敗しました。<br>QRコードが破損している可能性があります。');
         return;
       }
-
-      if (d.v !== '1') {
-        showError('対応していない形式です（v' + esc(d.v || '?') + '）。<br>アプリを最新版にアップデートしてください。');
+      if(d.v!=='1'){
+        showError('対応していない形式です（v'+esc(d.v||'?')+'）。<br>アプリを最新版にアップデートしてください。');
         return;
       }
+      // まず署名なしで表示（即時）
+      document.getElementById('main').innerHTML=
+        d.overflow===true ? buildRyoshucho(d,'') : buildReceipt(d,'');
+      document.title=esc(d.shop||'マルセイミニレジ')+' 電子レシート';
 
-      document.getElementById('main').innerHTML =
-        d.overflow === true ? buildRyoshucho(d) : buildReceipt(d);
-      document.title = esc(d.shop || 'マルセイミニレジ') + ' 電子レシート';
+      // 署名検証（非同期・完了後に差し込む）
+      const sigResult = await verifySig(d);
+      if(sigResult !== null) {
+        const noticeEls = document.querySelectorAll('.sec:last-child');
+        if(noticeEls.length > 0) {
+          const last = noticeEls[noticeEls.length-1];
+          last.insertAdjacentHTML('afterbegin', sigHTML(sigResult));
+        }
+      }
     }
 
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', main);
-    } else {
-      main();
-    }
+    if(document.readyState==='loading'){
+      document.addEventListener('DOMContentLoaded',main);
+    } else { main(); }
   })();
   </script>
 </body>

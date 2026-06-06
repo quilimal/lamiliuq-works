@@ -273,13 +273,34 @@
           for(let i=0;i<b.length;i++) u[i]=b.charCodeAt(i);
           return u.buffer;
         }
-        // sig・pubを除いたJSONを再構築（sortedKeys相当）
+        // sig・pubを除いたJSONを再構築（Swift JSONSerialization .sortedKeys準拠）
         const clone = Object.assign({}, d);
         delete clone.sig; delete clone.pub;
-        const keys = Object.keys(clone).sort();
-        const sorted = {};
-        for(const k of keys) sorted[k] = clone[k];
-        const msgBytes = new TextEncoder().encode(JSON.stringify(sorted));
+
+        // Swiftと同じUnicodeエスケープ形式で再現する関数
+        function toSwiftJSON(obj) {
+          // JSON.stringifyのreplacerで非ASCII文字をSwift準拠の\uXXXXに変換
+          const raw = JSON.stringify(obj, null, 0);
+          // 非ASCII文字を \uXXXX に変換（Swiftのデフォルト動作）
+          return raw.replace(/[\u0080-\uFFFF]/g, function(c) {
+            return '\\u' + ('0000' + c.charCodeAt(0).toString(16)).slice(-4);
+          });
+        }
+
+        // トップレベルのキーをアルファベット順にソート（再帰的）
+        function sortKeysRecursive(obj) {
+          if (Array.isArray(obj)) return obj.map(sortKeysRecursive);
+          if (obj !== null && typeof obj === 'object') {
+            const sorted = {};
+            Object.keys(obj).sort().forEach(k => { sorted[k] = sortKeysRecursive(obj[k]); });
+            return sorted;
+          }
+          return obj;
+        }
+
+        const sortedClone = sortKeysRecursive(clone);
+        const msgStr = toSwiftJSON(sortedClone);
+        const msgBytes = new TextEncoder().encode(msgStr);
 
         const pubKey = await crypto.subtle.importKey(
           'raw', b64toAb(d.pub),

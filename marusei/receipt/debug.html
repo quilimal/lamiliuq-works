@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>署名検証デバッグ</title>
+  <style>
+    body { font-family: monospace; padding: 20px; background: #f5f5f5; }
+    pre  { background: #fff; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 12px; word-break: break-all; white-space: pre-wrap; }
+    h3   { margin-top: 20px; }
+    .ok  { color: green; } .ng { color: red; }
+  </style>
+</head>
+<body>
+<h2>マルセイミニレジ 署名検証デバッグ</h2>
+<p>URLの # 以降にQRのBase64urlを貼り付けてアクセスしてください。</p>
+
+<div id="out"></div>
+
+<script>
+(function(){
+  function b64decode(s){
+    s=s.replace(/-/g,'+').replace(/_/g,'/');
+    while(s.length%4)s+='=';
+    const b=atob(s),u=new Uint8Array(b.length);
+    for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);
+    return new TextDecoder('utf-8').decode(u);
+  }
+  function b64toAb(s){
+    s=s.replace(/-/g,'+').replace(/_/g,'/');
+    while(s.length%4)s+='=';
+    const b=atob(s),u=new Uint8Array(b.length);
+    for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);
+    return u.buffer;
+  }
+
+  function sortKeysRecursive(obj){
+    if(Array.isArray(obj)) return obj.map(sortKeysRecursive);
+    if(obj!==null&&typeof obj==='object'){
+      const s={};
+      Object.keys(obj).sort().forEach(k=>{s[k]=sortKeysRecursive(obj[k]);});
+      return s;
+    }
+    return obj;
+  }
+
+  function toSwiftJSON(obj){
+    const raw=JSON.stringify(obj);
+    return raw.replace(/[\u0080-\uFFFF]/g,function(c){
+      return '\\u'+('0000'+c.charCodeAt(0).toString(16)).slice(-4);
+    });
+  }
+
+  async function main(){
+    const hash=location.hash.slice(1);
+    if(!hash){ document.getElementById('out').innerHTML='<p>URLに#以降がありません</p>'; return; }
+
+    const jsonStr=b64decode(hash);
+    const d=JSON.parse(jsonStr);
+
+    const clone=Object.assign({},d);
+    delete clone.sig; delete clone.pub;
+    const sortedClone=sortKeysRecursive(clone);
+    const msgStr=toSwiftJSON(sortedClone);
+    const msgBytes=new TextEncoder().encode(msgStr);
+
+    let verifyResult='署名なし';
+    let ok=null;
+    if(d.sig&&d.pub){
+      try{
+        const pubKey=await crypto.subtle.importKey(
+          'raw',b64toAb(d.pub),{name:'Ed25519'},false,['verify']
+        );
+        ok=await crypto.subtle.verify('Ed25519',pubKey,b64toAb(d.sig),msgBytes);
+        verifyResult=ok?'✅ 検証成功':'❌ 検証失敗';
+      }catch(e){
+        verifyResult='❌ エラー: '+e.message;
+      }
+    }
+
+    document.getElementById('out').innerHTML=`
+      <h3>デコードされたJSON（生）</h3>
+      <pre>${jsonStr}</pre>
+
+      <h3>署名対象JSON（sig・pub除去・ソート・Unicodeエスケープ）</h3>
+      <pre>${msgStr}</pre>
+
+      <h3>pub（公開鍵）</h3>
+      <pre>${d.pub||'なし'}</pre>
+
+      <h3>sig（署名）</h3>
+      <pre>${d.sig||'なし'}</pre>
+
+      <h3>検証結果</h3>
+      <pre class="${ok===true?'ok':'ng'}">${verifyResult}</pre>
+
+      <h3>msgBytes（署名対象バイト列 先頭50バイト）</h3>
+      <pre>${Array.from(msgBytes.slice(0,50)).map(b=>b.toString(16).padStart(2,'0')).join(' ')}</pre>
+    `;
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',main);
+  } else { main(); }
+})();
+</script>
+</body>
+</html>
+HTMLEOF

@@ -45,9 +45,12 @@
 
   function toSwiftJSON(obj){
     const raw=JSON.stringify(obj);
-    return raw.replace(/[\u0080-\uFFFF]/g,function(c){
-      return '\\u'+('0000'+c.charCodeAt(0).toString(16)).slice(-4);
-    });
+    return raw
+      .replace(/\//g,'\\/')
+      .replace(/[\u0080-\uFFFF]/g,function(c){
+        return '\\u'+('0000'+c.charCodeAt(0).toString(16)).slice(-4);
+      });
+  }
   }
 
   async function main(){

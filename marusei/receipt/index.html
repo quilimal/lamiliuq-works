@@ -64,6 +64,7 @@
     /* ── 日時・ID ── */
     .rec-meta { font-size: 12px; color: var(--gray); text-align: center; }
     .rec-no   { font-size: 11px; color: var(--light); text-align: center; margin-top: 2px; }
+    .rec-pay  { font-size: 12px; color: var(--gray);  text-align: center; margin-top: 2px; }
 
     /* ── 明細テーブル ── */
     .tbl { width: 100%; border-collapse: collapse; }
@@ -154,6 +155,24 @@
       return m?m[1]+'年'+parseInt(m[2])+'月'+parseInt(m[3])+'日':(s||'');
     }
 
+    // Base62デコード（0-9A-Za-z）
+    const B62='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    function b62decode(s){
+      let r=0;
+      for(const c of s) r=r*62+B62.indexOf(c);
+      return r;
+    }
+
+    // ID → JST時刻（T+base62(6桁)+seq(2桁)）Asia/Tokyo明示
+    function idToTime(id){
+      if(!id||id.length<7) return '';
+      try{
+        const unix=b62decode(id.slice(1,7));
+        const d=new Date(unix*1000);
+        return d.toLocaleTimeString('ja-JP',{timeZone:'Asia/Tokyo',hour:'2-digit',minute:'2-digit',hour12:false});
+      }catch(e){return '';}
+    }
+
     function esc(s){
       return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
         .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -219,8 +238,9 @@
       return `<div class="card">
         <div class="sec">${shopHeader(d)}</div>
         <div class="sec">
-          <div class="rec-meta">${fmtDate(d.date)}</div>
+          <div class="rec-meta">${dateTimeStr}</div>
           <div class="rec-no">No. ${esc(d.no||'')}</div>
+          ${paymentLine}
         </div>
         <div class="sec">
           <table class="tbl">
@@ -252,8 +272,9 @@
       return `<div class="card">
         <div class="sec">${shopHeader(d)}</div>
         <div class="sec">
-          <div class="rec-meta">${fmtDate(d.date)}</div>
+          <div class="rec-meta">${dateTimeStr}</div>
           <div class="rec-no">No. ${esc(d.no||'')}</div>
+          ${paymentLine}
         </div>
         <div class="sec ryoshucho">
           <div class="ryo-title">領 収 書</div>
@@ -288,11 +309,11 @@
     function sigHTML(result) {
       if (!result) return '';
       if (result.ok) {
-        return `<div class="sig-ok">✅ 発行元を確認しました
+        return `<div class="sig-ok">✅ このレシートは改竄されていません
           <div class="sig-pub">検証用公開鍵: ${esc(result.pub)}</div>
         </div>`;
       } else {
-        return `<div class="sig-ng">❌ 発行元を確認できませんでした
+        return `<div class="sig-ng">❌ 署名が一致しません。このレシートは改竄されている可能性があります。
           <div class="sig-pub">検証用公開鍵: ${esc(result.pub)}</div>
         </div>`;
       }

@@ -202,6 +202,9 @@
 
     // レシート形式（明細あり）
     function buildReceipt(d, sigHtmlStr){
+      const timeStr=idToTime(d.no);
+      const dateTimeStr=fmtDate(d.date)+(timeStr?' '+timeStr:'');
+      const paymentLine=d.pay?`<div class="rec-pay">${esc(d.pay)}</div>`:'';
       const items=d.items||[];
       let rows='';
       for(const item of items){

@@ -779,6 +779,8 @@
     line-height: 1.6;
   }
   .related-arrow { font-size: 1rem; color: #b3e8f8; flex-shrink: 0; }
+  .related-cards { display: flex; flex-direction: column; gap: 10px; }
+  @media (min-width: 768px) { .related-cards { flex-direction: row; } .related-card { flex: 1; max-width: none; } }
 </style>
 </head>
 <body>
@@ -967,17 +969,29 @@
 
 <!-- RELATED APP -->
 <section class="related-section">
-  <p class="related-label">Related App</p>
-  <a href="maruseiinventory.html" class="related-card">
-    <div class="related-icon">
-      <img src="tanaoroshi_logo_bg.png" alt="マルセイ棚卸">
-    </div>
-    <div class="related-text">
-      <p class="related-name">マルセイ棚卸</p>
-      <p class="related-desc">仕入れがある個人事業主の在庫管理アプリ。期末棚卸高をマルセイ会計に連携できます。</p>
-    </div>
-    <span class="related-arrow">›</span>
-  </a>
+  <p class="related-label">Related Apps</p>
+  <div class="related-cards">
+    <a href="maruseiinventory.html" class="related-card">
+      <div class="related-icon">
+        <img src="tanaoroshi_logo_bg.png" alt="マルセイ棚卸">
+      </div>
+      <div class="related-text">
+        <p class="related-name">マルセイ棚卸</p>
+        <p class="related-desc">仕入れがある個人事業主の在庫管理アプリ。期末棚卸高をマルセイ会計に連携できます。</p>
+      </div>
+      <span class="related-arrow">›</span>
+    </a>
+    <a href="maruseiminiregister.html" class="related-card">
+      <div class="related-icon">
+        <img src="miniregi_logo_bg.png" alt="マルセイミニレジ">
+      </div>
+      <div class="related-text">
+        <p class="related-name">マルセイミニレジ</p>
+        <p class="related-desc">個人事業主・小規模店舗向け販売管理アプリ。売上仕訳をマルセイ会計に連携できます。</p>
+      </div>
+      <span class="related-arrow">›</span>
+    </a>
+  </div>
 </section>
 
 <!-- FOOTER -->

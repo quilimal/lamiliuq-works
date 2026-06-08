@@ -325,11 +325,11 @@
     function sigHTML(result) {
       if (!result) return '';
       if (result.ok) {
-        return `<div class="sig-ok">✅ このレシートは改竄されていません
+        return `<div class="sig-ok">✅ 発行元を確認しました
           <div class="sig-pub">検証用公開鍵: ${esc(result.pub)}</div>
         </div>`;
       } else {
-        return `<div class="sig-ng">❌ 署名が一致しません。このレシートは改竄されている可能性があります。
+        return `<div class="sig-ng">❌ 発行元を確認できませんでした
           <div class="sig-pub">検証用公開鍵: ${esc(result.pub)}</div>
         </div>`;
       }

@@ -234,6 +234,15 @@
       const taxSec=taxRows
         ?`<div class="sec"><table class="tbl"><tbody>${taxRows}</tbody></table></div>`:'';
 
+      // 内消費税合計（taxRowsがある場合のみ・合計直下に表示）
+      let totalTaxAmt=0;
+      if(d.tax&&d.tax.length){
+        for(const t of d.tax) totalTaxAmt+=t.x;
+      }
+      const totalTaxRow=totalTaxAmt>0
+        ?`<tr><td colspan="2" style="font-size:12px;color:var(--gray);padding-top:4px;">内消費税</td><td class="td-price" style="font-size:12px;color:var(--gray);padding-top:4px;">${fmt(totalTaxAmt)}</td></tr>`
+        :'';
+
       // 自由表記（下）
       const noteBtm=d.nbtm
         ?`<div class="sec"><div class="note-bottom">${esc(d.nbtm)}</div></div>`:'';
@@ -253,6 +262,7 @@
                 <td class="td-name" colspan="2">合　計</td>
                 <td class="td-price">${fmt(d.total||0)}</td>
               </tr>
+              ${totalTaxRow}
             </tfoot>
           </table>
         </div>
@@ -266,6 +276,9 @@
 
     // 領収書形式（明細なし）
     function buildRyoshucho(d, sigHtmlStr){
+      const timeStr=idToTime(d.no);
+      const dateTimeStr=fmtDate(d.date)+(timeStr?' '+timeStr:'');
+      const paymentLine=d.pay?`<div class="rec-pay">${esc(d.pay)}</div>`:'';
       const atena=d.atena||'上様';
       const tadashi=d.tadashi||'商品代として';
 

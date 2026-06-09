@@ -414,7 +414,7 @@
         const shopIdEl = document.getElementById('shop-id-placeholder');
         if(shopIdEl && outer.k){
           const shopId = await pubkeyToShopId(outer.k);
-          if(shopId) shopIdEl.textContent = 'ID: '+shopId;
+          if(shopId) shopIdEl.textContent = '店舗ID: '+shopId;
           else shopIdEl.remove();
         }
       }

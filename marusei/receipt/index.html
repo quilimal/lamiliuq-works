@@ -198,9 +198,9 @@
           val=(val<<8)|byte; bits+=8;
           while(bits>=5){ out+=alpha[(val>>>(bits-5))&31]; bits-=5; }
         }
-        // 先頭10文字を xxxx-xxxx-xx に
+        // 先頭10文字を xxxx-xxxxx-x に
         const raw=out.slice(0,10);
-        return raw.slice(0,4)+'-'+raw.slice(4,8)+'-'+raw.slice(8,10);
+        return raw.slice(0,4)+'-'+raw.slice(4,9)+'-'+raw.slice(9,10);
       }catch(e){ return ''; }
     }
 

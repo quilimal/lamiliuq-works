@@ -62,6 +62,8 @@
     .shop-note-top{ font-size: 11px; color: var(--gray); text-align: center; margin-top: 4px; }
 
     /* ── 日時・ID ── */
+    .shop-id  { font-size: 10px; color: var(--light); text-align: left;
+                 letter-spacing: 0.05em; margin-bottom: 2px; }
     .rec-meta { font-size: 12px; color: var(--gray); text-align: center; }
     .rec-no   { font-size: 11px; color: var(--light); text-align: center; margin-top: 2px; }
     .rec-pay  { font-size: 12px; color: var(--gray);  text-align: center; margin-top: 2px; }
@@ -178,6 +180,30 @@
         .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
+    // 公開鍵 → 店舗ID（SHA-256 → Base32 → 先頭10文字 → xxxx-xxxx-xx）
+    async function pubkeyToShopId(pubB64url){
+      try{
+        // Base64url → ArrayBuffer
+        let s=pubB64url.replace(/-/g,'+').replace(/_/g,'/');
+        while(s.length%4)s+='=';
+        const b=atob(s),u=new Uint8Array(b.length);
+        for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);
+        // SHA-256
+        const hash=await crypto.subtle.digest('SHA-256',u.buffer);
+        // Base32エンコード（RFC 4648・大文字）
+        const bytes=new Uint8Array(hash);
+        const alpha='ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+        let bits=0,val=0,out='';
+        for(const byte of bytes){
+          val=(val<<8)|byte; bits+=8;
+          while(bits>=5){ out+=alpha[(val>>>(bits-5))&31]; bits-=5; }
+        }
+        // 先頭10文字を xxxx-xxxx-xx に
+        const raw=out.slice(0,10);
+        return raw.slice(0,4)+'-'+raw.slice(4,8)+'-'+raw.slice(8,10);
+      }catch(e){ return ''; }
+    }
+
     function showError(msg){
       document.getElementById('main').innerHTML=
         `<div class="error-card"><h2>⚠️ 読み取りエラー</h2><p>${msg}</p></div>`;
@@ -186,6 +212,10 @@
     // ショップヘッダーHTML生成
     function shopHeader(d){
       let h='';
+      // 店舗IDプレースホルダー（公開鍵があれば後から差し込む）
+      if(d._pubkey){
+        h+=`<div class="shop-id" id="shop-id-placeholder">...</div>`;
+      }
       h+=`<div class="shop-name">${esc(d.shop||'')}</div>`;
       if(d.invoice) h+=`<div class="shop-invoice">${esc(d.invoice)}</div>`;
       if(d.zip)     h+=`<div class="shop-zip">\u3012${esc(d.zip)}</div>`;
@@ -329,7 +359,7 @@
           <div class="sig-pub">検証用公開鍵: ${esc(result.pub)}</div>
         </div>`;
       } else {
-        return `<div class="sig-ng">❌ 発行元を確認できませんでした
+        return `<div class="sig-ng">❌ 発行元の確認が取れませんでした
           <div class="sig-pub">検証用公開鍵: ${esc(result.pub)}</div>
         </div>`;
       }
@@ -366,6 +396,8 @@
       }
 
       // 表示（即時）
+      // 公開鍵をdに付与（shopHeaderで店舗IDプレースホルダー生成に使用）
+      if(isNew && outer.k) d._pubkey = outer.k;
       document.getElementById('main').innerHTML=
         d.overflow===true ? buildRyoshucho(d,'') : buildReceipt(d,'');
       document.title=esc(d.shop||'マルセイミニレジ')+' 電子レシート';
@@ -377,6 +409,13 @@
         if(noticeEls.length > 0) {
           const last = noticeEls[noticeEls.length-1];
           last.insertAdjacentHTML('afterbegin', sigHTML(sigResult));
+        }
+        // 店舗IDを差し込む
+        const shopIdEl = document.getElementById('shop-id-placeholder');
+        if(shopIdEl && outer.k){
+          const shopId = await pubkeyToShopId(outer.k);
+          if(shopId) shopIdEl.textContent = 'ID: '+shopId;
+          else shopIdEl.remove();
         }
       }
     }

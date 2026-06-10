@@ -77,6 +77,7 @@
     .sub-row td { font-size: 11px; color: var(--gray); padding: 1px 0; }
     .td-sub   { text-align: left; }
     .td-price.minus { color: #cc6600; }
+    .td-price.sub-minus { color: #cc0000; }
     .tbl tfoot tr.total td {
       font-size: 17px; font-weight: 700;
       padding-top: 10px;
@@ -245,10 +246,15 @@
         const price = item.p || 0;
 
         if(item.sub){
-          // 小計行（セット売りの合計）
+          // 小計・値引き行（セット売り）
+          const isDiscount = price < 0;
           rows += `<tr class="sub-row">
             <td class="td-name td-sub" colspan="2">&nbsp;&nbsp;${esc(name)}</td>
-            <td class="td-price td-sub">${fmt(price)}</td>
+            <td class="td-price td-sub ${isDiscount?'minus':''}">${
+              isDiscount
+                ? '△¥ '+Math.abs(price).toLocaleString('ja-JP')
+                : fmt(price)
+            }</td>
           </tr>`;
         } else if(name.startsWith('└')){
           // 子行（インデント・価格付き）

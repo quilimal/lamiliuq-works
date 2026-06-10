@@ -159,6 +159,25 @@
       return m?m[1]+'年'+parseInt(m[2])+'月'+parseInt(m[3])+'日':(s||'');
     }
 
+    // displayName解析（"親名:親価格└子名:子価格:数量"形式）
+    function parseDisplay(name){
+      const sep = '\u2514';  // └
+      const parts = name.split(sep);
+      const parentPart = parts[0] || '';
+      const parentTokens = parentPart.split(':');
+      const parentName = parentTokens[0];
+      const parentPrice = parentTokens.length >= 2 ? parseInt(parentTokens[1]) || 0 : null;
+      const children = parts.slice(1).map(p => {
+        const t = p.split(':');
+        return {
+          name:     t[0] || '',
+          price:    t.length >= 2 ? parseInt(t[1]) || 0 : 0,
+          quantity: t.length >= 3 ? parseInt(t[2]) || 1 : 1
+        };
+      });
+      return { parentName, parentPrice, children };
+    }
+
     // Base62デコード（0-9A-Za-z）
     const B62='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
     function b62decode(s){
@@ -240,23 +259,44 @@
       const items=d.items||[];
       let rows='';
       for(const item of items){
-        const qty=item.q||1;
-        const name=item.n||'';
-        // └で始まる行は子商品
-        if(name.startsWith('└')){
-          const childName=name.slice(1);
-          const childQty=item.q||1;
-          const childPrice=item.p||0;
-          rows+=`<tr class="sub-row">
-            <td class="td-name td-sub">&nbsp;&nbsp;└${esc(childName)}${childQty>1?'&nbsp;&times;'+childQty:''}</td>
-            <td class="td-qty"></td>
-            <td class="td-price td-sub">${childPrice!==0?fmt(childPrice):''}</td>
+        const qty = item.q || 1;
+        const pd  = parseDisplay(item.n || '');
+
+        if(pd.children.length === 0){
+          // 単品
+          rows += `<tr>
+            <td class="td-name">${esc(pd.parentName)}</td>
+            <td class="td-qty">${qty>1?'&times;'+qty:''}</td>
+            <td class="td-price">${fmt((item.p||0))}</td>
           </tr>`;
         } else {
-          rows+=`<tr>
-            <td class="td-name">${esc(name)}</td>
-            <td class="td-qty">${qty>1?'&times;'+qty:''}</td>
-            <td class="td-price">${fmt(item.p||0)}</td>
+          // セット：親行
+          const parentTotal = pd.parentPrice !== null ? pd.parentPrice * qty : item.p || 0;
+          rows += `<tr>
+            <td class="td-name">${esc(pd.parentName)}${qty>1?'&nbsp;&times;'+qty:''}</td>
+            <td class="td-qty"></td>
+            <td class="td-price">${pd.parentPrice !== null ? fmt(parentTotal) : ''}</td>
+          </tr>`;
+          // 子行
+          let childSum = 0;
+          for(const child of pd.children){
+            const childTotal = child.price * child.quantity * qty;
+            childSum += childTotal;
+            rows += `<tr class="sub-row">
+              <td class="td-name td-sub">&nbsp;&nbsp;└${esc(child.name)}${child.quantity>1?'&nbsp;&times;'+child.quantity:''}</td>
+              <td class="td-qty"></td>
+              <td class="td-price td-sub">${child.price !== 0
+                ? (child.price < 0
+                   ? '△¥ '+Math.abs(childTotal).toLocaleString('ja-JP')
+                   : fmt(childTotal))
+                : ''}</td>
+            </tr>`;
+          }
+          // 小計行
+          const subtotal = parentTotal + childSum;
+          rows += `<tr class="sub-row">
+            <td class="td-name td-sub" colspan="2">&nbsp;&nbsp;小計</td>
+            <td class="td-price td-sub">${fmt(subtotal)}</td>
           </tr>`;
         }
       }
@@ -370,11 +410,11 @@
     function sigHTML(result) {
       if (!result) return '';
       if (result.ok) {
-        return `<div class="sig-ok">✅ 署名が一致しました。
+        return `<div class="sig-ok">✅ 署名が一致しました
           <div class="sig-pub">検証用公開鍵: ${esc(result.pub)}</div>
         </div>`;
       } else {
-        return `<div class="sig-ng">❌ 署名が一致しません。
+        return `<div class="sig-ng">❌ 署名が一致しません
           <div class="sig-pub">検証用公開鍵: ${esc(result.pub)}</div>
         </div>`;
       }

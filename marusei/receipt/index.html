@@ -74,6 +74,8 @@
     .td-name  { text-align: left; }
     .td-qty   { text-align: center; color: var(--gray); font-size: 12px; width: 36px; }
     .td-price { text-align: right; white-space: nowrap; }
+    .sub-row td { font-size: 11px; color: var(--gray); padding: 1px 0; }
+    .td-sub   { text-align: left; }
     .td-price.minus { color: #cc6600; }
     .tbl tfoot tr.total td {
       font-size: 17px; font-weight: 700;
@@ -198,7 +200,7 @@
           val=(val<<8)|byte; bits+=8;
           while(bits>=5){ out+=alpha[(val>>>(bits-5))&31]; bits-=5; }
         }
-        // 先頭10文字を xxxx-xxxxx-x に
+        // 先頭10文字を xxxx-xxxx-xx に
         const raw=out.slice(0,10);
         return raw.slice(0,4)+'-'+raw.slice(4,9)+'-'+raw.slice(9,10);
       }catch(e){ return ''; }
@@ -239,11 +241,18 @@
       let rows='';
       for(const item of items){
         const qty=item.q||1;
+        const parts=(item.n||'').split('\u2514');
+        const parentName=parts[0];
+        const children=parts.slice(1);
+        let subRows='';
+        for(const child of children){
+          subRows+=`<tr class="sub-row"><td class="td-name td-sub" colspan="3">&nbsp;&nbsp;└${esc(child)}</td></tr>`;
+        }
         rows+=`<tr>
-          <td class="td-name">${esc(item.n||'')}</td>
+          <td class="td-name">${esc(parentName)}</td>
           <td class="td-qty">${qty>1?'&times;'+qty:''}</td>
-          <td class="td-price">${fmt(item.p||0)}</td>
-        </tr>`;
+          <td class="td-price">${fmt((item.p||0)*qty)}</td>
+        </tr>${subRows}`;
       }
 
       // 税区分
@@ -355,11 +364,11 @@
     function sigHTML(result) {
       if (!result) return '';
       if (result.ok) {
-        return `<div class="sig-ok">✅ 発行元を確認しました
+        return `<div class="sig-ok">✅ 署名が一致しました。店舗IDも一致していれば正規のレシートです
           <div class="sig-pub">検証用公開鍵: ${esc(result.pub)}</div>
         </div>`;
       } else {
-        return `<div class="sig-ng">❌ 発行元の確認が取れませんでした
+        return `<div class="sig-ng">❌ 署名が一致しません
           <div class="sig-pub">検証用公開鍵: ${esc(result.pub)}</div>
         </div>`;
       }

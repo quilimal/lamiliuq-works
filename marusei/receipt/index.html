@@ -241,18 +241,24 @@
       let rows='';
       for(const item of items){
         const qty=item.q||1;
-        const parts=(item.n||'').split('\u2514');
-        const parentName=parts[0];
-        const children=parts.slice(1);
-        let subRows='';
-        for(const child of children){
-          subRows+=`<tr class="sub-row"><td class="td-name td-sub" colspan="3">&nbsp;&nbsp;└${esc(child)}</td></tr>`;
+        const name=item.n||'';
+        // └で始まる行は子商品
+        if(name.startsWith('└')){
+          const childName=name.slice(1);
+          const childQty=item.q||1;
+          const childPrice=item.p||0;
+          rows+=`<tr class="sub-row">
+            <td class="td-name td-sub">&nbsp;&nbsp;└${esc(childName)}${childQty>1?'&nbsp;&times;'+childQty:''}</td>
+            <td class="td-qty"></td>
+            <td class="td-price td-sub">${childPrice!==0?fmt(childPrice):''}</td>
+          </tr>`;
+        } else {
+          rows+=`<tr>
+            <td class="td-name">${esc(name)}</td>
+            <td class="td-qty">${qty>1?'&times;'+qty:''}</td>
+            <td class="td-price">${fmt(item.p||0)}</td>
+          </tr>`;
         }
-        rows+=`<tr>
-          <td class="td-name">${esc(parentName)}</td>
-          <td class="td-qty">${qty>1?'&times;'+qty:''}</td>
-          <td class="td-price">${fmt((item.p||0)*qty)}</td>
-        </tr>${subRows}`;
       }
 
       // 税区分
@@ -364,11 +370,11 @@
     function sigHTML(result) {
       if (!result) return '';
       if (result.ok) {
-        return `<div class="sig-ok">✅ 署名が一致しました。店舗IDも一致していれば正規のレシートです
+        return `<div class="sig-ok">✅ 署名が一致しました。
           <div class="sig-pub">検証用公開鍵: ${esc(result.pub)}</div>
         </div>`;
       } else {
-        return `<div class="sig-ng">❌ 署名が一致しません
+        return `<div class="sig-ng">❌ 署名が一致しません。
           <div class="sig-pub">検証用公開鍵: ${esc(result.pub)}</div>
         </div>`;
       }

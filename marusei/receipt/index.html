@@ -241,6 +241,11 @@
       const paymentLine=d.pay?`<div class="rec-pay">${esc(d.pay)}</div>`:'';
       const items=d.items||[];
       let rows='';
+      // 親行にトッピングありフラグを付ける
+      for(let ii=0; ii<items.length; ii++){
+        const next = items[ii+1];
+        items[ii]._hasChild = next && (next.n||'').startsWith('└');
+      }
       for(const item of items){
         const qty  = item.q || 1;
         const name = item.n || '';
@@ -249,9 +254,10 @@
         if(item.sub){
           // 小計・値引き行（セット売り）
           const isDiscount = price < 0;
-          rows += `<tr class="sub-row">
-            <td class="td-name td-sub" colspan="2">&nbsp;&nbsp;${esc(name)}</td>
-            <td class="td-price td-sub ${isDiscount?'minus':''}">${
+          const isSubtotal = name.trim().startsWith('小計');
+          rows += `<tr class="${isSubtotal ? 'subtotal-row' : 'sub-row'}">
+            <td class="td-name ${isSubtotal?'':'td-sub'}" colspan="2">&nbsp;&nbsp;${esc(name)}</td>
+            <td class="td-price ${isSubtotal?'':'td-sub'} ${isDiscount?'minus':''}">${
               isDiscount
                 ? '△¥ '+Math.abs(price).toLocaleString('ja-JP')
                 : fmt(price)
@@ -269,12 +275,14 @@
           </tr>`;
         } else {
           // 親行（単品またはセット親）
+          const hasChild = item._hasChild;
+          const priceStr = price < 0
+            ? '△¥ '+Math.abs(price).toLocaleString('ja-JP')
+            : fmt(price);
           rows += `<tr>
             <td class="td-name">${esc(name)}</td>
             <td class="td-qty">${qty>1?'&times;'+qty:''}</td>
-            <td class="td-price">${price < 0
-              ? '△¥ '+Math.abs(price).toLocaleString('ja-JP')
-              : fmt(price)}</td>
+            <td class="td-price${hasChild?' td-sub':''}">${priceStr}</td>
           </tr>`;
         }
       }

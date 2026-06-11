@@ -78,7 +78,7 @@
     .subtotal-row .td-name { font-size: 11px; color: var(--gray); padding: 3px 0; }
     .subtotal-row .td-price { font-size: 14px; color: var(--black); padding: 3px 0; font-weight: 400; }
     .td-sub   { text-align: left; }
-    .td-price.td-sub { text-align: right; }
+    .td-price.td-sub { text-align: right; font-size: 11px; color: var(--gray); }
     .td-price.minus { color: #cc6600; }
     .td-price.sub-minus { color: #cc0000; }
     .tbl tfoot tr.total td {
@@ -398,7 +398,7 @@
           <div class="sig-pub">検証用公開鍵: ${esc(result.pub)}</div>
         </div>`;
       } else {
-        return `<div class="sig-ng">❌ 署名が一致しません
+        return `<div class="sig-ng">❌ 署名が一致しません。
           <div class="sig-pub">検証用公開鍵: ${esc(result.pub)}</div>
         </div>`;
       }

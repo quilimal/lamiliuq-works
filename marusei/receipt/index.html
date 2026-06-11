@@ -74,6 +74,7 @@
     .td-name  { text-align: left; }
     .td-qty   { text-align: center; color: var(--gray); font-size: 12px; width: 36px; }
     .td-price { text-align: right; white-space: nowrap; }
+    .td-bold  { text-align: right; white-space: nowrap; font-weight: 700; color: var(--black); }
     .sub-row td { font-size: 11px; color: var(--gray); padding: 1px 0; }
     .subtotal-row .td-name { font-size: 11px; color: var(--gray); padding: 3px 0; }
     .subtotal-row .td-price { font-size: 15px; color: var(--black); padding: 3px 0; font-weight: 700; }
@@ -281,10 +282,12 @@
           const priceStr = price < 0
             ? '△¥ '+Math.abs(price).toLocaleString('ja-JP')
             : fmt(price);
+          // 単品: 黒太字 / セット親: 薄く小さく
+          const priceClass = hasChild ? 'td-price td-sub' : 'td-price td-bold';
           rows += `<tr>
             <td class="td-name">${esc(name)}</td>
             <td class="td-qty">${qty>1?'&times;'+qty:''}</td>
-            <td class="td-price${hasChild?' td-sub':''}">${priceStr}</td>
+            <td class="${priceClass}">${priceStr}</td>
           </tr>`;
         }
       }

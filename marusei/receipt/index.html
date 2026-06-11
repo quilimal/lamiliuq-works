@@ -243,11 +243,6 @@
       const paymentLine=d.pay?`<div class="rec-pay">${esc(d.pay)}</div>`:'';
       const items=d.items||[];
       let rows='';
-      // 親行にトッピングありフラグを付ける
-      for(let ii=0; ii<items.length; ii++){
-        const next = items[ii+1];
-        items[ii]._hasChild = next && (next.n||'').startsWith('└');
-      }
       for(const item of items){
         const qty  = item.q || 1;
         const name = item.n || '';
@@ -265,9 +260,9 @@
                 : fmt(price)
             }</td>
           </tr>`;
-        } else if(name.startsWith('└')){
+        } else if(name.startsWith('\u2514')){
           // 子行（インデント・価格付き）
-          const childName = name.slice(1);
+          const childName = name.slice(1);  // └を除いた部分
           rows += `<tr class="sub-row">
             <td class="td-name td-sub">&nbsp;&nbsp;└${esc(childName)}${qty>1?'&nbsp;&times;'+qty:''}</td>
             <td class="td-qty"></td>
@@ -277,7 +272,7 @@
           </tr>`;
         } else {
           // 親行（単品またはセット親）
-          const hasChild = item._hasChild;
+          const hasChild = item.set === true;
           const priceStr = price < 0
             ? '△¥ '+Math.abs(price).toLocaleString('ja-JP')
             : fmt(price);
@@ -399,11 +394,11 @@
     function sigHTML(result) {
       if (!result) return '';
       if (result.ok) {
-        return `<div class="sig-ok">✅ このレシートは改竄されていません
+        return `<div class="sig-ok">✅ 署名が一致しました
           <div class="sig-pub">検証用公開鍵: ${esc(result.pub)}</div>
         </div>`;
       } else {
-        return `<div class="sig-ng">❌ 署名が一致しません。このレシートは改竄されている可能性があります。
+        return `<div class="sig-ng">❌ 署名が一致しません
           <div class="sig-pub">検証用公開鍵: ${esc(result.pub)}</div>
         </div>`;
       }
@@ -458,7 +453,7 @@
         const shopIdEl = document.getElementById('shop-id-placeholder');
         if(shopIdEl && outer.k){
           const shopId = await pubkeyToShopId(outer.k);
-          if(shopId) shopIdEl.textContent = 'ID: '+shopId;
+          if(shopId) shopIdEl.textContent = '店舗ID: '+shopId;
           else shopIdEl.remove();
         }
       }

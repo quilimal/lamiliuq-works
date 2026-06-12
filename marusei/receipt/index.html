@@ -335,6 +335,10 @@
           <table class="tbl">
             <tbody>${rows}</tbody>
             <tfoot>
+              ${d.wdisc ? `<tr>
+                <td class="td-name" colspan="2" style="font-size:13px;color:var(--gray);">値引き（全体）</td>
+                <td class="td-price" style="font-size:13px;color:var(--gray);">△¥ ${d.wdisc.toLocaleString('ja-JP')}</td>
+              </tr>` : ''}
               <tr class="total">
                 <td class="td-name" colspan="2">合　計</td>
                 <td class="td-price">${fmt(d.total||0)}</td>

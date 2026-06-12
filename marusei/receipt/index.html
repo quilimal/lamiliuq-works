@@ -404,11 +404,11 @@
     function sigHTML(result) {
       if (!result) return '';
       if (result.ok) {
-        return `<div class="sig-ok">✅ このレシートは改竄されていません
+        return `<div class="sig-ok">✅ 署名が一致しました
           <div class="sig-pub">検証用公開鍵: ${esc(result.pub)}</div>
         </div>`;
       } else {
-        return `<div class="sig-ng">❌ 署名が一致しません。このレシートは改竄されている可能性があります。
+        return `<div class="sig-ng">❌ 署名が一致しません
           <div class="sig-pub">検証用公開鍵: ${esc(result.pub)}</div>
         </div>`;
       }
@@ -463,7 +463,7 @@
         const shopIdEl = document.getElementById('shop-id-placeholder');
         if(shopIdEl && outer.k){
           const shopId = await pubkeyToShopId(outer.k);
-          if(shopId) shopIdEl.textContent = 'ID: '+shopId;
+          if(shopId) shopIdEl.textContent = '店舗ID: '+shopId;
           else shopIdEl.remove();
         }
       }

@@ -4,9 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>マルセイミニレジ 電子レシート</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -21,7 +18,7 @@
       --warn-fg: #b45309;
       --err-bg:  #fff0f0;
       --err-fg:  #cc0000;
-      --font:    'Noto Sans Mono','Courier New','Osaka-Mono',monospace;
+      --font:    'Courier New','Courier','Osaka-Mono',monospace;
       --w:       360px;
     }
     body {
@@ -74,17 +71,39 @@
     .td-name  { text-align: left; }
     .td-qty   { text-align: center; color: var(--gray); font-size: 12px; width: 36px; }
     .td-price { text-align: right; white-space: nowrap; }
+
+    /* 単品（子なし）: Bold */
+    .row-single td { font-weight: 700; }
+
+    /* セット親行：通常 */
+    .row-set-parent td { font-weight: 400; color: var(--gray); font-size: 13px; }
+    .row-set-parent .td-price { font-size: 13px; color: var(--gray); }
+
+    /* 子行 */
     .sub-row td { font-size: 11px; color: var(--gray); padding: 1px 0; }
-    .subtotal-row .td-name { font-size: 11px; color: var(--gray); padding: 3px 0; }
-    .subtotal-row .td-price { font-size: 14px; color: var(--black); padding: 3px 0; font-weight: 400; }
+
+    /* 小計行：Bold */
+    .subtotal-row .td-name  { font-size: 13px; color: var(--gray); padding: 3px 0; }
+    .subtotal-row .td-price { font-size: 14px; color: var(--black); padding: 3px 0; font-weight: 700; }
+
     .td-sub   { text-align: left; }
     .td-price.td-sub { text-align: right; font-size: 11px; color: var(--gray); }
     .td-price.minus { color: #cc6600; }
     .td-price.sub-minus { color: #cc0000; }
+
+    /* 合計行：Bold・大 */
     .tbl tfoot tr.total td {
       font-size: 17px; font-weight: 700;
       padding-top: 10px;
       border-top: 1px solid var(--border);
+    }
+
+    /* お釣り：Bold */
+    .chng-row td { font-weight: 700; }
+
+    /* 内消費税：インデント */
+    .tax-total-indent {
+      padding-left: 16px !important;
     }
 
     /* ── 税区分 ── */
@@ -163,7 +182,6 @@
       return m?m[1]+'年'+parseInt(m[2])+'月'+parseInt(m[3])+'日':(s||'');
     }
 
-    // Base62デコード（0-9A-Za-z）
     const B62='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
     function b62decode(s){
       let r=0;
@@ -171,7 +189,6 @@
       return r;
     }
 
-    // ID → JST時刻（T+base62(6桁)+seq(2桁)）Asia/Tokyo明示
     function idToTime(id){
       if(!id||id.length<7) return '';
       try{
@@ -186,17 +203,13 @@
         .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    // 公開鍵 → 店舗ID（SHA-256 → Base32 → 先頭10文字 → xxxx-xxxx-xx）
     async function pubkeyToShopId(pubB64url){
       try{
-        // Base64url → ArrayBuffer
         let s=pubB64url.replace(/-/g,'+').replace(/_/g,'/');
         while(s.length%4)s+='=';
         const b=atob(s),u=new Uint8Array(b.length);
         for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);
-        // SHA-256
         const hash=await crypto.subtle.digest('SHA-256',u.buffer);
-        // Base32エンコード（RFC 4648・大文字）
         const bytes=new Uint8Array(hash);
         const alpha='ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
         let bits=0,val=0,out='';
@@ -204,7 +217,6 @@
           val=(val<<8)|byte; bits+=8;
           while(bits>=5){ out+=alpha[(val>>>(bits-5))&31]; bits-=5; }
         }
-        // 先頭10文字を xxxx-xxxx-xx に
         const raw=out.slice(0,10);
         return raw.slice(0,4)+'-'+raw.slice(4,9)+'-'+raw.slice(9,10);
       }catch(e){ return ''; }
@@ -215,10 +227,8 @@
         `<div class="error-card"><h2>⚠️ 読み取りエラー</h2><p>${msg}</p></div>`;
     }
 
-    // ショップヘッダーHTML生成
     function shopHeader(d){
       let h='';
-      // 店舗IDプレースホルダー（公開鍵があれば後から差し込む）
       if(d._pubkey){
         h+=`<div class="shop-id" id="shop-id-placeholder">...</div>`;
       }
@@ -236,7 +246,6 @@
       return h;
     }
 
-    // レシート形式（明細あり）
     function buildReceipt(d, sigHtmlStr){
       const timeStr=idToTime(d.no);
       const dateTimeStr=fmtDate(d.date)+(timeStr?' '+timeStr:'');
@@ -244,8 +253,8 @@
       const items=d.items||[];
       let rows='';
       for(const item of items){
-        const qty  = item.q || 1;
-        const name = item.n || '';
+        const qty   = item.q || 1;
+        const name  = item.n || '';
         const price = item.p || 0;
 
         if(item.sub){
@@ -256,31 +265,31 @@
             <td class="td-name ${isSubtotal?'':'td-sub'}" colspan="2">&nbsp;&nbsp;${esc(name)}</td>
             <td class="td-price ${isSubtotal?'':'td-sub'} ${isDiscount?'minus':''}">${
               isDiscount
-                ? '△¥ '+Math.abs(price).toLocaleString('ja-JP')
+                ? '△¥&nbsp;'+Math.abs(price).toLocaleString('ja-JP')
                 : fmt(price)
             }</td>
           </tr>`;
         } else if(name.startsWith('\u2514')){
-          // 子行（インデント・価格付き）
-          const childName = name.slice(1);  // └を除いた部分
+          // 子行
+          const childName = name.slice(1);
           rows += `<tr class="sub-row">
             <td class="td-name td-sub">&nbsp;&nbsp;└${esc(childName)}${qty>1?'&nbsp;&times;'+qty:''}</td>
             <td class="td-qty"></td>
             <td class="td-price td-sub">${price < 0
-              ? '△¥ '+Math.abs(price).toLocaleString('ja-JP')
+              ? '△¥&nbsp;'+Math.abs(price).toLocaleString('ja-JP')
               : fmt(price)}</td>
           </tr>`;
         } else {
-          // 親行（単品またはセット親）
+          // 親行（単品 or セット親）
           const hasChild = item.set === true;
           const priceStr = price < 0
-            ? '△¥ '+Math.abs(price).toLocaleString('ja-JP')
+            ? '△¥&nbsp;'+Math.abs(price).toLocaleString('ja-JP')
             : fmt(price);
-          // 単品: 黒太字 / セット親: 薄く小さく
-          rows += `<tr>
+          // 単品（子なし）→ Bold / セット親 → 通常・グレー
+          rows += `<tr class="${hasChild ? 'row-set-parent' : 'row-single'}">
             <td class="td-name">${esc(name)}</td>
             <td class="td-qty">${qty>1?'&times;'+qty:''}</td>
-            <td class="td-price${hasChild?' td-sub':''}">${priceStr}</td>
+            <td class="td-price">${priceStr}</td>
           </tr>`;
         }
       }
@@ -303,13 +312,13 @@
       const taxSec=taxRows
         ?`<div class="sec"><table class="tbl"><tbody>${taxRows}</tbody></table></div>`:'';
 
-      // 内消費税合計（taxRowsがある場合のみ・合計直下に表示）
+      // 内消費税合計
       let totalTaxAmt=0;
       if(d.tax&&d.tax.length){
         for(const t of d.tax) totalTaxAmt+=t.x;
       }
       const totalTaxRow=totalTaxAmt>0
-        ?`<tr><td colspan="2" style="font-size:12px;color:var(--gray);padding-top:4px;">内消費税</td><td class="td-price" style="font-size:12px;color:var(--gray);padding-top:4px;">${fmt(totalTaxAmt)}</td></tr>`
+        ?`<tr><td class="tax-total-indent" colspan="2" style="font-size:12px;color:var(--gray);padding-top:4px;">内消費税</td><td class="td-price" style="font-size:12px;color:var(--gray);padding-top:4px;">${fmt(totalTaxAmt)}</td></tr>`
         :'';
 
       // お預り金・お釣り
@@ -317,7 +326,7 @@
         ? `<tr><td colspan="2" style="font-size:13px;padding-top:4px;">お預り金</td><td class="td-price" style="font-size:13px;padding-top:4px;">${fmt(d.recv)}</td></tr>`
         : '';
       const chngRow = d.chng
-        ? `<tr><td colspan="2" style="font-size:13px;"><strong>お釣り</strong></td><td class="td-price" style="font-size:14px;font-weight:700;color:var(--main);">${fmt(d.chng)}</td></tr>`
+        ? `<tr class="chng-row"><td colspan="2" style="font-size:14px;">お釣り</td><td class="td-price" style="font-size:14px;">${fmt(d.chng)}</td></tr>`
         : '';
 
       // 自由表記（下）
@@ -337,7 +346,7 @@
             <tfoot>
               ${d.wdisc ? `<tr>
                 <td class="td-name" colspan="2" style="font-size:13px;color:var(--gray);">値引き（全体）</td>
-                <td class="td-price" style="font-size:13px;color:var(--gray);">△¥ ${d.wdisc.toLocaleString('ja-JP')}</td>
+                <td class="td-price" style="font-size:13px;color:var(--gray);">△¥&nbsp;${d.wdisc.toLocaleString('ja-JP')}</td>
               </tr>` : ''}
               <tr class="total">
                 <td class="td-name" colspan="2">合　計</td>
@@ -357,7 +366,6 @@
       </div>`;
     }
 
-    // 領収書形式（明細なし）
     function buildRyoshucho(d, sigHtmlStr){
       const timeStr=idToTime(d.no);
       const dateTimeStr=fmtDate(d.date)+(timeStr?' '+timeStr:'');
@@ -389,8 +397,6 @@
       </div>`;
     }
 
-    // ── Ed25519署名検証（Web Crypto API）──
-    // 新フォーマット: outer={p,s,k} 署名対象=outer.pのUTF-8バイト列
     async function verifySig(outer) {
       if (!outer.s || !outer.k || !outer.p) return null;
       try {
@@ -431,7 +437,6 @@
         return;
       }
 
-      // フォーマット判定: 新={p,s,k} 旧={v,...}
       const isNew = outer.p && outer.s && outer.k;
       if(isNew){
         try{ d=JSON.parse(b64decode(outer.p)); }
@@ -448,14 +453,11 @@
         return;
       }
 
-      // 表示（即時）
-      // 公開鍵をdに付与（shopHeaderで店舗IDプレースホルダー生成に使用）
       if(isNew && outer.k) d._pubkey = outer.k;
       document.getElementById('main').innerHTML=
         d.overflow===true ? buildRyoshucho(d,'') : buildReceipt(d,'');
       document.title=esc(d.shop||'マルセイミニレジ')+' 電子レシート';
 
-      // 署名検証（非同期・完了後に差し込む）
       const sigResult = isNew ? await verifySig(outer) : null;
       if(sigResult !== null) {
         const noticeEls = document.querySelectorAll('.sec:last-child');
@@ -463,7 +465,6 @@
           const last = noticeEls[noticeEls.length-1];
           last.insertAdjacentHTML('afterbegin', sigHTML(sigResult));
         }
-        // 店舗IDを差し込む
         const shopIdEl = document.getElementById('shop-id-placeholder');
         if(shopIdEl && outer.k){
           const shopId = await pubkeyToShopId(outer.k);

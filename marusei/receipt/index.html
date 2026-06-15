@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>マルセイミニレジ 電子レシート</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -18,7 +21,7 @@
       --warn-fg: #b45309;
       --err-bg:  #fff0f0;
       --err-fg:  #cc0000;
-      --font:    'Courier New','Courier','Osaka-Mono',monospace;
+      --font:    'Courier New','Noto Sans Mono','Courier',monospace;
       --w:       360px;
     }
     body {
@@ -34,7 +37,7 @@
     .site-header {
       width: 100%; max-width: var(--w);
       text-align: center; margin-bottom: 20px;
-      font-size: 12px; color: var(--light);
+      font-size: 14px; color: var(--light);
     }
     .card {
       width: 100%; max-width: var(--w);
@@ -51,43 +54,43 @@
 
     /* ── ショップヘッダー ── */
     .shop-name    { font-size: 18px; font-weight: 700; text-align: center; margin-bottom: 4px; }
-    .shop-invoice { font-size: 11px; color: var(--gray); text-align: center; margin-bottom: 2px; }
-    .shop-zip     { font-size: 12px; color: var(--gray); text-align: center; margin-bottom: 1px; }
-    .shop-addr    { font-size: 12px; color: var(--gray); text-align: center; margin-bottom: 1px; }
-    .shop-tel     { font-size: 12px; color: var(--gray); text-align: center; margin-bottom: 1px; }
-    .shop-url     { font-size: 11px; color: var(--blue);  text-align: center; margin-bottom: 1px; }
-    .shop-note-top{ font-size: 11px; color: var(--gray); text-align: center; margin-top: 4px; }
+    .shop-invoice { font-size: 14px; color: var(--gray); text-align: center; margin-bottom: 2px; }
+    .shop-zip     { font-size: 14px; color: var(--gray); text-align: center; margin-bottom: 1px; }
+    .shop-addr    { font-size: 14px; color: var(--gray); text-align: center; margin-bottom: 1px; }
+    .shop-tel     { font-size: 14px; color: var(--gray); text-align: center; margin-bottom: 1px; }
+    .shop-url     { font-size: 14px; color: var(--blue);  text-align: center; margin-bottom: 1px; }
+    .shop-note-top{ font-size: 14px; color: var(--gray); text-align: center; margin-top: 4px; }
 
     /* ── 日時・ID ── */
-    .shop-id  { font-size: 10px; color: var(--light); text-align: left;
+    .shop-id  { font-size: 14px; color: var(--light); text-align: left;
                  letter-spacing: 0.05em; margin-bottom: 2px; }
-    .rec-meta { font-size: 12px; color: var(--gray); text-align: center; }
-    .rec-no   { font-size: 11px; color: var(--light); text-align: center; margin-top: 2px; }
-    .rec-pay  { font-size: 12px; color: var(--gray);  text-align: center; margin-top: 2px; }
+    .rec-meta { font-size: 14px; color: var(--gray); text-align: center; }
+    .rec-no   { font-size: 14px; color: var(--light); text-align: center; margin-top: 2px; }
+    .rec-pay  { font-size: 14px; color: var(--gray);  text-align: center; margin-top: 2px; }
 
     /* ── 明細テーブル ── */
     .tbl { width: 100%; border-collapse: collapse; }
     .tbl td { padding: 4px 0; font-size: 14px; vertical-align: top; }
     .td-name  { text-align: left; }
-    .td-qty   { text-align: center; color: var(--gray); font-size: 12px; width: 36px; }
+    .td-qty   { text-align: center; color: var(--gray); font-size: 14px; width: 36px; }
     .td-price { text-align: right; white-space: nowrap; }
 
     /* 単品（子なし）: Bold */
     .row-single td { font-weight: 700; }
 
     /* セット親行：通常 */
-    .row-set-parent td { font-weight: 400; color: var(--gray); font-size: 13px; }
-    .row-set-parent .td-price { font-size: 13px; color: var(--gray); }
+    .row-set-parent td { font-weight: 400; color: var(--gray); font-size: 14px; }
+    .row-set-parent .td-price { font-size: 14px; color: var(--gray); }
 
     /* 子行 */
-    .sub-row td { font-size: 11px; color: var(--gray); padding: 1px 0; }
+    .sub-row td { font-size: 14px; color: var(--gray); padding: 1px 0; }
 
     /* 小計行：Bold */
-    .subtotal-row .td-name  { font-size: 13px; color: var(--gray); padding: 3px 0; }
+    .subtotal-row .td-name  { font-size: 14px; color: var(--gray); padding: 3px 0; }
     .subtotal-row .td-price { font-size: 14px; color: var(--black); padding: 3px 0; font-weight: 700; }
 
     .td-sub   { text-align: left; }
-    .td-price.td-sub { text-align: right; font-size: 11px; color: var(--gray); }
+    .td-price.td-sub { text-align: right; font-size: 14px; color: var(--gray); }
     .td-price.minus { color: #cc6600; }
     .td-price.sub-minus { color: #cc0000; }
 
@@ -107,18 +110,18 @@
     }
 
     /* ── 税区分 ── */
-    .tax-row td    { font-size: 11px; color: var(--gray); padding: 2px 0; }
+    .tax-row td    { font-size: 14px; color: var(--gray); padding: 2px 0; }
     .tax-indent    { padding-left: 12px !important; }
 
     /* ── 自由表記（下） ── */
-    .note-bottom { font-size: 11px; color: var(--gray); text-align: center; }
+    .note-bottom { font-size: 14px; color: var(--gray); text-align: center; }
 
     /* ── 領収書 ── */
     .ryoshucho { text-align: center; }
     .ryo-title   { font-size: 16px; font-weight: 700; letter-spacing: 0.3em; margin-bottom: 10px; }
     .ryo-atena   { font-size: 15px; margin-bottom: 6px; }
     .ryo-total   { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
-    .ryo-tadashi { font-size: 13px; color: var(--gray); }
+    .ryo-tadashi { font-size: 14px; color: var(--gray); }
 
     /* ── 注意文 ── */
     .notice {
@@ -134,7 +137,7 @@
       padding: 24px 20px; text-align: center;
     }
     .error-card h2 { font-size: 16px; color: var(--err-fg); margin-bottom: 8px; }
-    .error-card p  { font-size: 13px; color: var(--gray); line-height: 1.6; }
+    .error-card p  { font-size: 14px; color: var(--gray); line-height: 1.6; }
     #loading { font-size: 14px; color: var(--gray); padding: 40px; }
 
     /* 署名検証 */
@@ -318,15 +321,15 @@
         for(const t of d.tax) totalTaxAmt+=t.x;
       }
       const totalTaxRow=totalTaxAmt>0
-        ?`<tr><td class="tax-total-indent" colspan="2" style="font-size:12px;color:var(--gray);padding-top:4px;">内消費税</td><td class="td-price" style="font-size:12px;color:var(--gray);padding-top:4px;">${fmt(totalTaxAmt)}</td></tr>`
+        ?`<tr><td class="tax-total-indent" colspan="2" style="font-size:14px;color:var(--gray);padding-top:4px;">内消費税</td><td class="td-price" style="font-size:14px;color:var(--gray);padding-top:4px;">${fmt(totalTaxAmt)}</td></tr>`
         :'';
 
       // お預り金・お釣り
       const recvRow = d.recv
-        ? `<tr><td colspan="2" style="font-size:13px;padding-top:4px;">お預り金</td><td class="td-price" style="font-size:13px;padding-top:4px;">${fmt(d.recv)}</td></tr>`
+        ? `<tr><td colspan="2" style="font-size:14px;padding-top:4px;">お預り金</td><td class="td-price" style="font-size:14px;padding-top:4px;">${fmt(d.recv)}</td></tr>`
         : '';
       const chngRow = d.chng
-        ? `<tr class="chng-row"><td colspan="2" style="font-size:14px;">お釣り</td><td class="td-price" style="font-size:14px;">${fmt(d.chng)}</td></tr>`
+        ? `<tr class="chng-row"><td colspan="2" style="font-size:14px;font-weight:700;">お釣り</td><td class="td-price" style="font-size:14px;font-weight:700;">${fmt(d.chng)}</td></tr>`
         : '';
 
       // 自由表記（下）
@@ -345,8 +348,8 @@
             <tbody>${rows}</tbody>
             <tfoot>
               ${d.wdisc ? `<tr>
-                <td class="td-name" colspan="2" style="font-size:13px;color:var(--gray);">値引き（全体）</td>
-                <td class="td-price" style="font-size:13px;color:var(--gray);">△¥&nbsp;${d.wdisc.toLocaleString('ja-JP')}</td>
+                <td class="td-name" colspan="2" style="font-size:14px;color:var(--gray);">値引き（全体）</td>
+                <td class="td-price" style="font-size:14px;color:var(--gray);">△¥&nbsp;${d.wdisc.toLocaleString('ja-JP')}</td>
               </tr>` : ''}
               <tr class="total">
                 <td class="td-name" colspan="2">合　計</td>

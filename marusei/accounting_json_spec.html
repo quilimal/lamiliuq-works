@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>マルセイシリーズ バックアップJSON仕様書</title>
+<style>
+  :root {
+    --blue:      #2E6FD9;
+    --blue-dark: #1A4A9A;
+    --blue-pale: #E8F0FB;
+    --gray-bg:   #F6F7F9;
+    --gray-line: #E2E6ED;
+    --text:      #1A1A2E;
+    --muted:     #6B7280;
+    --red:       #DC2626;
+    --orange:    #EA580C;
+    --green:     #16A34A;
+    --indigo:    #4338CA;
+    --purple:    #7C3AED;
+    --mono:      "Fira Code", "Courier New", monospace;
+    --sans:      "Noto Sans JP", "Hiragino Sans", system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text);
+    background: var(--gray-bg);
+  }
+
+  /* ── サイドバー + メイン ── */
+  .layout {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  nav {
+    width: 240px;
+    flex-shrink: 0;
+    background: #fff;
+    border-right: 1px solid var(--gray-line);
+    padding: 24px 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+
+  .nav-logo {
+    padding: 0 20px 20px;
+    border-bottom: 1px solid var(--gray-line);
+    margin-bottom: 16px;
+  }
+  .nav-logo .app { font-size: 13px; font-weight: 700; color: var(--blue); }
+  .nav-logo .doc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  nav a {
+    display: block;
+    padding: 6px 20px;
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+  }
+  nav a:hover { color: var(--blue); background: var(--blue-pale); border-left-color: var(--blue); }
+  nav .nav-section {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    padding: 14px 20px 4px;
+  }
+
+  main {
+    flex: 1;
+    padding: 48px 56px;
+    max-width: 960px;
+  }
+
+  /* ── ヘッダー ── */
+  .page-header {
+    border-bottom: 2px solid var(--blue);
+    padding-bottom: 24px;
+    margin-bottom: 48px;
+  }
+  .page-header .label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--blue);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+  }
+  .page-header h1 { font-size: 28px; font-weight: 700; color: var(--text); }
+  .page-header .meta {
+    display: flex;
+    gap: 24px;
+    margin-top: 12px;
+  }
+  .page-header .meta span { font-size: 12px; color: var(--muted); }
+  .page-header .meta b { color: var(--text); }
+
+  /* ── セクション ── */
+  section { margin-bottom: 56px; }
+
+  h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--blue-dark);
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--gray-line);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  h2 .num {
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    background: var(--blue);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 24px 0 10px;
+  }
+
+  p { margin-bottom: 12px; color: var(--text); }
+
+  /* ── コードブロック ── */
+  .code-block {
+    background: #1E2130;
+    border-radius: 8px;
+    padding: 20px 24px;
+    overflow-x: auto;
+    margin: 16px 0;
+  }
+  .code-block pre {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.8;
+    color: #CDD6F4;
+  }
+  .c-key    { color: #89B4FA; }
+  .c-str    { color: #A6E3A1; }
+  .c-num    { color: #FAB387; }
+  .c-bool   { color: #F38BA8; }
+  .c-null   { color: #9399B2; }
+  .c-cmt    { color: #6C7086; font-style: italic; }
+  .c-punc   { color: #CDD6F4; }
+
+  /* ── フィールドテーブル ── */
+  .field-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 13px;
+  }
+  .field-table th {
+    background: var(--blue);
+    color: #fff;
+    font-weight: 600;
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 12px;
+  }
+  .field-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--gray-line);
+    vertical-align: top;
+  }
+  .field-table tr:last-child td { border-bottom: none; }
+  .field-table tr:nth-child(even) td { background: var(--gray-bg); }
+  .field-table td:first-child {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--blue-dark);
+    white-space: nowrap;
+    font-weight: 600;
+  }
+  .field-table td:nth-child(2) {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  /* ── バッジ ── */
+  .badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    vertical-align: middle;
+    margin-left: 4px;
+  }
+  .badge-req  { background: #FEE2E2; color: var(--red); }
+  .badge-opt  { background: #E8F0FB; color: var(--blue); }
+  .badge-new  { background: #DCFCE7; color: var(--green); }
+  .badge-dep  { background: #F3F4F6; color: var(--muted); text-decoration: line-through; }
+
+  /* ── voidedByフォーマット表 ── */
+  .voided-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 16px 0;
+  }
+  .voided-table th {
+    background: var(--blue);
+    color: #fff;
+    padding: 8px 12px;
+    font-size: 12px;
+    text-align: left;
+  }
+  .voided-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--gray-line);
+  }
+  .voided-table .tag-d  { color: var(--orange); font-family: var(--mono); font-weight: 700; }
+  .voided-table .tag-r  { color: var(--indigo); font-family: var(--mono); font-weight: 700; }
+  .voided-table .tag-nil { color: var(--muted); font-family: var(--mono); }
+
+  /* ── アラートボックス ── */
+  .alert {
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 16px 0;
+    font-size: 13px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .alert-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .alert-info  { background: var(--blue-pale); border-left: 3px solid var(--blue); }
+  .alert-warn  { background: #FFF7ED; border-left: 3px solid var(--orange); }
+  .alert-new   { background: #F0FDF4; border-left: 3px solid var(--green); }
+
+  /* ── インラインコード ── */
+  code {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: #EEF2FF;
+    color: var(--blue-dark);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  /* ── フローステップ ── */
+  .flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 16px 0;
+  }
+  .flow-step {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .flow-step-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .flow-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--blue);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .flow-line {
+    width: 2px;
+    flex: 1;
+    background: var(--gray-line);
+    margin: 4px 0;
+    min-height: 20px;
+  }
+  .flow-body {
+    padding: 4px 0 20px;
+    flex: 1;
+  }
+  .flow-body strong { font-size: 13px; color: var(--text); }
+  .flow-body p { font-size: 12.5px; color: var(--muted); margin-top: 2px; margin-bottom: 0; }
+
+  /* ── 変更履歴 ── */
+  .changelog {
+    border: 1px solid var(--gray-line);
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 13px;
+  }
+  .changelog-row {
+    display: grid;
+    grid-template-columns: 90px 80px 1fr;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--gray-line);
+  }
+  .changelog-row:last-child { border-bottom: none; }
+  .changelog-row.header {
+    background: var(--blue);
+    color: #fff;
+    font-weight: 700;
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- ── サイドナビ ── -->
+<nav>
+  <div class="nav-logo">
+    <div class="app">マルセイシリーズ</div>
+    <div class="doc">バックアップJSON仕様書</div>
+  </div>
+
+  <div class="nav-section">概要</div>
+  <a href="#overview">1. 仕様概要</a>
+  <a href="#structure">2. ルート構造</a>
+
+  <div class="nav-section">metaオブジェクト</div>
+  <a href="#meta">3. meta（真正性）</a>
+
+  <div class="nav-section">データ</div>
+  <a href="#settings">4. settings</a>
+  <a href="#accounts">5. accounts</a>
+  <a href="#journals">6. journals</a>
+  <a href="#voided">　 voidedBy仕様</a>
+  <a href="#assets">7. fixedAssets</a>
+  <a href="#diaries">8. diaries</a>
+
+  <div class="nav-section">運用</div>
+  <a href="#flow">9. 生成・検証フロー</a>
+  <a href="#compat">10. 後方互換ルール</a>
+  <a href="#changelog">11. 変更履歴</a>
+</nav>
+
+<!-- ── メイン ── -->
+<main>
+
+<div class="page-header">
+  <div class="label">lamiliuq works — 内部技術仕様書</div>
+  <h1>マルセイシリーズ バックアップJSON仕様書</h1>
+  <div class="meta">
+    <span>版数：<b>v2.0</b></span>
+    <span>制定日：<b>2026-06-19</b></span>
+    <span>適用：<b>マルセイ会計 build 18〜</b></span>
+  </div>
+</div>
+
+<!-- ── 1. 仕様概要 ── -->
+<section id="overview">
+  <h2><span class="num">1</span> 仕様概要</h2>
+  <p>本仕様書はマルセイシリーズ（マルセイ会計・マルセイ棚卸・マルセイミニレジ）が出力するバックアップJSONファイルの構造を定める。</p>
+  <p>v2.0では以下の変更を行った。</p>
+  <div class="alert alert-new"><span class="alert-icon">✅</span><div>
+    <strong>v2.0 変更点</strong><br>
+    ① <code>meta</code> オブジェクトを追加しRFC3161タイムスタンプによる真正性を担保<br>
+    ② <code>journals[].voidedBy</code> を正式フィールドとして追加（優良な電子帳簿要件対応）<br>
+    ③ <code>sha256</code> 計算対象をmetaを除いた本体部分と定義
+  </div></div>
+
+  <div class="alert alert-info"><span class="alert-icon">ℹ️</span><div>
+    バックアップファイルの真正性仕様の詳細は別文書「マルセイ会計 バックアップ真正性仕様書 v1.0」を参照すること。
+  </div></div>
+</section>
+
+<!-- ── 2. ルート構造 ── -->
+<section id="structure">
+  <h2><span class="num">2</span> ルート構造</h2>
+  <p>バックアップJSONのルートオブジェクトは以下の8キーで構成される。</p>
+
+  <div class="code-block"><pre><span class="c-punc">{</span>
+  <span class="c-key">"meta"</span><span class="c-punc">:</span>        <span class="c-punc">{...},</span>    <span class="c-cmt">// ✅ v2.0追加: 真正性・バージョン情報</span>
+  <span class="c-key">"version"</span><span class="c-punc">:</span>     <span class="c-str">"2.0"</span><span class="c-punc">,</span>
+  <span class="c-key">"exportedAt"</span><span class="c-punc">:</span>  <span class="c-str">"2026-06-19T12:00:00.000Z"</span><span class="c-punc">,</span>
+  <span class="c-key">"appVersion"</span><span class="c-punc">:</span>  <span class="c-str">"2026.0619.18"</span><span class="c-punc">,</span>
+  <span class="c-key">"settings"</span><span class="c-punc">:</span>    <span class="c-punc">{...},</span>
+  <span class="c-key">"accounts"</span><span class="c-punc">:</span>    <span class="c-punc">[...],</span>
+  <span class="c-key">"subAccounts"</span><span class="c-punc">:</span> <span class="c-punc">[...],</span>
+  <span class="c-key">"partners"</span><span class="c-punc">:</span>    <span class="c-punc">[...],</span>
+  <span class="c-key">"banks"</span><span class="c-punc">:</span>       <span class="c-punc">[...],</span>
+  <span class="c-key">"journals"</span><span class="c-punc">:</span>    <span class="c-punc">[...],</span>
+  <span class="c-key">"fixedAssets"</span><span class="c-punc">:</span> <span class="c-punc">[...],</span>
+  <span class="c-key">"diaries"</span><span class="c-punc">:</span>     <span class="c-punc">[...]</span>
+<span class="c-punc">}</span></pre></div>
+
+  <table class="field-table">
+    <tr><th>キー</th><th>型</th><th>説明</th></tr>
+    <tr><td>meta</td><td>object</td><td>真正性情報（sha256・TST）<span class="badge badge-new">v2.0</span></td></tr>
+    <tr><td>version</td><td>string</td><td>バックアップ形式バージョン。現行: <code>"2.0"</code></td></tr>
+    <tr><td>exportedAt</td><td>string</td><td>エクスポート日時（ISO8601 UTC）</td></tr>
+    <tr><td>appVersion</td><td>string</td><td>マルセイ会計のアプリバージョン</td></tr>
+    <tr><td>settings</td><td>object</td><td>ユーザー設定</td></tr>
+    <tr><td>accounts</td><td>array</td><td>ユーザー追加科目（プリセット科目は除外）</td></tr>
+    <tr><td>subAccounts</td><td>array</td><td>補助科目</td></tr>
+    <tr><td>partners</td><td>array</td><td>得意先</td></tr>
+    <tr><td>banks</td><td>array</td><td>金融機関</td></tr>
+    <tr><td>journals</td><td>array</td><td>仕訳（削除済み・編集前を含む全件）</td></tr>
+    <tr><td>fixedAssets</td><td>array</td><td>固定資産台帳（削除済みを含む全件）</td></tr>
+    <tr><td>diaries</td><td>array</td><td>ミニ日記帳</td></tr>
+  </table>
+
+  <div class="alert alert-warn"><span class="alert-icon">⚠️</span><div>
+    <code>journals</code> は <code>voidedBy != nil</code>（削除済み・編集前・再決算）の仕訳も全件含む。<br>
+    帳簿集計時は必ず <code>voidedBy == null</code> の仕訳のみを対象とすること。
+  </div></div>
+</section>
+
+<!-- ── 3. meta ── -->
+<section id="meta">
+  <h2><span class="num">3</span> meta オブジェクト</h2>
+  <p>RFC3161タイムスタンプによる真正性を保証するフィールド群。</p>
+
+  <div class="code-block"><pre><span class="c-key">"meta"</span><span class="c-punc">: {</span>
+  <span class="c-key">"sha256"</span><span class="c-punc">:</span>  <span class="c-str">"a3f1b2..."</span><span class="c-punc">,</span>  <span class="c-cmt">// metaを除いた本体のSHA-256（hex小文字）</span>
+  <span class="c-key">"tst"</span><span class="c-punc">:</span>     <span class="c-str">"MIIHbg..."</span><span class="c-punc">,</span>  <span class="c-cmt">// RFC3161 TSTのBase64エンコード</span>
+  <span class="c-key">"tsaUrl"</span><span class="c-punc">:</span>  <span class="c-str">"http://timestamp.digicert.com"</span>
+<span class="c-punc">}</span></pre></div>
+
+  <table class="field-table">
+    <tr><th>キー</th><th>型</th><th>説明</th></tr>
+    <tr><td>sha256</td><td>string</td><td>metaを除いたJSON本体（正規化済み）のSHA-256ハッシュ値（16進数小文字64文字）</td></tr>
+    <tr><td>tst</td><td>string</td><td>DigiCert TSAが発行したタイムスタンプトークン（DER→Base64）</td></tr>
+    <tr><td>tsaUrl</td><td>string</td><td>使用したTSAのエンドポイントURL</td></tr>
+  </table>
+
+  <div class="alert alert-info"><span class="alert-icon">ℹ️</span><div>
+    <code>sha256</code> の計算対象は <code>meta</code> キーを除いたJSONオブジェクト全体をキーソート・余分な空白除去した正規化文字列（UTF-8）とする。<br>
+    これによりTSTをmetaに後から埋め込んでもハッシュ値が変化しない設計となっている。
+  </div></div>
+</section>
+
+<!-- ── 4. settings ── -->
+<section id="settings">
+  <h2><span class="num">4</span> settings</h2>
+
+  <div class="code-block"><pre><span class="c-key">"settings"</span><span class="c-punc">: {</span>
+  <span class="c-key">"businessName"</span><span class="c-punc">:</span>             <span class="c-str">"山田商事"</span><span class="c-punc">,</span>
+  <span class="c-key">"processingYear"</span><span class="c-punc">:</span>           <span class="c-num">2026</span><span class="c-punc">,</span>
+  <span class="c-key">"isTaxPayer"</span><span class="c-punc">:</span>               <span class="c-bool">true</span><span class="c-punc">,</span>        <span class="c-cmt">// 後方互換フィールド</span>
+  <span class="c-key">"useCashAccount"</span><span class="c-punc">:</span>           <span class="c-bool">false</span><span class="c-punc">,</span>
+  <span class="c-key">"showBranchAccounts"</span><span class="c-punc">:</span>       <span class="c-bool">false</span><span class="c-punc">,</span>
+  <span class="c-key">"useMultipleBanks"</span><span class="c-punc">:</span>         <span class="c-bool">true</span><span class="c-punc">,</span>
+  <span class="c-key">"invoiceRegistrationNumber"</span><span class="c-punc">:</span> <span class="c-str">"T1234567890123"</span><span class="c-punc">,</span>
+  <span class="c-key">"lockedFiscalYears"</span><span class="c-punc">:</span>        <span class="c-punc">[</span><span class="c-num">2024</span><span class="c-punc">,</span> <span class="c-num">2025</span><span class="c-punc">],</span>
+  <span class="c-key">"selectedExpenseTags"</span><span class="c-punc">:</span>      <span class="c-punc">[</span><span class="c-str">"600"</span><span class="c-punc">,</span> <span class="c-str">"610"</span><span class="c-punc">],</span>
+  <span class="c-key">"taxablePeriods"</span><span class="c-punc">:</span>           <span class="c-punc">[</span>
+    <span class="c-punc">{</span>
+      <span class="c-key">"id"</span><span class="c-punc">:</span>                 <span class="c-str">"UUID"</span><span class="c-punc">,</span>
+      <span class="c-key">"startDate"</span><span class="c-punc">:</span>         <span class="c-str">"2026-01-01T00:00:00Z"</span><span class="c-punc">,</span>
+      <span class="c-key">"endDate"</span><span class="c-punc">:</span>           <span class="c-null">null</span><span class="c-punc">,</span>
+      <span class="c-key">"taxType"</span><span class="c-punc">:</span>           <span class="c-str">"standard"</span><span class="c-punc">,</span>
+      <span class="c-key">"simplifiedCategory"</span><span class="c-punc">:</span> <span class="c-num">5</span><span class="c-punc">,</span>
+      <span class="c-key">"specialReduction"</span><span class="c-punc">:</span>  <span class="c-str">"none"</span>
+    <span class="c-punc">}</span>
+  <span class="c-punc">]</span>
+<span class="c-punc">}</span></pre></div>
+
+  <table class="field-table">
+    <tr><th>キー</th><th>型</th><th>説明</th></tr>
+    <tr><td>businessName</td><td>string</td><td>屋号・事業所名</td></tr>
+    <tr><td>processingYear</td><td>int</td><td>処理年度（西暦）</td></tr>
+    <tr><td>isTaxPayer</td><td>bool</td><td>後方互換フィールド。現行は <code>taxablePeriods</code> で判定</td></tr>
+    <tr><td>useCashAccount</td><td>bool</td><td>現金科目を使用するか</td></tr>
+    <tr><td>showBranchAccounts</td><td>bool</td><td>事業主勘定を表示するか</td></tr>
+    <tr><td>useMultipleBanks</td><td>bool</td><td>複数口座管理を使用するか</td></tr>
+    <tr><td>invoiceRegistrationNumber</td><td>string</td><td>インボイス登録番号（T+13桁）</td></tr>
+    <tr><td>lockedFiscalYears</td><td>int[]</td><td>確定申告完了済みの年度（編集ロック）</td></tr>
+    <tr><td>selectedExpenseTags</td><td>string[]</td><td>カレンダー表示用の科目コード一覧</td></tr>
+    <tr><td>taxablePeriods</td><td>object[]</td><td>課税事業者期間の履歴</td></tr>
+  </table>
+
+  <h3>taxablePeriods エントリー</h3>
+  <table class="field-table">
+    <tr><th>キー</th><th>型</th><th>説明</th></tr>
+    <tr><td>id</td><td>string</td><td>UUID</td></tr>
+    <tr><td>startDate</td><td>string</td><td>課税期間開始日（ISO8601）</td></tr>
+    <tr><td>endDate</td><td>string|null</td><td>課税期間終了日（null = 現在進行中）</td></tr>
+    <tr><td>taxType</td><td>string</td><td><code>"standard"</code> / <code>"simplified"</code> / <code>"exempt"</code></td></tr>
+    <tr><td>simplifiedCategory</td><td>int</td><td>簡易課税のみどかい区分（1〜6）</td></tr>
+    <tr><td>specialReduction</td><td>string</td><td>特例：<code>"none"</code> / <code>"reduction80"</code> / <code>"reduction70"</code> / <code>"reduction50"</code></td></tr>
+  </table>
+</section>
+
+<!-- ── 5. accounts ── -->
+<section id="accounts">
+  <h2><span class="num">5</span> accounts / subAccounts / partners / banks</h2>
+  <div class="alert alert-info"><span class="alert-icon">ℹ️</span><div>
+    <code>accounts</code> はユーザー追加科目のみ。プリセット科目（<code>AccountStore.isPresetAccount()</code> が true を返すもの）は除外される。
+  </div></div>
+
+  <div class="code-block"><pre><span class="c-key">"accounts"</span><span class="c-punc">: [{ </span><span class="c-key">"code"</span><span class="c-punc">:</span> <span class="c-str">"800"</span><span class="c-punc">,</span> <span class="c-key">"name"</span><span class="c-punc">:</span> <span class="c-str">"消耗品費"</span> <span class="c-punc">}]</span>
+
+<span class="c-key">"subAccounts"</span><span class="c-punc">: [{</span>
+  <span class="c-key">"code"</span><span class="c-punc">:</span>       <span class="c-str">"800A"</span><span class="c-punc">,</span>
+  <span class="c-key">"name"</span><span class="c-punc">:</span>       <span class="c-str">"自宅兼事務所"</span><span class="c-punc">,</span>
+  <span class="c-key">"parentCode"</span><span class="c-punc">:</span> <span class="c-str">"800"</span><span class="c-punc">,</span>
+  <span class="c-key">"rate"</span><span class="c-punc">:</span>       <span class="c-str">"0.6"</span>   <span class="c-cmt">// Decimal → string</span>
+<span class="c-punc">}]</span>
+
+<span class="c-key">"partners"</span><span class="c-punc">: [{</span>
+  <span class="c-key">"tag"</span><span class="c-punc">:</span>           <span class="c-str">"a"</span><span class="c-punc">,</span>
+  <span class="c-key">"name"</span><span class="c-punc">:</span>          <span class="c-str">"山田商店"</span><span class="c-punc">,</span>
+  <span class="c-key">"invoiceNumber"</span><span class="c-punc">:</span> <span class="c-str">"T1234567890123"</span>
+<span class="c-punc">}]</span>
+
+<span class="c-key">"banks"</span><span class="c-punc">: [{ </span><span class="c-key">"tag"</span><span class="c-punc">:</span> <span class="c-str">"a"</span><span class="c-punc">,</span> <span class="c-key">"name"</span><span class="c-punc">:</span> <span class="c-str">"みずほ銀行"</span> <span class="c-punc">}]</span></pre></div>
+
+  <div class="alert alert-warn"><span class="alert-icon">⚠️</span><div>
+    <code>partners[].name</code> はJournal側でも名前のまま保持される（旧名も記録として残す設計）。タグIDでは照合しないこと。
+  </div></div>
+</section>
+
+<!-- ── 6. journals ── -->
+<section id="journals">
+  <h2><span class="num">6</span> journals</h2>
+  <p>全仕訳を出力する。<strong>削除済み・編集前・再決算無効化済みの仕訳も含む（<code>voidedBy != null</code>）。</strong></p>
+
+  <div class="code-block"><pre><span class="c-key">"journals"</span><span class="c-punc">: [{</span>
+  <span class="c-cmt">// ── 必須フィールド（5項目）──</span>
+  <span class="c-key">"id"</span><span class="c-punc">:</span>                <span class="c-str">"A1B2C3D4"</span><span class="c-punc">,</span>    <span class="c-cmt">// base62 8桁（6桁タイムスタンプ+2桁シーケンス）</span>
+  <span class="c-key">"date"</span><span class="c-punc">:</span>              <span class="c-str">"2026-04-01T00:00:00Z"</span><span class="c-punc">,</span>
+  <span class="c-key">"debitAccountCode"</span><span class="c-punc">:</span>  <span class="c-str">"800"</span><span class="c-punc">,</span>
+  <span class="c-key">"creditAccountCode"</span><span class="c-punc">:</span> <span class="c-str">"110"</span><span class="c-punc">,</span>
+  <span class="c-key">"totalAmount"</span><span class="c-punc">:</span>       <span class="c-num">11000</span><span class="c-punc">,</span>
+
+  <span class="c-cmt">// ── 省略可能フィールド（デフォルト値あり）──</span>
+  <span class="c-key">"transactionType"</span><span class="c-punc">:</span>   <span class="c-str">"expense"</span><span class="c-punc">,</span>
+  <span class="c-key">"debitAccountName"</span><span class="c-punc">:</span>  <span class="c-str">"消耗品費"</span><span class="c-punc">,</span>
+  <span class="c-key">"creditAccountName"</span><span class="c-punc">:</span> <span class="c-str">"現金"</span><span class="c-punc">,</span>
+  <span class="c-key">"originalTotalAmount"</span><span class="c-punc">:</span> <span class="c-num">11000</span><span class="c-punc">,</span>
+  <span class="c-key">"netAmount"</span><span class="c-punc">:</span>         <span class="c-num">10000</span><span class="c-punc">,</span>
+  <span class="c-key">"taxAmount"</span><span class="c-punc">:</span>         <span class="c-num">1000</span><span class="c-punc">,</span>
+  <span class="c-key">"taxRate"</span><span class="c-punc">:</span>           <span class="c-str">"0.1"</span><span class="c-punc">,</span>
+  <span class="c-key">"taxType"</span><span class="c-punc">:</span>           <span class="c-str">"10%"</span><span class="c-punc">,</span>
+  <span class="c-key">"apportionmentRate"</span><span class="c-punc">:</span> <span class="c-str">"1.0"</span><span class="c-punc">,</span>
+  <span class="c-key">"summary"</span><span class="c-punc">:</span>           <span class="c-str">"文房具購入"</span><span class="c-punc">,</span>
+  <span class="c-key">"debitSubAccount"</span><span class="c-punc">:</span>   <span class="c-str">""</span><span class="c-punc">,</span>
+  <span class="c-key">"creditSubAccount"</span><span class="c-punc">:</span>  <span class="c-str">""</span><span class="c-punc">,</span>
+  <span class="c-key">"debitPartner"</span><span class="c-punc">:</span>      <span class="c-str">""</span><span class="c-punc">,</span>
+  <span class="c-key">"creditPartner"</span><span class="c-punc">:</span>     <span class="c-str">""</span><span class="c-punc">,</span>
+  <span class="c-key">"debitBankTag"</span><span class="c-punc">:</span>      <span class="c-str">""</span><span class="c-punc">,</span>
+  <span class="c-key">"creditBankTag"</span><span class="c-punc">:</span>     <span class="c-str">""</span><span class="c-punc">,</span>
+  <span class="c-key">"isTemporary"</span><span class="c-punc">:</span>       <span class="c-bool">false</span><span class="c-punc">,</span>
+  <span class="c-key">"isFiscalAdjustment"</span><span class="c-punc">:</span> <span class="c-bool">false</span><span class="c-punc">,</span>
+  <span class="c-key">"isSystemGenerated"</span><span class="c-punc">:</span> <span class="c-bool">false</span><span class="c-punc">,</span>
+  <span class="c-key">"voidedBy"</span><span class="c-punc">:</span>          <span class="c-null">null</span><span class="c-punc">,</span>          <span class="c-cmt">// ✅ v2.0: 優良な電子帳簿対応</span>
+  <span class="c-key">"invoiceStatus"</span><span class="c-punc">:</span>     <span class="c-str">"qualified"</span><span class="c-punc">,</span>
+  <span class="c-key">"createdAt"</span><span class="c-punc">:</span>         <span class="c-str">"2026-04-01T09:30:00Z"</span><span class="c-punc">,</span>
+  <span class="c-key">"extra1"</span><span class="c-punc">:</span>            <span class="c-null">null</span><span class="c-punc">,</span>          <span class="c-cmt">// 予備（文字列）</span>
+  <span class="c-key">"extra2"</span><span class="c-punc">:</span>            <span class="c-null">null</span>           <span class="c-cmt">// 予備（数値）</span>
+<span class="c-punc">}]</span></pre></div>
+
+  <h3>taxType の値一覧</h3>
+  <table class="field-table">
+    <tr><th>値</th><th>意味</th></tr>
+    <tr><td>10%</td><td>標準税率（インボイスあり）</td></tr>
+    <tr><td>8%</td><td>軽減税率（インボイスあり）</td></tr>
+    <tr><td>10%（イ無）</td><td>標準税率（インボイスなし）</td></tr>
+    <tr><td>8%（イ無）</td><td>軽減税率（インボイスなし）</td></tr>
+    <tr><td>非課税</td><td>非課税取引</td></tr>
+    <tr><td>不課税</td><td>不課税取引</td></tr>
+    <tr><td>""（空文字）</td><td>未選択（旧データ互換）</td></tr>
+  </table>
+</section>
+
+<!-- ── voidedBy ── -->
+<section id="voided">
+  <h2><span class="num">↳</span> journals[].voidedBy 仕様</h2>
+  <p>優良な電子帳簿要件に対応するフィールド。訂正・削除・再決算の履歴を記録する。</p>
+  <div class="alert alert-warn"><span class="alert-icon">⚠️</span><div>
+    生成ヘルパーを必ず使用すること。インライン文字列での直接構築は禁止。<br>
+    Swift: <code>Journal.makeDeletedVoidedBy()</code> / <code>makeReplacedVoidedBy(newID:)</code> / <code>makeAutoVoidedBy()</code>
+  </div></div>
+
+  <table class="voided-table">
+    <tr><th>状態</th><th>値</th><th>例</th></tr>
+    <tr>
+      <td>現役（有効）</td>
+      <td><span class="tag-nil">null</span></td>
+      <td><span class="tag-nil">null</span></td>
+    </tr>
+    <tr>
+      <td>削除</td>
+      <td><span class="tag-d">D_</span> + base62(unixtime, 6桁) + <span class="tag-d">_</span></td>
+      <td><span class="tag-d">D_A1B2C3_</span></td>
+    </tr>
+    <tr>
+      <td>編集（修正）</td>
+      <td><span class="tag-d">D_</span> + base62(unixtime, 6桁) + <span class="tag-d">_</span> + 新仕訳ID</td>
+      <td><span class="tag-d">D_A1B2C3_xK9mP2Q7</span></td>
+    </tr>
+    <tr>
+      <td>再決算による自動無効化</td>
+      <td><span class="tag-r">R_</span> + base62(unixtime, 6桁) + <span class="tag-r">_</span></td>
+      <td><span class="tag-r">R_A1B2C3_</span></td>
+    </tr>
+  </table>
+
+  <h3>base62タイムスタンプ</h3>
+  <p>Unix時間（秒）をbase62（<code>0-9A-Za-z</code>）で6桁表現したもの。<code>IDGenerator.currentTimestampBase62()</code> で生成する。</p>
+
+  <h3>編集の連鎖例（A→B→C）</h3>
+  <div class="code-block"><pre><span class="c-cmt">// 仕訳A（元の仕訳）: Bに置き換えられた</span>
+<span class="c-punc">{</span> <span class="c-key">"id"</span><span class="c-punc">:</span> <span class="c-str">"A0000001"</span><span class="c-punc">,</span> <span class="c-key">"voidedBy"</span><span class="c-punc">:</span> <span class="c-str">"D_A1B2C3_B0000001"</span> <span class="c-punc">}</span>
+
+<span class="c-cmt">// 仕訳B（Aの編集版）: Cに置き換えられた</span>
+<span class="c-punc">{</span> <span class="c-key">"id"</span><span class="c-punc">:</span> <span class="c-str">"B0000001"</span><span class="c-punc">,</span> <span class="c-key">"voidedBy"</span><span class="c-punc">:</span> <span class="c-str">"D_D4E5F6_C0000001"</span> <span class="c-punc">}</span>
+
+<span class="c-cmt">// 仕訳C（現役・最新版）</span>
+<span class="c-punc">{</span> <span class="c-key">"id"</span><span class="c-punc">:</span> <span class="c-str">"C0000001"</span><span class="c-punc">,</span> <span class="c-key">"voidedBy"</span><span class="c-punc">:</span> <span class="c-null">null</span> <span class="c-punc">}</span></pre></div>
+</section>
+
+<!-- ── 7. fixedAssets ── -->
+<section id="assets">
+  <h2><span class="num">7</span> fixedAssets</h2>
+  <p>固定資産台帳の全件。<code>markedAsDeleted: true</code> の削除済み資産も含む。</p>
+
+  <div class="code-block"><pre><span class="c-key">"fixedAssets"</span><span class="c-punc">: [{</span>
+  <span class="c-key">"id"</span><span class="c-punc">:</span>                           <span class="c-str">"UUID"</span><span class="c-punc">,</span>
+  <span class="c-key">"assetNumber"</span><span class="c-punc">:</span>                 <span class="c-num">1</span><span class="c-punc">,</span>
+  <span class="c-key">"year"</span><span class="c-punc">:</span>                        <span class="c-num">2026</span><span class="c-punc">,</span>
+  <span class="c-key">"assetCategory"</span><span class="c-punc">:</span>               <span class="c-str">"normal"</span><span class="c-punc">,</span>    <span class="c-cmt">// normal / lumpSum / smallAmount</span>
+  <span class="c-key">"accountCode"</span><span class="c-punc">:</span>                 <span class="c-str">"180"</span><span class="c-punc">,</span>
+  <span class="c-key">"assetName"</span><span class="c-punc">:</span>                   <span class="c-str">"MacBook Pro"</span><span class="c-punc">,</span>
+  <span class="c-key">"acquisitionDate"</span><span class="c-punc">:</span>             <span class="c-str">"2026-01-15T00:00:00Z"</span><span class="c-punc">,</span>
+  <span class="c-key">"acquisitionCost"</span><span class="c-punc">:</span>             <span class="c-num">330000</span><span class="c-punc">,</span>      <span class="c-cmt">// 税込取得価額</span>
+  <span class="c-key">"acquisitionTaxRate"</span><span class="c-punc">:</span>          <span class="c-str">"0.1"</span><span class="c-punc">,</span>
+  <span class="c-key">"acquisitionTaxType"</span><span class="c-punc">:</span>          <span class="c-str">"10%"</span><span class="c-punc">,</span>
+  <span class="c-key">"acquisitionConsumptionTaxType"</span><span class="c-punc">:</span> <span class="c-str">"standard"</span><span class="c-punc">,</span>
+  <span class="c-key">"isTaxPayer"</span><span class="c-punc">:</span>                  <span class="c-bool">true</span><span class="c-punc">,</span>         <span class="c-cmt">// 取得時点の課税事業者フラグ</span>
+  <span class="c-key">"usefulLife"</span><span class="c-punc">:</span>                  <span class="c-num">4</span><span class="c-punc">,</span>
+  <span class="c-key">"depreciationMethod"</span><span class="c-punc">:</span>          <span class="c-str">"定額法"</span><span class="c-punc">,</span>
+  <span class="c-key">"assetApportionmentRate"</span><span class="c-punc">:</span>      <span class="c-str">"1.0"</span><span class="c-punc">,</span>
+  <span class="c-key">"isDisposed"</span><span class="c-punc">:</span>                  <span class="c-bool">false</span><span class="c-punc">,</span>
+  <span class="c-key">"isFullyDepreciated"</span><span class="c-punc">:</span>          <span class="c-bool">false</span><span class="c-punc">,</span>
+  <span class="c-key">"markedAsDeleted"</span><span class="c-punc">:</span>             <span class="c-bool">false</span><span class="c-punc">,</span>
+  <span class="c-key">"memo"</span><span class="c-punc">:</span>                        <span class="c-str">""</span><span class="c-punc">,</span>
+  <span class="c-cmt">// ... 償却仕訳IDフィールド群（firstYearJournalID 等）省略</span>
+<span class="c-punc">}]</span></pre></div>
+
+  <h3>assetCategory の値</h3>
+  <table class="field-table">
+    <tr><th>値</th><th>意味</th><th>根拠法令</th></tr>
+    <tr><td>normal</td><td>通常減価償却</td><td>所令120条（定額法）</td></tr>
+    <tr><td>lumpSum</td><td>一括償却資産（3年均等）</td><td>措法67条の5</td></tr>
+    <tr><td>smallAmount</td><td>少額減価償却資産特例（即時償却）</td><td>措法28条の2</td></tr>
+  </table>
+</section>
+
+<!-- ── 8. diaries ── -->
+<section id="diaries">
+  <h2><span class="num">8</span> diaries</h2>
+  <div class="code-block"><pre><span class="c-key">"diaries"</span><span class="c-punc">: [{</span>
+  <span class="c-key">"id"</span><span class="c-punc">:</span>      <span class="c-str">"20260401"</span><span class="c-punc">,</span>           <span class="c-cmt">// "yyyyMMdd" 形式。主キー兼日付識別子</span>
+  <span class="c-key">"dateISO"</span><span class="c-punc">:</span> <span class="c-str">"2026-04-01T00:00:00Z"</span><span class="c-punc">,</span>
+  <span class="c-key">"text"</span><span class="c-punc">:</span>    <span class="c-str">"初めての青色申告の年"</span><span class="c-punc">,</span>  <span class="c-cmt">// 最大140文字</span>
+  <span class="c-key">"colorKey"</span><span class="c-punc">:</span> <span class="c-str">"blue"</span>               <span class="c-cmt">// "" / "red" / "orange" / "yellow" / "green" / "teal" / "blue" / "purple"</span>
+<span class="c-punc">}]</span></pre></div>
+
+  <div class="alert alert-info"><span class="alert-icon">ℹ️</span><div>
+    旧バックアップ（<code>diaries</code> キーなし）との互換のため、復元時は <code>decodeIfPresent</code> で読み込み、キーがなければ空配列として扱う。
+  </div></div>
+</section>
+
+<!-- ── 9. 生成・検証フロー ── -->
+<section id="flow">
+  <h2><span class="num">9</span> 生成・検証フロー</h2>
+
+  <h3>生成フロー（通信必須）</h3>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-step-left"><div class="flow-num">1</div><div class="flow-line"></div></div>
+      <div class="flow-body"><strong>JSONを生成</strong><p>帳簿データをJSONに変換。<code>meta.tst</code> は空文字とする。</p></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-step-left"><div class="flow-num">2</div><div class="flow-line"></div></div>
+      <div class="flow-body"><strong>SHA-256を計算</strong><p><code>meta</code> を除いたJSON本体（キーソート・余白除去済み）のSHA-256ハッシュを計算。</p></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-step-left"><div class="flow-num">3</div><div class="flow-line"></div></div>
+      <div class="flow-body"><strong>RFC3161リクエスト送信</strong><p>DigiCert（<code>http://timestamp.digicert.com</code>）にSHA-256ハッシュを送信。</p></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-step-left"><div class="flow-num">4</div><div class="flow-line"></div></div>
+      <div class="flow-body"><strong>TSTを受信・埋め込み</strong><p>TSTをBase64エンコードし <code>meta.tst</code> に埋め込む。</p></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-step-left"><div class="flow-num">5</div></div>
+      <div class="flow-body"><strong>ファイルを提供</strong><p>完成JSONをユーザーに共有（共有シート / Files.app）。</p></div>
+    </div>
+  </div>
+
+  <h3>検証フロー</h3>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-step-left"><div class="flow-num">1</div><div class="flow-line"></div></div>
+      <div class="flow-body"><strong>JSONを読み込み</strong><p><code>meta</code> フィールドを取り出す。</p></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-step-left"><div class="flow-num">2</div><div class="flow-line"></div></div>
+      <div class="flow-body"><strong>SHA-256を再計算</strong><p>metaを除いた本体のSHA-256を計算し <code>meta.sha256</code> と比較。不一致 → 改ざん検知。</p></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-step-left"><div class="flow-num">3</div><div class="flow-line"></div></div>
+      <div class="flow-body"><strong>TSTを検証</strong><p>Base64デコード→DER解析→TSTのハッシュとDigiCert署名を検証。</p></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-step-left"><div class="flow-num">4</div></div>
+      <div class="flow-body"><strong>真正性確認</strong><p>全検証通過 → 「バックアップ真正性確認済み」と判定。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 10. 後方互換 ── -->
+<section id="compat">
+  <h2><span class="num">10</span> 後方互換ルール</h2>
+  <table class="field-table">
+    <tr><th>ルール</th><th>内容</th></tr>
+    <tr><td>フィールド追加</td><td>新フィールドは常にオプション（<code>decodeIfPresent</code>）とし、旧バックアップでキーが存在しない場合はデフォルト値を使用する</td></tr>
+    <tr><td>フィールド削除</td><td>廃止フィールドは削除せず出力を停止するのみ。読み込み側では無視する</td></tr>
+    <tr><td>voidedByなし</td><td>旧バックアップの <code>voidedBy</code> キーが存在しない場合は <code>nil</code>（現役）として扱う</td></tr>
+    <tr><td>diariesなし</td><td><code>diaries</code> キーが存在しない場合は空配列として扱う</td></tr>
+    <tr><td>metaなし</td><td>旧バックアップに <code>meta</code> キーが存在しない場合は真正性未検証として扱う（復元は可能）</td></tr>
+    <tr><td>version判定</td><td>復元時は <code>version</code> を参照してマイグレーション処理を分岐する</td></tr>
+  </table>
+
+  <div class="alert alert-warn"><span class="alert-icon">⚠️</span><div>
+    廃止フィールド（<code>partner</code>・<code>subAccount</code>・<code>provisionalTaxReceived</code>・<code>provisionalTaxPaid</code>・<code>taxJournalID</code>・<code>parentJournalID</code>）は読み込み時に無視する。
+  </div></div>
+</section>
+
+<!-- ── 11. 変更履歴 ── -->
+<section id="changelog">
+  <h2><span class="num">11</span> 変更履歴</h2>
+  <div class="changelog">
+    <div class="changelog-row header">
+      <span>版数</span><span>日付</span><span>変更内容</span>
+    </div>
+    <div class="changelog-row">
+      <span>v2.0</span><span>2026-06-19</span>
+      <span><code>meta</code> オブジェクト追加（sha256・tst・tsaUrl）。<code>voidedBy</code> を正式フィールド化。</span>
+    </div>
+    <div class="changelog-row">
+      <span>v1.9</span><span>2026-04-17</span>
+      <span><code>taxType</code> に <code>10%（イ無）</code>・<code>8%（イ無）</code> 追加。<code>invoiceStatus</code> を TaxType に統合。</span>
+    </div>
+    <div class="changelog-row">
+      <span>v1.8</span><span>2026-03-09</span>
+      <span><code>taxAmount</code> 追加（消費税内部保持方式）。<code>taxablePeriods</code> 追加。</span>
+    </div>
+    <div class="changelog-row">
+      <span>v1.2</span><span>2026-02-xx</span>
+      <span><code>debitPartner</code>・<code>creditPartner</code>・<code>debitSubAccount</code>・<code>creditSubAccount</code> 追加（方向性対応）。</span>
+    </div>
+    <div class="changelog-row">
+      <span>v1.0</span><span>2026-01-xx</span>
+      <span>初版制定。</span>
+    </div>
+  </div>
+</section>
+
+</main>
+</div>
+</body>
+</html>

@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>マルセイ会計 バックアップ真正性仕様書</title>
+<style>
+  :root {
+    --blue:      #2E6FD9;
+    --blue-dark: #1A4A9A;
+    --blue-pale: #E8F0FB;
+    --gray-bg:   #F6F7F9;
+    --gray-line: #E2E6ED;
+    --text:      #1A1A2E;
+    --muted:     #6B7280;
+    --red:       #DC2626;
+    --orange:    #EA580C;
+    --green:     #16A34A;
+    --indigo:    #4338CA;
+    --mono:      "Fira Code", "Courier New", monospace;
+    --sans:      "Noto Sans JP", "Hiragino Sans", system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text);
+    background: var(--gray-bg);
+  }
+
+  .layout { display: flex; min-height: 100vh; }
+
+  nav {
+    width: 240px;
+    flex-shrink: 0;
+    background: #fff;
+    border-right: 1px solid var(--gray-line);
+    padding: 24px 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+
+  .nav-logo {
+    padding: 0 20px 20px;
+    border-bottom: 1px solid var(--gray-line);
+    margin-bottom: 16px;
+  }
+  .nav-logo .app { font-size: 13px; font-weight: 700; color: var(--blue); }
+  .nav-logo .doc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  nav a {
+    display: block;
+    padding: 6px 20px;
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+  }
+  nav a:hover { color: var(--blue); background: var(--blue-pale); border-left-color: var(--blue); }
+  .nav-section {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    padding: 14px 20px 4px;
+  }
+
+  main {
+    flex: 1;
+    padding: 48px 56px;
+    max-width: 960px;
+  }
+
+  .page-header {
+    border-bottom: 2px solid var(--blue);
+    padding-bottom: 24px;
+    margin-bottom: 48px;
+  }
+  .page-header .label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--blue);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+  }
+  .page-header h1 { font-size: 28px; font-weight: 700; color: var(--text); }
+  .page-header .meta { display: flex; gap: 24px; margin-top: 12px; }
+  .page-header .meta span { font-size: 12px; color: var(--muted); }
+  .page-header .meta b { color: var(--text); }
+
+  section { margin-bottom: 56px; }
+
+  h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--blue-dark);
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--gray-line);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  h2 .num {
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    background: var(--blue);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  h3 { font-size: 15px; font-weight: 700; color: var(--text); margin: 24px 0 10px; }
+
+  p { margin-bottom: 12px; color: var(--text); }
+
+  .field-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 13px;
+  }
+  .field-table th {
+    background: var(--blue);
+    color: #fff;
+    font-weight: 600;
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 12px;
+  }
+  .field-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--gray-line);
+    vertical-align: top;
+  }
+  .field-table tr:last-child td { border-bottom: none; }
+  .field-table tr:nth-child(even) td { background: var(--gray-bg); }
+  .field-table td:first-child {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--blue-dark);
+    white-space: nowrap;
+    font-weight: 600;
+  }
+
+  .code-block {
+    background: #1E2130;
+    border-radius: 8px;
+    padding: 20px 24px;
+    overflow-x: auto;
+    margin: 16px 0;
+  }
+  .code-block pre {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.8;
+    color: #CDD6F4;
+  }
+  .c-key  { color: #89B4FA; }
+  .c-str  { color: #A6E3A1; }
+  .c-num  { color: #FAB387; }
+  .c-cmt  { color: #6C7086; font-style: italic; }
+  .c-punc { color: #CDD6F4; }
+
+  .alert {
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 16px 0;
+    font-size: 13px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .alert-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .alert-info { background: var(--blue-pale); border-left: 3px solid var(--blue); }
+  .alert-warn { background: #FFF7ED; border-left: 3px solid var(--orange); }
+  .alert-crit { background: #FEF2F2; border-left: 3px solid var(--red); }
+
+  code {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: #EEF2FF;
+    color: var(--blue-dark);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  .flow { display: flex; flex-direction: column; margin: 16px 0; }
+  .flow-step { display: flex; gap: 16px; align-items: flex-start; }
+  .flow-step-left { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+  .flow-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--blue); color: #fff;
+    font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .flow-line { width: 2px; flex: 1; background: var(--gray-line); margin: 4px 0; min-height: 20px; }
+  .flow-body { padding: 4px 0 20px; flex: 1; }
+  .flow-body strong { font-size: 13px; color: var(--text); }
+  .flow-body p { font-size: 12.5px; color: var(--muted); margin-top: 2px; margin-bottom: 0; }
+
+  .tsa-card {
+    border: 1px solid var(--gray-line);
+    border-radius: 10px;
+    padding: 20px 24px;
+    background: #fff;
+    margin: 16px 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 32px;
+  }
+  .tsa-item label {
+    font-size: 11px;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 2px;
+  }
+  .tsa-item span {
+    font-size: 13px;
+    color: var(--text);
+    font-weight: 600;
+  }
+  .tsa-item.full { grid-column: 1 / -1; }
+  .tsa-item code { font-size: 12px; }
+
+  .comparison {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .comparison-card {
+    border-radius: 8px;
+    padding: 16px;
+    font-size: 13px;
+  }
+  .comparison-card h4 { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+  .comparison-card ul { padding-left: 16px; color: var(--muted); }
+  .comparison-card li { margin-bottom: 4px; }
+  .card-bad  { background: #FEF2F2; border: 1px solid #FECACA; }
+  .card-bad h4  { color: var(--red); }
+  .card-good { background: #F0FDF4; border: 1px solid #BBF7D0; }
+  .card-good h4 { color: var(--green); }
+
+  .changelog {
+    border: 1px solid var(--gray-line);
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 13px;
+  }
+  .changelog-row {
+    display: grid;
+    grid-template-columns: 80px 100px 1fr;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--gray-line);
+  }
+  .changelog-row:last-child { border-bottom: none; }
+  .changelog-row.header { background: var(--blue); color: #fff; font-weight: 700; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav>
+  <div class="nav-logo">
+    <div class="app">マルセイ会計</div>
+    <div class="doc">バックアップ真正性仕様書</div>
+  </div>
+
+  <div class="nav-section">概要</div>
+  <a href="#purpose">1. 目的と適用範囲</a>
+  <a href="#premise">2. 設計上の前提</a>
+
+  <div class="nav-section">TSA</div>
+  <a href="#tsa">3. 採用タイムスタンプ局</a>
+
+  <div class="nav-section">実装</div>
+  <a href="#format">4. バックアップファイル仕様</a>
+  <a href="#generate">5. バックアップ生成フロー</a>
+  <a href="#verify">6. 検証フロー</a>
+  <a href="#network">7. 通信要件</a>
+
+  <div class="nav-section">法令</div>
+  <a href="#law">8. 関連法令・根拠</a>
+  <a href="#changelog">9. 改訂履歴</a>
+</nav>
+
+<main>
+
+<div class="page-header">
+  <div class="label">lamiliuq works — 備え付け書類</div>
+  <h1>マルセイ会計 バックアップ真正性仕様書</h1>
+  <div class="meta">
+    <span>版数：<b>v1.0</b></span>
+    <span>制定日：<b>2026-06-19</b></span>
+    <span>適用法令：<b>電子帳簿保存法・優良な電子帳簿要件</b></span>
+  </div>
+</div>
+
+<!-- 1. 目的 -->
+<section id="purpose">
+  <h2><span class="num">1</span> 目的と適用範囲</h2>
+  <p>本仕様書は、マルセイ会計（App Store ID: 6762589691）が生成するバックアップファイルの真正性を担保するための技術仕様を定める。</p>
+  <p>電子帳簿保存法における「優良な電子帳簿」の要件として、帳簿の訂正・削除の履歴管理に加え、バックアップデータの改ざん検知性能が求められる。本仕様書はその要件を満たすための実装根拠となる。</p>
+  <div class="alert alert-warn">
+    <span class="alert-icon">📋</span>
+    <div>本仕様書は備え付け書類として、帳簿データとともに保管すること。バックアップJSON仕様書（別文書）と併せて参照すること。</div>
+  </div>
+</section>
+
+<!-- 2. 前提 -->
+<section id="premise">
+  <h2><span class="num">2</span> 設計上の前提</h2>
+
+  <h3>2.1 改ざん主体の想定</h3>
+  <p>一般的なファイル改ざん対策はSHA-256等のハッシュ値照合により第三者による改ざんを検知できる。しかし本アプリの利用形態（個人事業主が自ら管理するデータ）においては、<strong>改ざんの主体がユーザー本人であるケースを考慮しなければならない。</strong></p>
+
+  <div class="comparison">
+    <div class="comparison-card card-bad">
+      <h4>❌ SHA-256単体では不十分</h4>
+      <ul>
+        <li>JSONを改ざん後にSHA-256を再計算</li>
+        <li>新しいハッシュ値をファイルに書き込む</li>
+        <li>第三者から見て正常に見える</li>
+        <li>ユーザー本人による遡及改ざんが可能</li>
+      </ul>
+    </div>
+    <div class="comparison-card card-good">
+      <h4>✅ RFC3161 TSAを介在させる</h4>
+      <ul>
+        <li>TSTはTSAの秘密鍵で署名済み</li>
+        <li>ユーザーはTSTを後から偽造できない</li>
+        <li>「この内容がこの時刻に存在した」を第三者が証明</li>
+        <li>遡及改ざんを技術的に防止</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>2.2 解決策：第三者タイムスタンプ機関の介在</h3>
+  <p>RFC3161準拠のタイムスタンプ局（TSA: Time Stamping Authority）を介在させる。TSAはユーザーから独立した第三者機関であり、「このハッシュ値が、この時刻に存在していた」という事実をTSAの秘密鍵で署名したタイムスタンプトークン（TST: Time Stamp Token）を発行する。</p>
+</section>
+
+<!-- 3. TSA -->
+<section id="tsa">
+  <h2><span class="num">3</span> 採用タイムスタンプ局</h2>
+
+  <div class="tsa-card">
+    <div class="tsa-item">
+      <label>TSA名称</label>
+      <span>DigiCert Timestamp Authority</span>
+    </div>
+    <div class="tsa-item">
+      <label>利用料金</label>
+      <span>無償（レート制限なし）</span>
+    </div>
+    <div class="tsa-item full">
+      <label>エンドポイント</label>
+      <code>http://timestamp.digicert.com</code>
+    </div>
+    <div class="tsa-item">
+      <label>準拠規格</label>
+      <span>RFC 3161</span>
+    </div>
+    <div class="tsa-item">
+      <label>ハッシュアルゴリズム</label>
+      <span>SHA-256</span>
+    </div>
+    <div class="tsa-item">
+      <label>アカウント</label>
+      <span>不要</span>
+    </div>
+    <div class="tsa-item">
+      <label>証明書信頼性</label>
+      <span>Windowsルート証明書ストア・Apple信頼リストに収録</span>
+    </div>
+    <div class="tsa-item">
+      <label>証明書更新</label>
+      <span>15ヶ月ごと（DigiCert社ポリシー）</span>
+    </div>
+  </div>
+
+  <div class="alert alert-info">
+    <span class="alert-icon">ℹ️</span>
+    <div>DigiCertはWindowsおよびAppleの信頼リストに収録されており、FreeTSA等の個人運営TSAと比較して公的な信頼性が高い。電子帳簿保存法の観点からもDigiCertを採用することが適切と判断した。</div>
+  </div>
+</section>
+
+<!-- 4. フォーマット -->
+<section id="format">
+  <h2><span class="num">4</span> バックアップファイル仕様</h2>
+
+  <h3>4.1 ファイル形式</h3>
+  <p>バックアップファイルはJSON形式（UTF-8エンコード）とし、拡張子は <code>.json</code> とする。</p>
+
+  <h3>4.2 metaフィールドの構造</h3>
+  <p>バックアップJSONのルートに <code>meta</code> オブジェクトを含める。</p>
+
+  <div class="code-block"><pre><span class="c-punc">{</span>
+  <span class="c-key">"meta"</span><span class="c-punc">: {</span>
+    <span class="c-key">"sha256"</span><span class="c-punc">:</span> <span class="c-str">"a3f1b2c4..."</span><span class="c-punc">,</span>    <span class="c-cmt">// metaを除いた本体のSHA-256（hex小文字64文字）</span>
+    <span class="c-key">"tst"</span><span class="c-punc">:</span>    <span class="c-str">"MIIHbgYJKo..."</span><span class="c-punc">,</span>  <span class="c-cmt">// RFC3161 TSTのBase64エンコード</span>
+    <span class="c-key">"tsaUrl"</span><span class="c-punc">:</span> <span class="c-str">"http://timestamp.digicert.com"</span>
+  <span class="c-punc">},</span>
+  <span class="c-key">"version"</span><span class="c-punc">:</span>  <span class="c-str">"2.0"</span><span class="c-punc">,</span>
+  <span class="c-key">"journals"</span><span class="c-punc">:</span> <span class="c-punc">[...],</span>
+  <span class="c-cmt">// ... その他データフィールド</span>
+<span class="c-punc">}</span></pre></div>
+
+  <table class="field-table">
+    <tr><th>キー</th><th>型</th><th>説明</th></tr>
+    <tr><td>sha256</td><td>string</td><td>metaを除いたJSON本体（正規化済み）のSHA-256ハッシュ値（16進数小文字64文字）</td></tr>
+    <tr><td>tst</td><td>string</td><td>DigiCert TSAが発行したタイムスタンプトークン（DER形式をBase64エンコード）</td></tr>
+    <tr><td>tsaUrl</td><td>string</td><td>使用したTSAのエンドポイントURL</td></tr>
+  </table>
+
+  <h3>4.3 sha256フィールドの計算対象</h3>
+  <p>SHA-256ハッシュの計算対象は、<strong><code>meta</code> フィールドを除いたJSONの残余部分</strong>とする。具体的には <code>journals</code>・<code>assets</code>・<code>settings</code> 等のデータフィールドをキーのソート・余分な空白の除去で正規化した文字列（UTF-8）のSHA-256ハッシュ値とする。</p>
+  <div class="alert alert-info">
+    <span class="alert-icon">💡</span>
+    <div>この設計により、TSTをmetaフィールドに後から埋め込む際にハッシュ値が変化しない。バックアップ生成時にTST取得前にハッシュを計算できる。</div>
+  </div>
+</section>
+
+<!-- 5. 生成フロー -->
+<section id="generate">
+  <h2><span class="num">5</span> バックアップ生成フロー</h2>
+  <p>バックアップは以下の手順で生成する。<strong>ネットワーク接続が必須であり、オフライン環境ではバックアップを実行できない。</strong></p>
+
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-step-left"><div class="flow-num">1</div><div class="flow-line"></div></div>
+      <div class="flow-body">
+        <strong>JSONを生成</strong>
+        <p>帳簿データ（仕訳・固定資産・設定）をJSONに変換する。<code>meta.tst</code> は空文字とする。</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-step-left"><div class="flow-num">2</div><div class="flow-line"></div></div>
+      <div class="flow-body">
+        <strong>SHA-256を計算</strong>
+        <p>metaフィールドを除いたJSON本体をUTF-8でエンコードし、SHA-256ハッシュを計算する。</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-step-left"><div class="flow-num">3</div><div class="flow-line"></div></div>
+      <div class="flow-body">
+        <strong>RFC3161リクエストを構築</strong>
+        <p>ハッシュアルゴリズムはSHA-256、nonceを付与してリクエストを構築する。</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-step-left"><div class="flow-num">4</div><div class="flow-line"></div></div>
+      <div class="flow-body">
+        <strong>DigiCert TSAに送信</strong>
+        <p><code>http://timestamp.digicert.com</code> にリクエストを送信する。</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-step-left"><div class="flow-num">5</div><div class="flow-line"></div></div>
+      <div class="flow-body">
+        <strong>TSTを受信</strong>
+        <p>TSAからタイムスタンプトークン（DER形式）を受信する。</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-step-left"><div class="flow-num">6</div><div class="flow-line"></div></div>
+      <div class="flow-body">
+        <strong>TSTを埋め込む</strong>
+        <p>TSTをBase64エンコードし、<code>meta.tst</code> フィールドに埋め込む。</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-step-left"><div class="flow-num">7</div></div>
+      <div class="flow-body">
+        <strong>ユーザーに提供</strong>
+        <p>完成したJSONをファイルとしてユーザーに提供する（共有シートまたはFiles.app）。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. 検証フロー -->
+<section id="verify">
+  <h2><span class="num">6</span> 検証フロー</h2>
+  <p>バックアップファイルの真正性は以下の手順で検証する。</p>
+
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-step-left"><div class="flow-num">1</div><div class="flow-line"></div></div>
+      <div class="flow-body">
+        <strong>JSONを読み込む</strong>
+        <p>バックアップJSONを読み込み、<code>meta</code> フィールドを取り出す。</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-step-left"><div class="flow-num">2</div><div class="flow-line"></div></div>
+      <div class="flow-body">
+        <strong>SHA-256を再計算</strong>
+        <p>metaを除いた本体のSHA-256を計算し <code>meta.sha256</code> と比較する。<strong>不一致の場合は改ざんと判定する。</strong></p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-step-left"><div class="flow-num">3</div><div class="flow-line"></div></div>
+      <div class="flow-body">
+        <strong>TSTをデコード</strong>
+        <p><code>meta.tst</code> をBase64デコードし、DER形式のTSTを得る。</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-step-left"><div class="flow-num">4</div><div class="flow-line"></div></div>
+      <div class="flow-body">
+        <strong>TSTを検証</strong>
+        <p>TSTに内包されるハッシュ値と②の値を比較し、DigiCert TSA証明書チェーンを検証する。</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-step-left"><div class="flow-num">5</div></div>
+      <div class="flow-body">
+        <strong>真正性確認</strong>
+        <p>全検証が通過した場合、「バックアップ真正性確認済み」と判定する。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7. 通信要件 -->
+<section id="network">
+  <h2><span class="num">7</span> 通信要件</h2>
+
+  <h3>7.1 必須通信</h3>
+  <p>バックアップ生成時はTSAへのHTTP通信が必須である。以下のエンドポイントへのアクセスを許可すること。</p>
+  <table class="field-table">
+    <tr><th>用途</th><th>エンドポイント</th><th>プロトコル</th></tr>
+    <tr><td>RFC3161タイムスタンプ取得</td><td><code>http://timestamp.digicert.com</code></td><td>HTTP POST</td></tr>
+  </table>
+
+  <h3>7.2 オフライン時の取り扱い</h3>
+  <div class="alert alert-crit">
+    <span class="alert-icon">🚫</span>
+    <div>
+      <strong>オフライン環境ではバックアップを実行できない。</strong><br>
+      ネットワーク接続が確認できない場合、バックアップ生成を中断し、ユーザーに通信環境を確保するよう促す。TST未付与のバックアップファイルは真正性なしと扱う。
+    </div>
+  </div>
+
+  <h3>7.3 復元（リストア）</h3>
+  <div class="alert alert-info">
+    <span class="alert-icon">ℹ️</span>
+    <div>復元はオフライン環境でも実行できる。復元時の真正性検証はオプションとし、検証スキップの場合はユーザーに警告を表示する。</div>
+  </div>
+</section>
+
+<!-- 8. 法令 -->
+<section id="law">
+  <h2><span class="num">8</span> 関連法令・根拠</h2>
+  <table class="field-table">
+    <tr><th>法令・規格</th><th>関連箇所</th></tr>
+    <tr><td>電子帳簿保存法</td><td>第4条（国税関係帳簿の電磁的記録による保存等）</td></tr>
+    <tr><td>優良な電子帳簿の要件</td><td>「訂正・削除の履歴の確保」「真実性の確保」</td></tr>
+    <tr><td>RFC 3161</td><td>Internet X.509 PKI Time-Stamp Protocol</td></tr>
+    <tr><td>RFC 5652</td><td>Cryptographic Message Syntax（CMS）— TSTの格納形式</td></tr>
+    <tr><td>ISO/IEC 18014</td><td>Information technology — Time-stamping services</td></tr>
+  </table>
+</section>
+
+<!-- 9. 改訂履歴 -->
+<section id="changelog">
+  <h2><span class="num">9</span> 改訂履歴</h2>
+  <div class="changelog">
+    <div class="changelog-row header">
+      <span>版数</span><span>日付</span><span>変更内容</span>
+    </div>
+    <div class="changelog-row">
+      <span>v1.0</span><span>2026-06-19</span>
+      <span>初版制定。DigiCert TSAを採用。RFC3161によるバックアップ真正性仕様を策定。</span>
+    </div>
+  </div>
+</section>
+
+</main>
+</div>
+</body>
+</html>

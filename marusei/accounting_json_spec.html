@@ -372,7 +372,7 @@
 <!-- ── 1. 仕様概要 ── -->
 <section id="overview">
   <h2><span class="num">1</span> 仕様概要</h2>
-  <p>本仕様書はマルセイシリーズ（マルセイ会計・マルセイ棚卸・マルセイミニレジ）が出力するバックアップJSONファイルの構造を定める。</p>
+  <p>本仕様書は、マルセイシリーズ（マルセイ会計・マルセイ棚卸・マルセイミニレジ）が出力するバックアップJSONファイルのデータ構造および互換ルールを定義する。真正性の検証方式については別文書「マルセイ会計 バックアップ真正性仕様書 v1.0」を参照すること。</p>
   <p>v2.0では以下の変更を行った。</p>
   <div class="alert alert-new"><span class="alert-icon">✅</span><div>
     <strong>v2.0 変更点</strong><br>
@@ -389,7 +389,10 @@
 <!-- ── 2. ルート構造 ── -->
 <section id="structure">
   <h2><span class="num">2</span> ルート構造</h2>
-  <p>バックアップJSONのルートオブジェクトは以下の8キーで構成される。</p>
+  <p>バックアップJSONのルートオブジェクトは以下の12キーで構成される。</p>
+  <div class="alert alert-info"><span class="alert-icon">ℹ️</span><div>
+    <code>version</code> はバックアップ<strong>形式</strong>の版数（スキーマ変更時に更新）。<code>appVersion</code> はバックアップを出力したアプリの版数（毎リリースで更新）。両者は独立して管理される。
+  </div></div>
 
   <div class="code-block"><pre><span class="c-punc">{</span>
   <span class="c-key">"meta"</span><span class="c-punc">:</span>        <span class="c-punc">{...},</span>    <span class="c-cmt">// ✅ v2.0追加: 真正性・バージョン情報</span>
@@ -423,8 +426,8 @@
   </table>
 
   <div class="alert alert-warn"><span class="alert-icon">⚠️</span><div>
-    <code>journals</code> は <code>voidedBy != nil</code>（削除済み・編集前・再決算）の仕訳も全件含む。<br>
-    帳簿集計時は必ず <code>voidedBy == null</code> の仕訳のみを対象とすること。
+    <strong>journals には現役仕訳に加え、削除済み・編集前・再決算により無効化された仕訳も含めて全件を出力する。</strong><br>
+    帳簿集計・残高計算・申告計算では、必ず <code>voidedBy == null</code> の仕訳のみを対象とすること。
   </div></div>
 </section>
 
@@ -529,7 +532,8 @@
 <span class="c-key">"banks"</span><span class="c-punc">: [{ </span><span class="c-key">"tag"</span><span class="c-punc">:</span> <span class="c-str">"a"</span><span class="c-punc">,</span> <span class="c-key">"name"</span><span class="c-punc">:</span> <span class="c-str">"みずほ銀行"</span> <span class="c-punc">}]</span></pre></div>
 
   <div class="alert alert-warn"><span class="alert-icon">⚠️</span><div>
-    <code>partners[].name</code> はJournal側でも名前のまま保持される（旧名も記録として残す設計）。タグIDでは照合しないこと。
+    <strong>【設計方針】得意先は名前で保持する</strong><br>
+    <code>partners[].name</code> はJournal側でも名前のまま保持される（旧名も記録として残す設計）。社名変更時も旧名での仕訳が記録に残るため、復元・履歴追跡が正確に行える。タグIDでは照合しないこと。
   </div></div>
 </section>
 
@@ -584,6 +588,24 @@
     <tr><td>不課税</td><td>不課税取引</td></tr>
     <tr><td>""（空文字）</td><td>未選択（旧データ互換）</td></tr>
   </table>
+
+  <h3>invoiceStatus の扱い</h3>
+  <div class="alert alert-info"><span class="alert-icon">ℹ️</span><div>
+    <code>invoiceStatus</code> は v1.9 以降 <code>taxType</code> に統合されたが、<strong>出力は継続・読み込みは互換保持</strong>とする。<br>
+    復元時は <code>decodeIfPresent</code> で読み込み、存在しない場合は <code>"qualified"</code> をデフォルトとする。新規実装では <code>taxType</code> を正とし、<code>invoiceStatus</code> は参照しないこと。
+  </div></div>
+
+  <h3>sha256正規化ルール</h3>
+  <p>正規化の詳細手順は「マルセイ会計 バックアップ真正性仕様書」を参照すること。最小限のルールを以下に示す。</p>
+  <table class="field-table">
+    <tr><th>項目</th><th>ルール</th></tr>
+    <tr><td>対象</td><td><code>meta</code> キーを除いたJSONオブジェクト全体</td></tr>
+    <tr><td>キー順序</td><td>アルファベット昇順でソート（ネストも再帰的に適用）</td></tr>
+    <tr><td>空白</td><td>キーと値の間・要素間の余分な空白・改行を除去</td></tr>
+    <tr><td>配列順序</td><td>変更しない（元の順序を保持）</td></tr>
+    <tr><td>null</td><td><code>null</code> リテラルとして出力</td></tr>
+    <tr><td>エンコード</td><td>UTF-8</td></tr>
+  </table>
 </section>
 
 <!-- ── voidedBy ── -->
@@ -591,8 +613,12 @@
   <h2><span class="num">↳</span> journals[].voidedBy 仕様</h2>
   <p>優良な電子帳簿要件に対応するフィールド。訂正・削除・再決算の履歴を記録する。</p>
   <div class="alert alert-warn"><span class="alert-icon">⚠️</span><div>
-    生成ヘルパーを必ず使用すること。インライン文字列での直接構築は禁止。<br>
+    <strong>生成ヘルパーを必ず使用すること。インライン文字列での直接構築は禁止。</strong><br>
     Swift: <code>Journal.makeDeletedVoidedBy()</code> / <code>makeReplacedVoidedBy(newID:)</code> / <code>makeAutoVoidedBy()</code>
+  </div></div>
+
+  <div class="alert alert-info"><span class="alert-icon">💡</span><div>
+    <code>D_</code> は「元仕訳が無効化された」ことを表す接頭辞であり、単純削除と編集置換の両方に用いる。両者の区別は末尾の新仕訳IDの有無で判定する（空文字 = 削除、IDあり = 編集）。
   </div></div>
 
   <table class="voided-table">

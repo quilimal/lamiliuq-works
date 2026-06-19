@@ -309,7 +309,7 @@
 <section id="purpose">
   <h2><span class="num">1</span> 目的と適用範囲</h2>
   <p>本仕様書は、マルセイ会計（App Store ID: 6762589691）が生成するバックアップファイルの真正性を担保するための技術仕様を定める。</p>
-  <p>電子帳簿保存法における「優良な電子帳簿」の要件として、帳簿の訂正・削除の履歴管理に加え、バックアップデータの改ざん検知性能が求められる。本仕様書はその要件を満たすための実装根拠となる。</p>
+  <p>本仕様は、優良な電子帳簿に関連する真実性確保を補強する目的で、バックアップデータに対する改ざん検知および第三者時刻証明の実装方式を定めるものである。電子帳簿保存法が直接バックアップJSONへのTSA付与を明示的に要求するものではないが、帳簿の真実性・完全性を説明するための技術的根拠として採用する。</p>
   <div class="alert alert-warn">
     <span class="alert-icon">📋</span>
     <div>本仕様書は備え付け書類として、帳簿データとともに保管すること。バックアップJSON仕様書（別文書）と併せて参照すること。</div>
@@ -339,13 +339,13 @@
         <li>TSTはTSAの秘密鍵で署名済み</li>
         <li>ユーザーはTSTを後から偽造できない</li>
         <li>「この内容がこの時刻に存在した」を第三者が証明</li>
-        <li>遡及改ざんを技術的に防止</li>
+        <li>遡及的な改変を困難にし検知可能性を高める</li>
       </ul>
     </div>
   </div>
 
   <h3>2.2 解決策：第三者タイムスタンプ機関の介在</h3>
-  <p>RFC3161準拠のタイムスタンプ局（TSA: Time Stamping Authority）を介在させる。TSAはユーザーから独立した第三者機関であり、「このハッシュ値が、この時刻に存在していた」という事実をTSAの秘密鍵で署名したタイムスタンプトークン（TST: Time Stamp Token）を発行する。</p>
+  <p>RFC3161準拠のタイムスタンプ局（TSA: Time Stamping Authority）を介在させる。TSAはユーザーから独立した第三者機関であり、「このハッシュ値が、この時刻に存在していた」という事実をTSAの秘密鍵で署名したタイムスタンプトークン（TST: Time Stamp Token）を発行する。これにより、バックアップ生成後の遡及的な改変を困難にし、その検知可能性を高める。</p>
 </section>
 
 <!-- 3. TSA -->
@@ -359,7 +359,7 @@
     </div>
     <div class="tsa-item">
       <label>利用料金</label>
-      <span>無償（レート制限なし）</span>
+      <span>無償（2026-06-19時点の確認内容。利用条件は提供者ポリシーに従う）</span>
     </div>
     <div class="tsa-item full">
       <label>エンドポイント</label>
@@ -383,7 +383,7 @@
     </div>
     <div class="tsa-item">
       <label>証明書更新</label>
-      <span>15ヶ月ごと（DigiCert社ポリシー）</span>
+      <span>定期更新（DigiCert社ポリシーによる。変更の可能性あり）</span>
     </div>
   </div>
 
@@ -422,7 +422,7 @@
   </table>
 
   <h3>4.3 sha256フィールドの計算対象</h3>
-  <p>SHA-256ハッシュの計算対象は、<strong><code>meta</code> フィールドを除いたJSONの残余部分</strong>とする。具体的には <code>journals</code>・<code>assets</code>・<code>settings</code> 等のデータフィールドをキーのソート・余分な空白の除去で正規化した文字列（UTF-8）のSHA-256ハッシュ値とする。</p>
+  <p>SHA-256ハッシュの計算対象は、<strong><code>meta</code> キーを除いたルートオブジェクト全体</strong>とする。具体的には <code>journals</code>・<code>fixedAssets</code>・<code>settings</code> 等のデータフィールドをキーのソート・余分な空白の除去で正規化した文字列（UTF-8）のSHA-256ハッシュ値とする。正規化の詳細手順はJSON仕様書の「sha256正規化ルール」を参照すること。</p>
   <div class="alert alert-info">
     <span class="alert-icon">💡</span>
     <div>この設計により、TSTをmetaフィールドに後から埋め込む際にハッシュ値が変化しない。バックアップ生成時にTST取得前にハッシュを計算できる。</div>
@@ -503,8 +503,8 @@
     <div class="flow-step">
       <div class="flow-step-left"><div class="flow-num">2</div><div class="flow-line"></div></div>
       <div class="flow-body">
-        <strong>SHA-256を再計算</strong>
-        <p>metaを除いた本体のSHA-256を計算し <code>meta.sha256</code> と比較する。<strong>不一致の場合は改ざんと判定する。</strong></p>
+        <strong>SHA-256を再計算・照合</strong>
+        <p><code>meta</code> キーを除いたルートオブジェクト全体（正規化済み）のSHA-256を計算し <code>meta.sha256</code> と比較する。<strong>不一致 → 改ざん検知。処理を中断する。</strong></p>
       </div>
     </div>
     <div class="flow-step">
@@ -518,14 +518,21 @@
       <div class="flow-step-left"><div class="flow-num">4</div><div class="flow-line"></div></div>
       <div class="flow-body">
         <strong>TSTを検証</strong>
-        <p>TSTに内包されるハッシュ値と②の値を比較し、DigiCert TSA証明書チェーンを検証する。</p>
+        <p>以下の条件を全て満たすことを確認する。</p>
+        <table class="field-table" style="margin-top:8px">
+          <tr><th>確認項目</th><th>内容</th></tr>
+          <tr><td>messageImprint</td><td>TSTに内包されるハッシュ値と②の再計算値が一致</td></tr>
+          <tr><td>TST署名</td><td>DigiCert TSA秘密鍵による署名が有効</td></tr>
+          <tr><td>証明書チェーン</td><td>TSA証明書チェーンが信頼済みルートに連なる</td></tr>
+          <tr><td>タイムスタンプ時刻</td><td>TSTから署名時刻が取得できる</td></tr>
+        </table>
       </div>
     </div>
     <div class="flow-step">
       <div class="flow-step-left"><div class="flow-num">5</div></div>
       <div class="flow-body">
         <strong>真正性確認</strong>
-        <p>全検証が通過した場合、「バックアップ真正性確認済み」と判定する。</p>
+        <p>全条件が通過した場合、「バックアップ真正性確認済み」と判定する。</p>
       </div>
     </div>
   </div>
@@ -541,6 +548,9 @@
     <tr><th>用途</th><th>エンドポイント</th><th>プロトコル</th></tr>
     <tr><td>RFC3161タイムスタンプ取得</td><td><code>http://timestamp.digicert.com</code></td><td>HTTP POST</td></tr>
   </table>
+  <div class="alert alert-info"><span class="alert-icon">ℹ️</span><div>
+    通信路はHTTPであるが、受領するTST自体はTSA秘密鍵により署名されており、検証時に署名整合性を確認する。通信路の平文性はTSTの真正性に影響しない。
+  </div></div>
 
   <h3>7.2 オフライン時の取り扱い</h3>
   <div class="alert alert-crit">
@@ -554,7 +564,9 @@
   <h3>7.3 復元（リストア）</h3>
   <div class="alert alert-info">
     <span class="alert-icon">ℹ️</span>
-    <div>復元はオフライン環境でも実行できる。復元時の真正性検証はオプションとし、検証スキップの場合はユーザーに警告を表示する。</div>
+    <div>復元はオフライン環境でも実行できる。復元時の真正性検証はオプションとし、検証スキップの場合はユーザーに警告を表示する。<br>
+    <strong>真正性検証を行わずに復元したデータは、改ざん検知未確認の状態である。</strong>
+    </div>
   </div>
 </section>
 

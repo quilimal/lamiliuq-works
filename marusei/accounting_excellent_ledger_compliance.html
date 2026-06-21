@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>マルセイ会計 優良な電子帳簿要件を意識した設計と対応表</title>
+<style>
+  :root {
+    --blue:      #2E6FD9;
+    --blue-dark: #1A4A9A;
+    --blue-pale: #E8F0FB;
+    --gray-bg:   #F6F7F9;
+    --gray-line: #E2E6ED;
+    --text:      #1A1A2E;
+    --muted:     #6B7280;
+    --red:       #DC2626;
+    --orange:    #EA580C;
+    --green:     #16A34A;
+    --indigo:    #4338CA;
+    --mono:      "Fira Code", "Courier New", monospace;
+    --sans:      "Noto Sans JP", "Hiragino Sans", system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text);
+    background: var(--gray-bg);
+  }
+
+  .layout { display: flex; min-height: 100vh; }
+
+  nav {
+    width: 250px;
+    flex-shrink: 0;
+    background: #fff;
+    border-right: 1px solid var(--gray-line);
+    padding: 24px 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+
+  .nav-logo {
+    padding: 0 20px 20px;
+    border-bottom: 1px solid var(--gray-line);
+    margin-bottom: 16px;
+  }
+  .nav-logo .app { font-size: 13px; font-weight: 700; color: var(--blue); }
+  .nav-logo .doc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  nav a {
+    display: block;
+    padding: 6px 20px;
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+  }
+  nav a:hover { color: var(--blue); background: var(--blue-pale); border-left-color: var(--blue); }
+  .nav-section {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    padding: 14px 20px 4px;
+  }
+
+  main {
+    flex: 1;
+    padding: 48px 56px;
+    max-width: 980px;
+  }
+
+  .page-header {
+    border-bottom: 2px solid var(--blue);
+    padding-bottom: 24px;
+    margin-bottom: 32px;
+  }
+  .page-header .label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--blue);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+  }
+  .page-header h1 { font-size: 26px; font-weight: 700; color: var(--text); }
+  .page-header .meta { display: flex; gap: 24px; margin-top: 12px; flex-wrap: wrap; }
+  .page-header .meta span { font-size: 12px; color: var(--muted); }
+  .page-header .meta b { color: var(--text); }
+
+  .checksheet-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--blue-pale);
+    border: 1px solid #C7DAF5;
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 40px;
+    text-decoration: none;
+  }
+  .checksheet-link .icon { font-size: 22px; }
+  .checksheet-link .body strong { display: block; font-size: 13px; color: var(--blue-dark); }
+  .checksheet-link .body span { font-size: 11.5px; color: var(--muted); }
+  .checksheet-link .arrow { margin-left: auto; color: var(--blue); font-size: 14px; }
+
+  section { margin-bottom: 48px; }
+
+  h2 {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--blue-dark);
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--gray-line);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  h2 .num {
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    background: var(--blue);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  h3 { font-size: 14px; font-weight: 700; color: var(--text); margin: 18px 0 8px; }
+
+  p { margin-bottom: 10px; color: var(--text); }
+
+  code {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: #EEF2FF;
+    color: var(--blue-dark);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  /* ── 対応表カード ── */
+  .item-card {
+    border: 1px solid var(--gray-line);
+    border-radius: 10px;
+    background: #fff;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .item-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--gray-line);
+  }
+  .item-head .req {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    flex: 1;
+  }
+  .status-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .status-ok    { background: #DCFCE7; color: var(--green); }
+  .status-na    { background: #F3F4F6; color: var(--muted); }
+  .status-partial { background: #FEF3C7; color: #B45309; }
+  .status-todo  { background: #FEE2E2; color: var(--red); }
+
+  .item-body {
+    padding: 14px 18px;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .item-body .detail-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .item-body .detail-label {
+    flex-shrink: 0;
+    width: 88px;
+    font-size: 11px;
+    color: var(--blue-dark);
+    font-weight: 600;
+  }
+  .item-body .detail-value { color: var(--text); }
+
+  /* ── ID関連性セクション専用 ── */
+  .id-diagram {
+    background: #1E2130;
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 16px 0;
+    overflow-x: auto;
+  }
+  .id-diagram pre {
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.9;
+    color: #CDD6F4;
+  }
+  .id-diagram .c-key { color: #89B4FA; }
+  .id-diagram .c-str { color: #A6E3A1; }
+  .id-diagram .c-cmt { color: #6C7086; font-style: italic; }
+  .id-diagram .c-arrow { color: #FAB387; }
+
+  .design-note {
+    background: var(--blue-pale);
+    border-left: 3px solid var(--blue);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 16px 0;
+    font-size: 13px;
+  }
+  .design-note .title { font-weight: 700; color: var(--blue-dark); margin-bottom: 6px; font-size: 12.5px; }
+
+  table.field-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 12.5px;
+  }
+  table.field-table th {
+    background: var(--blue);
+    color: #fff;
+    font-weight: 600;
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 11.5px;
+  }
+  table.field-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--gray-line);
+  }
+  table.field-table tr:nth-child(even) td { background: var(--gray-bg); }
+  table.field-table td:first-child {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--blue-dark);
+    white-space: nowrap;
+  }
+
+  /* ── サマリー集計 ── */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 40px;
+  }
+  .summary-box {
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+  .summary-box .count { font-size: 26px; font-weight: 700; }
+  .summary-box .label { font-size: 11px; margin-top: 4px; }
+  .box-ok      { background: #F0FDF4; }
+  .box-ok .count, .box-ok .label { color: var(--green); }
+  .box-partial { background: #FFFBEB; }
+  .box-partial .count, .box-partial .label { color: #B45309; }
+  .box-na      { background: #F6F7F9; }
+  .box-na .count, .box-na .label { color: var(--muted); }
+  .box-todo    { background: #FEF2F2; }
+  .box-todo .count, .box-todo .label { color: var(--red); }
+
+  .changelog {
+    border: 1px solid var(--gray-line);
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 13px;
+  }
+  .changelog-row {
+    display: grid;
+    grid-template-columns: 110px 100px 1fr;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--gray-line);
+  }
+  .changelog-row:last-child { border-bottom: none; }
+  .changelog-row.header { background: var(--blue); color: #fff; font-weight: 700; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav>
+  <div class="nav-logo">
+    <div class="app">マルセイ会計</div>
+    <div class="doc">優良な電子帳簿 設計と対応表</div>
+  </div>
+
+  <div class="nav-section">概要</div>
+  <a href="#overview">本書の位置づけ</a>
+  <a href="#summary">対応状況サマリー</a>
+
+  <div class="nav-section">基本項目</div>
+  <a href="#basic">法４①・８④</a>
+
+  <div class="nav-section">個別項目</div>
+  <a href="#sys-docs">1. システム関係書類</a>
+  <a href="#search">2. 検索・表示・出力</a>
+  <a href="#history">3. 訂正削除の履歴</a>
+  <a href="#relation">4. 帳簿間の関連性</a>
+
+  <div class="nav-section">設計詳細</div>
+  <a href="#id-design">ID設計の経緯</a>
+  <a href="#changelog">改訂履歴</a>
+</nav>
+
+<main>
+
+<div class="page-header">
+  <div class="label">lamiliuq works — 内部技術仕様書</div>
+  <h1>優良な電子帳簿要件を意識した設計と対応表</h1>
+  <div class="meta">
+    <span>対象バージョン：<b>Ver. 2026.0621.18</b></span>
+    <span>作成日：<b>2026-06-21</b></span>
+    <span>対象アプリ：<b>マルセイ会計</b></span>
+  </div>
+</div>
+
+<a class="checksheet-link" href="https://www.nta.go.jp/law/joho-zeikaishaku/sonota/jirei/pdf/0021011-060_03.pdf" target="_blank" rel="noopener">
+  <span class="icon">📄</span>
+  <span class="body">
+    <strong>国税庁「優良な電子帳簿の要件判定チェックシート」（参照元）</strong>
+    <span>本書はこのPDFの各項目に沿って、マルセイ会計の対応状況を整理したものです</span>
+  </span>
+  <span class="arrow">開く ↗</span>
+</a>
+
+<section id="overview">
+  <h2><span class="num">概要</span> 本書の位置づけ</h2>
+  <p>本書は、国税庁が公表する「優良な電子帳簿の要件判定チェックシート」の各項目について、マルセイ会計（Ver. 2026.0621.18時点）の実装状況を整理した内部設計資料である。</p>
+  <p>マルセイ会計は法８条第４項の優良な電子帳簿に係る過少申告加算税の軽減措置の適用を保証するものではなく、適用の可否は利用者自身の届出・運用状況に依存する。本書はあくまで、アプリの機能設計がチェックシートの各要件をどの程度意識して作られているかを開発側の記録として残すものである。</p>
+  <div class="design-note">
+    <div class="title">表記について</div>
+    すべて「適」になることをアプリ単体で保証するものではない。
+    <code>✅ 対応</code> はアプリ機能として要件を満たす設計になっていることを示し、
+    <code>△ 一部対応</code> は機能はあるが運用面の補足が必要なもの、
+    <code>— 対象外</code> はアプリの機能領域外（利用者の届出・契約等）であることを示す。
+  </div>
+</section>
+
+<section id="summary">
+  <h2><span class="num">　</span> 対応状況サマリー</h2>
+  <div class="summary-grid">
+    <div class="summary-box box-ok">
+      <div class="count">12</div>
+      <div class="label">✅ 対応</div>
+    </div>
+    <div class="summary-box box-na">
+      <div class="count">3</div>
+      <div class="label">— 対象外</div>
+    </div>
+    <div class="summary-box box-todo">
+      <div class="count">0</div>
+      <div class="label">❌ 未対応</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 基本項目 ============ -->
+<section id="basic">
+  <h2><span class="num">基本</span> 基本項目の確認（法４①、８④）</h2>
+
+  <div class="item-card">
+    <div class="item-head">
+      <span class="req">1. 国税関係帳簿の電磁的記録等による保存等に係る過少申告加算税の特例の適用を受ける旨の届出書を提出している</span>
+      <span class="status-badge status-na">— 対象外</span>
+    </div>
+    <div class="item-body">税務署への届出は利用者自身が行う行政手続きであり、アプリの機能範囲外。</div>
+  </div>
+
+  <div class="item-card">
+    <div class="item-head">
+      <span class="req">2. 課税期間の初日から対象となる特例国税関係帳簿の全てについて、電子帳簿により備え付けている</span>
+      <span class="status-badge status-ok">✅ 対応</span>
+    </div>
+    <div class="item-body">仕訳帳・総勘定元帳・固定資産台帳をSwiftDataにより常時電子データとして保存。紙帳簿との併用を前提としない設計。</div>
+  </div>
+
+  <div class="item-card">
+    <div class="item-head">
+      <span class="req">3. 最初の記録段階から一貫して電磁的記録（明細データ）により作成・保存している</span>
+      <span class="status-badge status-ok">✅ 対応</span>
+    </div>
+    <div class="item-body">仕訳の入力時点から削除・訂正に至るまで、すべてSwiftData上の明細データとして一貫保存。中間で紙やExcel等を経由しない。</div>
+  </div>
+
+  <div class="item-card">
+    <div class="item-head">
+      <span class="req">4. 青色申告者が備え付けるべき対象帳簿を電磁的に記録・保存している</span>
+      <span class="status-badge status-ok">✅ 対応</span>
+    </div>
+    <div class="item-body">仕訳帳・総勘定元帳・固定資産台帳・現金出納帳相当（口座別元帳）に対応。</div>
+  </div>
+</section>
+
+<!-- ============ 1. システム関係書類 ============ -->
+<section id="sys-docs">
+  <h2><span class="num">1</span> システム関係書類の備付け（規２②一関係）</h2>
+
+  <div class="item-card">
+    <div class="item-head">
+      <span class="req">⑴ システムの概要、システム開発の関連書類を備え付けている（市販のプログラムを使用する場合を除く）</span>
+      <span class="status-badge status-na">— 対象外</span>
+    </div>
+    <div class="item-body">マルセイ会計はApp Store配信の市販プログラムに該当するため、本項目は原則として適用除外。</div>
+  </div>
+
+  <div class="item-card">
+    <div class="item-head">
+      <span class="req">⑵ 記載項目を最初に入力したシステムから全ての操作説明書を備え付けている</span>
+      <span class="status-badge status-ok">✅ 対応</span>
+    </div>
+    <div class="item-body">
+      <div class="detail-row"><span class="detail-label">備え付け場所</span><span class="detail-value">マルセイ会計マニュアル（Notion公開ページ）</span></div>
+      <div class="detail-row"><span class="detail-label">URL</span><span class="detail-value"><code>https://marusei.notion.site/eab8fe36e3ed44529df6b080d3320e08</code></span></div>
+    </div>
+  </div>
+
+  <div class="item-card">
+    <div class="item-head">
+      <span class="req">⑶ システム処理を記帳代行業者等に委託している場合には、当該委託契約書を備え付けている</span>
+      <span class="status-badge status-na">— 対象外</span>
+    </div>
+    <div class="item-body">記帳代行を前提としない個人事業主向けセルフ記帳アプリのため該当なし。</div>
+  </div>
+</section>
+
+<!-- ============ 2. 検索・表示・出力 ============ -->
+<section id="search">
+  <h2><span class="num">2</span> 帳簿データの検索、表示、出力機能の確保（規２②二、規５⑤一ハ関係）</h2>
+
+  <div class="item-card">
+    <div class="item-head">
+      <span class="req">⑴ 検索項目について記録事項のないデータを検索（Null値（空白）を対象として検索）できる</span>
+      <span class="status-badge status-ok">✅ 対応</span>
+    </div>
+    <div class="item-body">
+      仕訳検索画面（JournalSearchSheet）に「摘要が空欄のデータのみ検索」「得意先が空欄のデータのみ検索」の専用トグルを設置。
+      ON時はテキスト入力欄を隠し、当該項目が空文字の仕訳のみを抽出する。
+    </div>
+  </div>
+
+  <div class="item-card">
+    <div class="item-head">
+      <span class="req">⑵ 各帳簿の検索の条件に取引年月日、取引金額及び取引先名称を設定して検索できる</span>
+      <span class="status-badge status-ok">✅ 対応</span>
+    </div>
+    <div class="item-body">取引日（完全一致／範囲指定）・金額（完全一致／範囲指定）・得意先（ピッカー選択／自由入力部分一致）に対応。</div>
+  </div>
+
+  <div class="item-card">
+    <div class="item-head">
+      <span class="req">⑶① 事業年度ごとに範囲を指定して条件設定ができ、探し出された記録事項のみが画面及び書面に出力される</span>
+      <span class="status-badge status-ok">✅ 対応</span>
+    </div>
+    <div class="item-body">仕訳帳・各帳票は年度移動ヘッダーで対象年度を切り替え可能。検索結果も該当条件のみが画面表示される。</div>
+  </div>
+
+  <div class="item-card">
+    <div class="item-head">
+      <span class="req">⑶② 二以上の任意の検索項目を組み合わせて条件設定ができ、探し出された記録事項のみが画面及び書面に出力される</span>
+      <span class="status-badge status-ok">✅ 対応</span>
+    </div>
+    <div class="item-body">取引日・金額・得意先・摘要のうち、複数条件をAND条件で組み合わせて検索可能（JournalSearchCondition.matches）。</div>
+  </div>
+
+  <div class="item-card">
+    <div class="item-head">
+      <span class="req">⑷ 税務調査等の際に、帳簿データのダウンロードの求めに応じることができるようにしている</span>
+      <span class="status-badge status-ok">✅ 対応</span>
+    </div>
+    <div class="item-body">バックアップ機能（JSON出力）により、全仕訳・固定資産台帳・設定情報を含む完全なデータダウンロードに対応。RFC3161タイムスタンプによる真正性証明付き。</div>
+  </div>
+</section>
+
+<!-- ============ 3. 訂正削除の履歴 ============ -->
+<section id="history">
+  <h2><span class="num">3</span> 訂正・削除及び追加入力の履歴の確保（規５⑤一１イ関係）</h2>
+
+  <div class="item-card">
+    <div class="item-head">
+      <span class="req">⑴ 記載項目を最初に入力した時点からの訂正削除の事実及び内容が確認できる</span>
+      <span class="status-badge status-ok">✅ 対応（A方式・厳格適用）</span>
+    </div>
+    <div class="item-body">
+      <p>3方式（A・B・C）のうち <strong>A方式</strong> を採用。データを直接訂正・削除できない設計とし、その上で訂正・削除の事実及び内容を自動記録する、A方式の中でも厳格な実装としている。</p>
+      <table class="field-table">
+        <tr><th>操作</th><th>動作</th></tr>
+        <tr><td>削除</td><td>物理削除を行わず、<code>voidedBy</code> に削除タグを設定して旧仕訳を隔離（論理削除）</td></tr>
+        <tr><td>編集</td><td>旧仕訳を隔離した上で新仕訳を生成（直接上書きしない）。旧仕訳の <code>voidedBy</code> に新仕訳IDを記録</td></tr>
+        <tr><td>再決算</td><td>決算整理仕訳を自動隔離し、再計算結果を新規仕訳として生成</td></tr>
+      </table>
+      <p>逆仕訳（反対仕訳）による訂正も入力操作として可能だが、B方式の要件（データを直接訂正・削除できないシステムを使用し、訂正は反対仕訳によってのみ行う）への該当を主張するものではなく、上記A方式での対応として整理している。</p>
+      <p>削除・編集・再決算の履歴は「更新ログ」画面（JournalAuditLogView）で一覧表示し、各履歴から該当する旧仕訳・新仕訳の内容を確認できる（JournalReadOnlySheet）。</p>
+    </div>
+  </div>
+
+  <div class="item-card">
+    <div class="item-head">
+      <span class="req">【入力日から7日以内の訂正削除の履歴を残さない場合】内部規程かつシステムが対応している</span>
+      <span class="status-badge status-na">— 対象外</span>
+    </div>
+    <div class="item-body">マルセイ会計は7日以内の訂正削除であっても全件履歴を残す設計（緩和措置を利用しない、より厳格な実装）のため、本項目は該当なし。</div>
+  </div>
+
+  <div class="item-card">
+    <div class="item-head">
+      <span class="req">⑵ 通常の入力期間（最長２か月以内）を経過して入力した事実が確認できる</span>
+      <span class="status-badge status-ok">✅ 対応（A方式）</span>
+    </div>
+    <div class="item-body">
+      <p>入力データに入力年月日の情報を自動付加し、付加した情報をユーザーが訂正・削除できないシステムを使用（A方式）。<code>Journal.createdAt</code> は仕訳生成時に自動設定され、編集対象外。</p>
+      <p>取引日（<code>date</code>）と入力日（<code>createdAt</code>）の差が2ヶ月以上の仕訳を「遅延入力」として更新ログ画面に自動抽出・一覧表示する。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4. 帳簿間の関連性 ============ -->
+<section id="relation">
+  <h2><span class="num">4</span> 関連する帳簿間の記録事項の関連性の確保（規５⑤一ロ関係）</h2>
+
+  <div class="item-card">
+    <div class="item-head">
+      <span class="req">【個別、合計転記による記帳の場合】一連番号、伝票番号等により相互に確認できる</span>
+      <span class="status-badge status-ok">✅ 対応</span>
+    </div>
+    <div class="item-body">固定資産台帳の各資産が、取得・減価償却・除却に関連する仕訳の <code>Journal.id</code> を直接保持しており、IDを辿って仕訳帳側の記録事項を一意に特定できる。詳細は次節「ID設計の経緯」を参照。</div>
+  </div>
+
+  <div class="item-card">
+    <div class="item-head">
+      <span class="req">【集計転記による記帳の場合】摘要欄等に集計対象項目及び集計範囲が正確に記録されて確認できる</span>
+      <span class="status-badge status-ok">✅ 対応</span>
+    </div>
+    <div class="item-body">
+      <p>複数の元データを1本の仕訳に集計転記する処理（決算整理仕訳）すべてに、摘要欄へ集計対象・集計範囲を明記する形式を統一実装している。科目名が長い場合は科目コード表記とし、文字数を抑えている。</p>
+      <table class="field-table">
+        <tr><th>処理</th><th>摘要欄の記録例</th></tr>
+        <tr><td>家事按分（ApportionmentEngine）</td><td><code>家事按分（2026・800A・按分率60%）</code></td></tr>
+        <tr><td>期首繰越（CarryOverEngine）</td><td><code>期首繰越（2026→2027・110・山田商店）</code></td></tr>
+        <tr><td>消費税精算・簡易課税（TaxSettlementEngine）</td><td><code>消費税精算（簡易・納付・2026・簡易5:50%）</code></td></tr>
+        <tr><td>消費税精算・本則課税（TaxSettlementEngine）</td><td><code>消費税精算（本則・納付・2026・仮受123000円仮払45000円）</code></td></tr>
+        <tr><td>減価償却費（DepreciationCalculator）</td><td><code>減価償却（2026・310・3件）</code></td></tr>
+        <tr><td>固定資産按分（DepreciationCalculator）</td><td><code>固定資産按分（2026・310・3件）</code></td></tr>
+      </table>
+      <p>減価償却費仕訳は、同一科目コードに属する複数の固定資産の償却額を1本の仕訳に合算する集計転記であるため、対象年度・科目コード・集計対象資産の件数を摘要欄に明記している。個別資産との紐付けは、固定資産台帳側の <code>firstYearJournalID</code> 等のフィールドによるID参照（次節参照）と併用することで、集計範囲の正確性を二重に確認できる構成としている。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ID設計の経緯 ============ -->
+<section id="id-design">
+  <h2><span class="num">設計</span> ID設計の経緯（Journal / FixedAsset の関連性）</h2>
+
+  <p>マルセイ会計における <code>Journal.id</code> と <code>FixedAsset.assetNumber</code> は、採番方式が異なる。これは機能的な不備ではなく、それぞれが設計された当初の削除ポリシーの違いに由来する。</p>
+
+  <div class="design-note">
+    <div class="title">設計思想の違い</div>
+    <code>Journal</code> は当初「削除主義」（物理削除を前提）で設計されたため、連番である必要がなく、生成時刻ベースのbase62形式IDを採用した。
+    一方 <code>FixedAsset</code> は当初から「保存主義」（論理削除を前提、削除しても欠番として記録を残す）で設計されたため、連番（<code>assetNumber</code>）を採用している。
+    優良な電子帳簿要件への対応により、現在は <code>Journal</code> 側も論理削除（<code>voidedBy</code>）に統一されたが、IDの採番方式は当時の設計のまま運用している。
+  </div>
+
+  <h3>Journal.id（base62形式）</h3>
+  <div class="id-diagram"><pre><span class="c-cmt">// IDGenerator.generate()</span>
+<span class="c-key">timestampPart</span> <span class="c-arrow">=</span> base62(unixtime, <span class="c-str">6桁</span>)   <span class="c-cmt">// 生成時刻ベース</span>
+<span class="c-key">sequencePart</span>  <span class="c-arrow">=</span> base62(sequence, <span class="c-str">2桁</span>)    <span class="c-cmt">// 同一秒内の連番（最大3,844件/秒）</span>
+<span class="c-key">id</span> <span class="c-arrow">=</span> timestampPart + sequencePart        <span class="c-cmt">// 例: "1waj7wAB"（8桁）</span></pre></div>
+  <p>連続した整数の連番ではないが、生成時刻に基づき時系列順に一意となるIDであり、全仕訳に対して一意性が保証されている。チェックシートが求める「一連番号、伝票番号等」のうち、伝票番号としての役割を果たす設計である。</p>
+
+  <h3>FixedAsset.assetNumber（整数連番）</h3>
+  <div class="id-diagram"><pre><span class="c-cmt">// FixedAsset.assetNumber 採番ロジック</span>
+<span class="c-key">maxAsset</span> <span class="c-arrow">=</span> 既存資産を assetNumber 降順で取得した先頭
+<span class="c-key">newAssetNumber</span> <span class="c-arrow">=</span> maxAsset.assetNumber + <span class="c-str">1</span>
+<span class="c-cmt">// 削除（markedAsDeleted=true）後も assetNumber は再利用されず欠番として残る</span></pre></div>
+
+  <h3>固定資産台帳と仕訳帳の紐付け</h3>
+  <p>固定資産台帳（<code>FixedAsset</code>）は、取得・減価償却・除却・付随費用の各イベントに対応する仕訳の <code>Journal.id</code> を直接フィールドとして保持する。これにより、固定資産台帳の1レコードから、関連する仕訳帳の記録事項を一意に辿ることができる。</p>
+
+  <table class="field-table">
+    <tr><th>FixedAssetフィールド</th><th>紐付く仕訳の内容</th></tr>
+    <tr><td>acquisitionJournalID</td><td>取得仕訳</td></tr>
+    <tr><td>firstYearJournalID</td><td>初年度（取得年）減価償却費仕訳</td></tr>
+    <tr><td>firstYearApportionJournalID</td><td>初年度按分仕訳</td></tr>
+    <tr><td>normalYearJournalID</td><td>平年度（代表）減価償却費仕訳</td></tr>
+    <tr><td>normalYearApportionJournalID</td><td>平年度按分仕訳</td></tr>
+    <tr><td>finalYearJournalID</td><td>最終年度減価償却費仕訳</td></tr>
+    <tr><td>finalYearApportionJournalID</td><td>最終年度按分仕訳</td></tr>
+    <tr><td>disposalJournalIDs（配列）</td><td>除却・売却に関連する仕訳（複数件）</td></tr>
+    <tr><td>insuranceJournalID / roadTaxJournalID / handlingFeeJournalID / acquisitionTaxJournalID</td><td>付随費用（保険料・自動車税・手数料・取得税）仕訳</td></tr>
+    <tr><td>insuranceApportionJournalID / roadTaxApportionJournalID / handlingFeeApportionJournalID</td><td>付随費用の按分仕訳</td></tr>
+  </table>
+
+  <div class="design-note">
+    <div class="title">税務調査時の説明方針</div>
+    固定資産台帳の任意の資産を起点に、上記フィールドが保持する <code>Journal.id</code> を照合することで、当該資産に関する一連の仕訳（取得・償却・除却）を仕訳帳側で個別に特定できる。
+    <code>Journal.id</code> は連続した整数ではないが、生成時刻ベースの一意な識別子であり、伝票番号として機能する設計である旨を説明する。
+  </div>
+</section>
+
+<!-- ============ 改訂履歴 ============ -->
+<section id="changelog">
+  <h2><span class="num">　</span> 改訂履歴</h2>
+  <div class="changelog">
+    <div class="changelog-row header">
+      <span>版数</span><span>日付</span><span>変更内容</span>
+    </div>
+    <div class="changelog-row">
+      <span>1.0</span><span>2026-06-21</span>
+      <span>初版制定。国税庁チェックシート全項目に対するVer. 2026.0621.18の対応状況を整理。ID設計の経緯（Journal/FixedAsset採番方式の違い）を追記。</span>
+    </div>
+    <div class="changelog-row">
+      <span>1.1</span><span>2026-06-21</span>
+      <span>「4. 帳簿間の関連性」の集計転記項目を△一部対応→✅対応に更新。ApportionmentEngine・CarryOverEngine・TaxSettlementEngine・DepreciationCalculatorの決算整理仕訳すべてに、摘要欄への集計対象・集計範囲の明記を実装したことを反映。</span>
+    </div>
+  </div>
+</section>
+
+</main>
+</div>
+</body>
+</html>

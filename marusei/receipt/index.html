@@ -360,12 +360,11 @@
                 <td class="td-price">${fmt(d.total||0)}</td>
               </tr>
               ${totalTaxRow}
-              ${recvRow}
-              ${chngRow}
             </tfoot>
           </table>
         </div>
         ${taxSec}
+        ${(recvRow || chngRow) ? `<div class="sec"><table class="tbl"><tbody>${recvRow}${chngRow}</tbody></table></div>` : ''}
         ${noteBtm}
         <div class="sec">
           <div class="notice">⚠️ 本レシートはサーバーに記録されておりません。スクリーンショットをお忘れないようお願いいたします。</div>

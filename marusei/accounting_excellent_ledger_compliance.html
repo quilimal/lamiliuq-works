@@ -553,12 +553,11 @@
       <p>複数の元データを1本の仕訳に集計転記する処理（決算整理仕訳）すべてに、摘要欄へ集計対象・集計範囲を明記する形式を統一実装している。科目名が長い場合は科目コード表記とし、文字数を抑えている。</p>
       <table class="field-table">
         <tr><th>処理</th><th>摘要欄の記録例</th></tr>
-        <tr><td>家事按分（ApportionmentEngine）</td><td><code>家事按分（2026・800A・按分率60%）</code></td></tr>
-        <tr><td>期首繰越（CarryOverEngine）</td><td><code>期首繰越（2026→2027・110・山田商店）</code></td></tr>
-        <tr><td>消費税精算・簡易課税（TaxSettlementEngine）</td><td><code>消費税精算（簡易・納付・2026・簡易5:50%）</code></td></tr>
-        <tr><td>消費税精算・本則課税（TaxSettlementEngine）</td><td><code>消費税精算（本則・納付・2026・仮受123000円仮払45000円）</code></td></tr>
-        <tr><td>減価償却費（DepreciationCalculator）</td><td><code>減価償却（2026・310・3件）</code></td></tr>
-        <tr><td>固定資産按分（DepreciationCalculator）</td><td><code>固定資産按分（2026・310・3件）</code></td></tr>
+        <tr><td>家事按分（ApportionmentEngine）</td><td><code>家事按分/2026/通信費_携帯電話/按分率30%</code></td></tr>
+        <tr><td>消費税精算・簡易課税（TaxSettlementEngine）</td><td><code>消費税精算/2026/納付/簡易5:50%</code></td></tr>
+        <tr><td>消費税精算・本則課税（TaxSettlementEngine）</td><td><code>消費税精算/2026/納付/仮受123000円仮払45000円</code></td></tr>
+        <tr><td>減価償却費（DepreciationCalculator）</td><td><code>減価償却/2026/備品/1件</code></td></tr>
+        <tr><td>固定資産按分（DepreciationCalculator）</td><td><code>固定資産按分/2026/車両運搬具/1件</code></td></tr>
       </table>
       <p>減価償却費仕訳は、同一科目コードに属する複数の固定資産の償却額を1本の仕訳に合算する集計転記であるため、対象年度・科目コード・集計対象資産の件数を摘要欄に明記している。個別資産との紐付けは、固定資産台帳側の <code>firstYearJournalID</code> 等のフィールドによるID参照（次節参照）と併用することで、集計範囲の正確性を二重に確認できる構成としている。</p>
     </div>

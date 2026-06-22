@@ -351,6 +351,10 @@
                 <td class="td-name" colspan="2" style="font-size:14px;color:var(--gray);">値引き（全体）</td>
                 <td class="td-price" style="font-size:14px;color:var(--gray);">△¥&nbsp;${d.wdisc.toLocaleString('ja-JP')}</td>
               </tr>` : ''}
+              ${d.svc ? `<tr>
+                <td class="td-name" colspan="2" style="font-size:14px;color:var(--gray);">サービス料</td>
+                <td class="td-price" style="font-size:14px;color:var(--gray);">+¥&nbsp;${d.svc.toLocaleString('ja-JP')}</td>
+              </tr>` : ''}
               <tr class="total">
                 <td class="td-name" colspan="2">合　計</td>
                 <td class="td-price">${fmt(d.total||0)}</td>

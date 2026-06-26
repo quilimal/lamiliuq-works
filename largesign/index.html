@@ -1,1 +1,856 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>でか文字印刷 — Large Sign PDF Maker</title>
+<meta name="description" content="入力した文字を大きく印刷するPDF作成アプリ。学校・イベント・店舗の案内表示に。">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;700;800&family=Noto+Sans+SC:wght@700&family=Noto+Sans+TC:wght@700&family=Noto+Sans+KR:wght@700&display=swap');
 
+  :root {
+    --bg:      #f7f5f0;
+    --ink:     #1a1a1a;
+    --card:    #ffffff;
+    --accent:  #1a6fd4;
+    --red:     #d42b1a;
+    --yellow:  #ffd700;
+    --rule:    #e0ddd6;
+    --muted:   #888;
+    --pro-bg:  #f0eaff;
+    --pro:     #7a2a9e;
+    --free-bg: #e8f5ed;
+    --free:    #2a7a4b;
+    --warn-bg: #fff8e1;
+    --section-pad: 64px 20px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'M PLUS 1p', 'Hiragino Kaku Gothic ProN', sans-serif;
+    font-size: 15px;
+    line-height: 1.8;
+  }
+
+  /* ── 言語切り替え ── */
+  .lang-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--ink);
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 16px;
+  }
+  .lang-btn {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.3);
+    color: rgba(255,255,255,0.7);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+  .lang-btn.active {
+    background: white;
+    color: var(--ink);
+    border-color: white;
+    font-weight: 700;
+  }
+
+  /* ── セクション共通 ── */
+  .section { padding: var(--section-pad); }
+  .container { max-width: 760px; margin: 0 auto; }
+
+  /* ── ヒーロー ── */
+  .hero {
+    background: var(--ink);
+    color: white;
+    text-align: center;
+    padding: 80px 20px 64px;
+  }
+  .hero-eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.5;
+    margin-bottom: 16px;
+  }
+  .hero-title {
+    font-size: clamp(40px, 8vw, 80px);
+    font-weight: 800;
+    line-height: 1.05;
+    margin-bottom: 8px;
+  }
+  .hero-title .accent { color: #60a5fa; }
+  .hero-sub {
+    font-size: 16px;
+    opacity: 0.6;
+    margin-bottom: 32px;
+    letter-spacing: 0.05em;
+  }
+  .hero-desc {
+    font-size: 16px;
+    opacity: 0.8;
+    max-width: 480px;
+    margin: 0 auto 40px;
+    line-height: 1.9;
+  }
+  .badge-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .badge {
+    display: inline-block;
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 12px;
+    opacity: 0.7;
+  }
+
+  /* ── 大文字デモ ── */
+  .demo-strip {
+    background: white;
+    border-bottom: 2px solid var(--rule);
+    overflow: hidden;
+    padding: 24px 0;
+  }
+  .demo-inner {
+    display: flex;
+    gap: 0;
+    justify-content: center;
+  }
+  .demo-page {
+    width: 72px;
+    height: 96px;
+    border: 1.5px solid var(--rule);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 44px;
+    font-weight: 800;
+    flex-shrink: 0;
+    background: white;
+    margin: 0 2px;
+  }
+  .demo-page.yellow { background: var(--yellow); }
+
+  /* ── 見出し ── */
+  h2 {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 24px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--ink);
+  }
+  h3 {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 24px 0 8px;
+  }
+
+  /* ── ステップ ── */
+  .steps { display: flex; flex-direction: column; gap: 16px; }
+  .step {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    background: var(--card);
+    border-radius: 10px;
+    padding: 16px 20px;
+    border: 1px solid var(--rule);
+  }
+  .step-num {
+    background: var(--ink);
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  .step-body { flex: 1; }
+  .step-title { font-weight: 700; margin-bottom: 4px; }
+  .step-desc  { font-size: 14px; color: #555; line-height: 1.6; }
+  .step-note  {
+    display: inline-block;
+    margin-top: 6px;
+    font-size: 12px;
+    background: var(--bg);
+    border-radius: 4px;
+    padding: 3px 8px;
+    color: var(--muted);
+  }
+
+  /* ── テンプレートカード ── */
+  .template-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .tmpl-card {
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+  }
+  .tmpl-kiken-yw { background: var(--yellow); border: 3px solid var(--ink); }
+  .tmpl-kiken-rd { background: white; border: 1.5px solid var(--rule); }
+  .tmpl-noentry  { background: white; border: 3px solid var(--red); }
+  .tmpl-label { font-size: 12px; font-weight: 700; margin-bottom: 8px; color: #555; }
+  .tmpl-char  { font-size: 36px; font-weight: 800; line-height: 1; }
+  .tmpl-kiken-yw .tmpl-char { color: var(--ink); }
+  .tmpl-kiken-rd .tmpl-char { color: var(--red); }
+  .tmpl-noentry  .tmpl-char { color: var(--red); }
+  .tmpl-note {
+    margin-top: 16px;
+    background: var(--warn-bg);
+    border-left: 3px solid #f59e0b;
+    padding: 12px 16px;
+    border-radius: 0 6px 6px 0;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  /* ── PRO/FREE ── */
+  .tier-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  @media (max-width: 500px) { .tier-grid { grid-template-columns: 1fr; } }
+  .tier-card {
+    border-radius: 10px;
+    padding: 20px;
+    border: 1.5px solid;
+  }
+  .tier-free { background: var(--free-bg); border-color: #a8d5b5; }
+  .tier-pro  { background: var(--pro-bg);  border-color: #c4a0e0; }
+  .tier-title {
+    font-size: 15px;
+    font-weight: 800;
+    margin-bottom: 12px;
+  }
+  .tier-free .tier-title { color: var(--free); }
+  .tier-pro  .tier-title { color: var(--pro);  }
+  .tier-list { list-style: none; font-size: 14px; line-height: 2.1; }
+  .tier-list li::before { content: '✓ '; opacity: 0.5; }
+
+  /* ── ヒント ── */
+  .tip {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-top: 10px;
+  }
+  .tip strong { color: var(--accent); }
+
+  /* ── FAQ ── */
+  .faq { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
+  .faq-item {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 16px 20px;
+  }
+  .faq-q { font-weight: 700; margin-bottom: 6px; }
+  .faq-a { font-size: 14px; color: #555; line-height: 1.7; }
+
+  /* ── フッター ── */
+  footer {
+    background: var(--ink);
+    color: rgba(255,255,255,0.5);
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 13px;
+    line-height: 2;
+  }
+  footer a { color: rgba(255,255,255,0.7); }
+
+  /* ── 言語コンテンツ ── */
+  .lang-content { display: none; }
+  .lang-content.active { display: block; }
+
+  /* ── レスポンシブ ── */
+  @media (max-width: 600px) {
+    .demo-page { width: 52px; height: 70px; font-size: 32px; }
+    h2 { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 言語バー -->
+<nav class="lang-bar">
+  <button class="lang-btn active" onclick="setLang('ja')">🇯🇵 日本語</button>
+  <button class="lang-btn" onclick="setLang('zh-hans')">🇨🇳 简体</button>
+  <button class="lang-btn" onclick="setLang('zh-hant')">🇹🇼 繁體</button>
+  <button class="lang-btn" onclick="setLang('ko')">🇰🇷 한국어</button>
+</nav>
+
+<!-- ══════════════════════════════════════
+     🇯🇵 日本語
+══════════════════════════════════════ -->
+<div class="lang-content active" id="lang-ja">
+
+  <header class="hero">
+    <p class="hero-eyebrow">lamiliuq works</p>
+    <h1 class="hero-title">でか文字<span class="accent">印刷</span></h1>
+    <p class="hero-sub">Large Sign PDF Maker</p>
+    <p class="hero-desc">入力した文字を1文字ずつ大きく配置したPDFを作成するiPhoneアプリ。学校・イベント・店舗・自治会の案内表示を、すばやく作れます。</p>
+    <div class="badge-row">
+      <span class="badge">iPhone</span>
+      <span class="badge">iOS 17.6+</span>
+      <span class="badge">無料（PRO 買い切り ¥390）</span>
+    </div>
+  </header>
+
+  <div class="demo-strip">
+    <div class="demo-inner">
+      <div class="demo-page">受</div>
+      <div class="demo-page">付</div>
+      <div class="demo-page">中</div>
+      <div class="demo-page" style="margin-left:12px;">出</div>
+      <div class="demo-page">口</div>
+      <div class="demo-page">→</div>
+      <div class="demo-page yellow" style="margin-left:12px;">危</div>
+      <div class="demo-page yellow">険</div>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="container">
+      <h2>使い方</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">文字を入力する</div>
+            <div class="step-desc">入力欄に印刷したい文字を入力します。最大16文字まで入力できます。</div>
+            <span class="step-note">例：受付 / 出口→ / 夏期講習受付中</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">フォントと用紙サイズを選ぶ</div>
+            <div class="step-desc">ゴシック・POP・明朝の3書体から選択。用紙はB5・A4・B4・A3に対応しています。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">プレビューで確認する</div>
+            <div class="step-desc">「プレビュー」ボタンで仕上がりを確認。横スワイプでページを移動できます。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <div class="step-title">PDFを作成して印刷する</div>
+            <div class="step-desc">「PDF」ボタンをタップするとPDFが作成され、共有メニューが開きます。AirPrint・Canonプリント・Epsonなど各社プリンターアプリへ送信できます。</div>
+          </div>
+        </div>
+      </div>
+
+      <h3>文字の分割ルール</h3>
+      <div class="tip">
+        <strong>全角文字</strong>は1ページに1文字。<strong>数字・カンマ・ピリオド</strong>は2文字で1ページ。「受付中」は3ページ、「2,024」は2ページになります。
+      </div>
+      <div class="tip" style="margin-top:8px;">
+        アルファベットは自動的に全角に変換されます。「MacBook」は7ページ（M・a・c・B・o・o・k）になります。
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background:white; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule);">
+    <div class="container">
+      <h2>テンプレート</h2>
+      <p style="margin-bottom:12px;">緊急時にお使いください。タップですぐにPDFを作成し、プリンターと共有できます。</p>
+      <div class="template-grid">
+        <div class="tmpl-card tmpl-kiken-yw">
+          <div class="tmpl-label">危険（黄黒）</div>
+          <div class="tmpl-char">危</div>
+        </div>
+        <div class="tmpl-card tmpl-kiken-rd">
+          <div class="tmpl-label" style="color:var(--red);">危険（赤）</div>
+          <div class="tmpl-char">険</div>
+        </div>
+        <div class="tmpl-card tmpl-noentry">
+          <div class="tmpl-label" style="color:var(--red);">立入禁止</div>
+          <div class="tmpl-char">禁</div>
+        </div>
+      </div>
+      <div class="tmpl-note">ここだけカラーを無料開放しています。有料機能（文字色・背景色・囲み枠）のお試しとしてもご利用いただけます。</div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2>PRO機能</h2>
+      <div class="tier-grid">
+        <div class="tier-card tier-free">
+          <div class="tier-title">無料版</div>
+          <ul class="tier-list">
+            <li>文字入力・PDF作成</li>
+            <li>全フォント利用可</li>
+            <li>B5〜A3 全サイズ</li>
+            <li>テンプレート3種</li>
+            <li>黒文字・白背景</li>
+          </ul>
+        </div>
+        <div class="tier-card tier-pro">
+          <div class="tier-title">PRO — ¥390 買い切り</div>
+          <ul class="tier-list">
+            <li>文字色（8色）</li>
+            <li>背景色（8色）</li>
+            <li>白抜き文字</li>
+            <li>囲み枠（細枠・太枠）</li>
+            <li>広告非表示</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background:white; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule);">
+    <div class="container">
+      <h2>その他の機能</h2>
+      <div class="faq">
+        <div class="faq-item">
+          <div class="faq-q">🌐 言語の切り替え</div>
+          <div class="faq-a">トップバーのアプリ名をタップするたびに 🇯🇵→🇨🇳→🇹🇼→🇰🇷→About の順に切り替わります。言語を切り替えると入力欄がクリアされます。</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">🖨️ 対応プリンター</div>
+          <div class="faq-a">AirPrint対応プリンター全般のほか、Canon PRINT・Epson Smart Panel・Brother Mobile Connect など各メーカーのアプリから印刷できます。コンビニのネットプリントにも対応しています。</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">📄 PDFの保存先</div>
+          <div class="faq-a">作成したPDFはiPhoneの「ファイル」アプリに保存するほか、Dropbox・Google Drive などのクラウドストレージにも送信できます。</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">🔤 フォントについて</div>
+          <div class="faq-a">使用フォントはすべてSIL OFLライセンスのオープンソースフォントです。M PLUS 1p・Noto Serif JP・Rounded Mplus 1cほか全12書体をアプリに内蔵しています。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /lang-ja -->
+
+
+<!-- ══════════════════════════════════════
+     🇨🇳 简体中文
+══════════════════════════════════════ -->
+<div class="lang-content" id="lang-zh-hans">
+
+  <header class="hero">
+    <p class="hero-eyebrow">lamiliuq works</p>
+    <h1 class="hero-title" style="font-family:'Noto Sans SC',sans-serif;">大字<span class="accent">打印</span></h1>
+    <p class="hero-sub">Large Sign PDF Maker</p>
+    <p class="hero-desc">将输入的文字逐字放大排版，生成PDF的iPhone应用。快速制作学校、活动场所、店铺、社区的引导标识。</p>
+    <div class="badge-row">
+      <span class="badge">iPhone</span>
+      <span class="badge">iOS 17.6+</span>
+      <span class="badge">免费（PRO 买断 ¥390）</span>
+    </div>
+  </header>
+
+  <div class="demo-strip">
+    <div class="demo-inner">
+      <div class="demo-page" style="font-family:'Noto Sans SC',sans-serif;">受</div>
+      <div class="demo-page" style="font-family:'Noto Sans SC',sans-serif;">付</div>
+      <div class="demo-page" style="font-family:'Noto Sans SC',sans-serif;">中</div>
+      <div class="demo-page" style="margin-left:12px;font-family:'Noto Sans SC',sans-serif;">出</div>
+      <div class="demo-page" style="font-family:'Noto Sans SC',sans-serif;">口</div>
+      <div class="demo-page">→</div>
+      <div class="demo-page yellow" style="margin-left:12px;font-family:'Noto Sans SC',sans-serif;">危</div>
+      <div class="demo-page yellow" style="font-family:'Noto Sans SC',sans-serif;">险</div>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="container">
+      <h2>使用方法</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">输入文字</div>
+            <div class="step-desc">在输入框中输入要打印的文字，最多可输入16个字符。</div>
+            <span class="step-note">例：受付 / 出口→ / 注意事项</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">选择字体和纸张大小</div>
+            <div class="step-desc">从黑体、POP、宋体三种字体中选择，支持A4、A3纸张尺寸。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">预览效果</div>
+            <div class="step-desc">点击「预览」按钮确认效果，左右滑动可以翻页。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <div class="step-title">创建PDF并打印</div>
+            <div class="step-desc">点击「PDF」按钮生成PDF，在共享菜单中发送到打印机应用。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background:white; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule);">
+    <div class="container">
+      <h2>快捷模板</h2>
+      <p style="margin-bottom:12px;">紧急情况下请使用。轻触即可立即创建PDF并与打印机共享。</p>
+      <div class="template-grid">
+        <div class="tmpl-card tmpl-kiken-yw">
+          <div class="tmpl-label">危险（黄黑）</div>
+          <div class="tmpl-char" style="font-family:'Noto Sans SC',sans-serif;">危</div>
+        </div>
+        <div class="tmpl-card tmpl-kiken-rd">
+          <div class="tmpl-label" style="color:var(--red);">危险（红色）</div>
+          <div class="tmpl-char" style="font-family:'Noto Sans SC',sans-serif;">险</div>
+        </div>
+        <div class="tmpl-card tmpl-noentry">
+          <div class="tmpl-label" style="color:var(--red);">禁止入内</div>
+          <div class="tmpl-char" style="font-family:'Noto Sans SC',sans-serif;">禁</div>
+        </div>
+      </div>
+      <div class="tmpl-note">此处颜色功能免费开放。也可作为PRO付费功能（文字颜色、背景颜色、边框）的体验使用。</div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2>PRO功能</h2>
+      <div class="tier-grid">
+        <div class="tier-card tier-free">
+          <div class="tier-title">免费版</div>
+          <ul class="tier-list">
+            <li>文字输入・PDF创建</li>
+            <li>全部字体可用</li>
+            <li>A4・A3纸张</li>
+            <li>3种快捷模板</li>
+            <li>黑字・白底</li>
+          </ul>
+        </div>
+        <div class="tier-card tier-pro">
+          <div class="tier-title">PRO — 买断</div>
+          <ul class="tier-list">
+            <li>文字颜色（8色）</li>
+            <li>背景颜色（8色）</li>
+            <li>空心字</li>
+            <li>边框（细框・粗框）</li>
+            <li>去除广告</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /lang-zh-hans -->
+
+
+<!-- ══════════════════════════════════════
+     🇹🇼 繁體中文
+══════════════════════════════════════ -->
+<div class="lang-content" id="lang-zh-hant">
+
+  <header class="hero">
+    <p class="hero-eyebrow">lamiliuq works</p>
+    <h1 class="hero-title" style="font-family:'Noto Sans TC',sans-serif;">大字<span class="accent">列印</span></h1>
+    <p class="hero-sub">Large Sign PDF Maker</p>
+    <p class="hero-desc">將輸入的文字逐字放大排版，生成PDF的iPhone應用程式。快速製作學校、活動場所、店鋪、社區的引導標示。</p>
+    <div class="badge-row">
+      <span class="badge">iPhone</span>
+      <span class="badge">iOS 17.6+</span>
+      <span class="badge">免費（PRO 買斷 ¥390）</span>
+    </div>
+  </header>
+
+  <div class="demo-strip">
+    <div class="demo-inner">
+      <div class="demo-page" style="font-family:'Noto Sans TC',sans-serif;">受</div>
+      <div class="demo-page" style="font-family:'Noto Sans TC',sans-serif;">付</div>
+      <div class="demo-page" style="font-family:'Noto Sans TC',sans-serif;">中</div>
+      <div class="demo-page" style="margin-left:12px;font-family:'Noto Sans TC',sans-serif;">出</div>
+      <div class="demo-page" style="font-family:'Noto Sans TC',sans-serif;">口</div>
+      <div class="demo-page">→</div>
+      <div class="demo-page yellow" style="margin-left:12px;font-family:'Noto Sans TC',sans-serif;">危</div>
+      <div class="demo-page yellow" style="font-family:'Noto Sans TC',sans-serif;">險</div>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="container">
+      <h2>使用方式</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">輸入文字</div>
+            <div class="step-desc">在輸入欄中輸入要列印的文字，最多可輸入16個字元。</div>
+            <span class="step-note">例：受付 / 出口→ / 注意事項</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">選擇字型和紙張大小</div>
+            <div class="step-desc">從黑體、POP、明體三種字型中選擇，支援A4、A3紙張尺寸。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">預覽效果</div>
+            <div class="step-desc">點選「預覽」按鈕確認效果，左右滑動可以翻頁。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <div class="step-title">建立PDF並列印</div>
+            <div class="step-desc">點選「PDF」按鈕建立PDF，在分享選單中傳送至印表機應用程式。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background:white; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule);">
+    <div class="container">
+      <h2>快速範本</h2>
+      <p style="margin-bottom:12px;">緊急情況下請使用。輕觸即可立即建立PDF並與印表機共享。</p>
+      <div class="template-grid">
+        <div class="tmpl-card tmpl-kiken-yw">
+          <div class="tmpl-label">危險（黃黑）</div>
+          <div class="tmpl-char" style="font-family:'Noto Sans TC',sans-serif;">危</div>
+        </div>
+        <div class="tmpl-card tmpl-kiken-rd">
+          <div class="tmpl-label" style="color:var(--red);">危險（紅色）</div>
+          <div class="tmpl-char" style="font-family:'Noto Sans TC',sans-serif;">險</div>
+        </div>
+        <div class="tmpl-card tmpl-noentry">
+          <div class="tmpl-label" style="color:var(--red);">禁止進入</div>
+          <div class="tmpl-char" style="font-family:'Noto Sans TC',sans-serif;">禁</div>
+        </div>
+      </div>
+      <div class="tmpl-note">此處顏色功能免費開放。也可作為PRO付費功能（文字顏色、背景顏色、邊框）的體驗使用。</div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2>PRO功能</h2>
+      <div class="tier-grid">
+        <div class="tier-card tier-free">
+          <div class="tier-title">免費版</div>
+          <ul class="tier-list">
+            <li>文字輸入・PDF建立</li>
+            <li>全部字型可用</li>
+            <li>A4・A3紙張</li>
+            <li>3種快速範本</li>
+            <li>黑字・白底</li>
+          </ul>
+        </div>
+        <div class="tier-card tier-pro">
+          <div class="tier-title">PRO — 買斷</div>
+          <ul class="tier-list">
+            <li>文字顏色（8色）</li>
+            <li>背景顏色（8色）</li>
+            <li>空心字</li>
+            <li>邊框（細框・粗框）</li>
+            <li>移除廣告</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /lang-zh-hant -->
+
+
+<!-- ══════════════════════════════════════
+     🇰🇷 한국어
+══════════════════════════════════════ -->
+<div class="lang-content" id="lang-ko">
+
+  <header class="hero">
+    <p class="hero-eyebrow">lamiliuq works</p>
+    <h1 class="hero-title" style="font-family:'Noto Sans KR',sans-serif;">큰글씨<span class="accent"> 인쇄</span></h1>
+    <p class="hero-sub">Large Sign PDF Maker</p>
+    <p class="hero-desc">입력한 글자를 한 글자씩 크게 배치한 PDF를 생성하는 iPhone 앱. 학교·행사·가게·마을 안내 표시를 빠르게 만들 수 있습니다.</p>
+    <div class="badge-row">
+      <span class="badge">iPhone</span>
+      <span class="badge">iOS 17.6+</span>
+      <span class="badge">무료（PRO 일회구매 ¥390）</span>
+    </div>
+  </header>
+
+  <div class="demo-strip">
+    <div class="demo-inner">
+      <div class="demo-page" style="font-family:'Noto Sans KR',sans-serif; font-size:32px;">안</div>
+      <div class="demo-page" style="font-family:'Noto Sans KR',sans-serif; font-size:32px;">내</div>
+      <div class="demo-page" style="font-family:'Noto Sans KR',sans-serif; font-size:32px;">소</div>
+      <div class="demo-page" style="margin-left:12px;font-family:'Noto Sans KR',sans-serif; font-size:32px;">출</div>
+      <div class="demo-page" style="font-family:'Noto Sans KR',sans-serif; font-size:32px;">구</div>
+      <div class="demo-page">→</div>
+      <div class="demo-page yellow" style="margin-left:12px;font-family:'Noto Sans KR',sans-serif; font-size:32px;">위</div>
+      <div class="demo-page yellow" style="font-family:'Noto Sans KR',sans-serif; font-size:32px;">험</div>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="container">
+      <h2>사용 방법</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">글자 입력</div>
+            <div class="step-desc">입력창에 인쇄할 글자를 입력합니다. 최대 16자까지 입력할 수 있습니다.</div>
+            <span class="step-note">예：안내소 / 출구→ / 주의사항</span>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">글꼴과 용지 크기 선택</div>
+            <div class="step-desc">고딕·POP·명조 세 가지 서체에서 선택. A4·A3 용지 크기를 지원합니다.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">미리보기로 확인</div>
+            <div class="step-desc">「미리보기」 버튼으로 결과를 확인하고, 좌우 스와이프로 페이지를 이동합니다.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <div class="step-title">PDF 생성 및 인쇄</div>
+            <div class="step-desc">「PDF」 버튼을 탭하면 PDF가 생성되고 공유 메뉴가 열립니다. 각 제조사의 프린터 앱으로 전송할 수 있습니다.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background:white; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule);">
+    <div class="container">
+      <h2>빠른 템플릿</h2>
+      <p style="margin-bottom:12px;">긴급 상황에서 사용하세요. 탭 한 번으로 즉시 PDF를 생성하여 프린터와 공유할 수 있습니다.</p>
+      <div class="template-grid">
+        <div class="tmpl-card tmpl-kiken-yw">
+          <div class="tmpl-label">위험（노랑·검정）</div>
+          <div class="tmpl-char" style="font-family:'Noto Sans KR',sans-serif;">위</div>
+        </div>
+        <div class="tmpl-card tmpl-kiken-rd">
+          <div class="tmpl-label" style="color:var(--red);">위험（빨강）</div>
+          <div class="tmpl-char" style="font-family:'Noto Sans KR',sans-serif;">험</div>
+        </div>
+        <div class="tmpl-card tmpl-noentry">
+          <div class="tmpl-label" style="color:var(--red);">출입금지</div>
+          <div class="tmpl-char" style="font-family:'Noto Sans KR',sans-serif;">금</div>
+        </div>
+      </div>
+      <div class="tmpl-note">여기서만 색상 기능을 무료로 개방하고 있습니다. PRO 유료 기능（글자색·배경색·테두리）의 체험으로도 이용할 수 있습니다.</div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2>PRO 기능</h2>
+      <div class="tier-grid">
+        <div class="tier-card tier-free">
+          <div class="tier-title">무료 버전</div>
+          <ul class="tier-list">
+            <li>글자 입력・PDF 생성</li>
+            <li>모든 글꼴 사용 가능</li>
+            <li>A4・A3 용지</li>
+            <li>템플릿 3종</li>
+            <li>검정 글자・흰 배경</li>
+          </ul>
+        </div>
+        <div class="tier-card tier-pro">
+          <div class="tier-title">PRO — 일회구매</div>
+          <ul class="tier-list">
+            <li>글자 색상（8색）</li>
+            <li>배경 색상（8색）</li>
+            <li>외곽선 글자</li>
+            <li>테두리（가는 선·굵은 선）</li>
+            <li>광고 제거</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /lang-ko -->
+
+
+<!-- ══════════════════════════════════════
+     フッター（共通）
+══════════════════════════════════════ -->
+<footer>
+  <div>でか文字印刷 / 大字打印 / 大字列印 / 큰글씨 인쇄</div>
+  <div>Large Sign PDF Maker</div>
+  <div style="margin-top:8px;">
+    <a href="/largesign/privacy/">Privacy Policy</a>
+    &nbsp;·&nbsp;
+    <a href="mailto:support@lamiliuq.com">Contact</a>
+  </div>
+  <div style="margin-top:12px; opacity:0.4;">© lamiliuq works</div>
+</footer>
+
+<script>
+function setLang(lang) {
+  // コンテンツ切り替え
+  document.querySelectorAll('.lang-content').forEach(el => el.classList.remove('active'));
+  document.getElementById('lang-' + lang).classList.add('active');
+
+  // ボタン切り替え
+  document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+
+  // html lang属性
+  const langMap = { 'ja': 'ja', 'zh-hans': 'zh-Hans', 'zh-hant': 'zh-Hant', 'ko': 'ko' };
+  document.documentElement.lang = langMap[lang] || 'ja';
+
+  // ページ先頭へ
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+
+</body>
+</html>

@@ -66,6 +66,25 @@
     font-weight: 700;
   }
 
+
+  /* ── スクショ ── */
+  .screenshot-section {
+    background: var(--ink);
+    padding: 40px 20px;
+    text-align: center;
+  }
+  .screenshot-img {
+    max-width: 280px;
+    width: 80%;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .screenshot-caption {
+    color: rgba(255,255,255,0.5);
+    font-size: 12px;
+    margin-top: 12px;
+  }
+
   /* ── セクション共通 ── */
   .section { padding: var(--section-pad); }
   .container { max-width: 760px; margin: 0 auto; }
@@ -337,6 +356,12 @@
     </div>
   </div>
 
+  
+  <div class="screenshot-section">
+    <img src="screenshot-ja.png" alt="でか文字印刷 スクリーンショット" class="screenshot-img">
+    <p class="screenshot-caption">iPhone 実機画面</p>
+  </div>
+
   <section class="section">
     <div class="container">
       <h2>使い方</h2>
@@ -374,7 +399,7 @@
 
       <h3>文字の分割ルール</h3>
       <div class="tip">
-        <strong>全角文字</strong>は1ページに1文字。<strong>数字・カンマ・ピリオド</strong>は2文字で1ページ。「受付中」は3ページ、「2024」は2ページになります。
+        <strong>全角文字</strong>は1ページに1文字。<strong>数字・カンマ・ピリオド</strong>は2文字で1ページ。「受付中」は3ページ、「2,024」は2ページになります。
       </div>
       <div class="tip" style="margin-top:8px;">
         アルファベットは自動的に全角に変換されます。「MacBook」は7ページ（M・a・c・B・o・o・k）になります。
@@ -424,6 +449,7 @@
             <li>文字色（8色）</li>
             <li>背景色（8色）</li>
             <li>白抜き文字</li>
+            <li>もっと大きく（縦20%引き伸ばし）</li>
             <li>囲み枠（細枠・太枠）</li>
             <li>絵文字対応</li>
             <li>広告非表示</li>
@@ -488,6 +514,12 @@
       <div class="demo-page yellow" style="margin-left:12px;font-family:'Noto Sans SC',sans-serif;">危</div>
       <div class="demo-page yellow" style="font-family:'Noto Sans SC',sans-serif;">险</div>
     </div>
+  </div>
+
+  
+  <div class="screenshot-section">
+    <img src="screenshot-zh-hans.png" alt="大字打印 截图" class="screenshot-img">
+    <p class="screenshot-caption">iPhone 实机画面</p>
   </div>
 
   <section class="section">
@@ -564,11 +596,12 @@
           </ul>
         </div>
         <div class="tier-card tier-pro">
-          <div class="tier-title">PRO — 买断</div>
+          <div class="tier-title">PRO — CN¥15 买断</div>
           <ul class="tier-list">
             <li>文字颜色（8色）</li>
             <li>背景颜色（8色）</li>
             <li>空心字</li>
+            <li>更大（纵向20%放大）</li>
             <li>边框（细框・粗框）</li>
             <li>表情符号支持</li>
             <li>去除广告</li>
@@ -609,6 +642,12 @@
       <div class="demo-page yellow" style="margin-left:12px;font-family:'Noto Sans TC',sans-serif;">危</div>
       <div class="demo-page yellow" style="font-family:'Noto Sans TC',sans-serif;">險</div>
     </div>
+  </div>
+
+  
+  <div class="screenshot-section">
+    <img src="screenshot-zh-hant.png" alt="大字列印 截圖" class="screenshot-img">
+    <p class="screenshot-caption">iPhone 實機畫面</p>
   </div>
 
   <section class="section">
@@ -685,11 +724,12 @@
           </ul>
         </div>
         <div class="tier-card tier-pro">
-          <div class="tier-title">PRO — 買斷</div>
+          <div class="tier-title">PRO — NT$60 買斷</div>
           <ul class="tier-list">
             <li>文字顏色（8色）</li>
             <li>背景顏色（8色）</li>
             <li>空心字</li>
+            <li>更大（縱向20%放大）</li>
             <li>邊框（細框・粗框）</li>
             <li>表情符號支援</li>
             <li>移除廣告</li>
@@ -730,6 +770,12 @@
       <div class="demo-page yellow" style="margin-left:12px;font-family:'Noto Sans KR',sans-serif; font-size:32px;">위</div>
       <div class="demo-page yellow" style="font-family:'Noto Sans KR',sans-serif; font-size:32px;">험</div>
     </div>
+  </div>
+
+  
+  <div class="screenshot-section">
+    <img src="screenshot-ko.png" alt="큰글씨 인쇄 스크린샷" class="screenshot-img">
+    <p class="screenshot-caption">iPhone 실제 화면</p>
   </div>
 
   <section class="section">
@@ -806,11 +852,12 @@
           </ul>
         </div>
         <div class="tier-card tier-pro">
-          <div class="tier-title">PRO — 일회구매</div>
+          <div class="tier-title">PRO — ₩3,300 일회구매</div>
           <ul class="tier-list">
             <li>글자 색상（8색）</li>
             <li>배경 색상（8색）</li>
             <li>외곽선 글자</li>
+            <li>더 크게（세로 20% 늘리기）</li>
             <li>테두리（가는 선·굵은 선）</li>
             <li>이모지 지원</li>
             <li>광고 제거</li>
@@ -832,7 +879,7 @@
   <div style="margin-top:8px;">
     <a href="/largesign/privacy/">Privacy Policy</a>
     &nbsp;·&nbsp;
-    <a href="mailto:lamiliuq@lamiliuq.com">Contact</a>
+    <a href="mailto:support@lamiliuq.com">Contact</a>
   </div>
   <div style="margin-top:12px; opacity:0.4;">© lamiliuq works</div>
 </footer>

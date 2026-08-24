@@ -145,13 +145,17 @@
 
     <!-- 得意先（partner） -->
     <div id="section-partner" class="hidden">
-      <div class="section-head">🤝 得意先タグ（partnerタグ：A〜Z）</div>
-      <p class="hint">売掛金・買掛金・仕入高の補助科目（得意先名等）をマルセイ会計の得意先タグに対応付けます。</p>
+      <div class="section-head">🤝 得意先（partnerタグ：A〜Z）</div>
+      <p class="hint">
+        売掛金・買掛金・仕入高の補助科目名（社名等）はそのままマルセイ会計の得意先名として変換されます。<br>
+        マルセイ会計側で得意先を同じ名前で登録しておくと、得意先元帳で正しく集計されます。<br>
+        <span style="color:var(--muted)">（partnerタグ欄はダミーです。入力不要です）</span>
+      </p>
       <table class="tbl" id="partner-table">
         <thead><tr>
-          <th style="width:35%">弥生 補助科目名</th>
+          <th style="width:35%">弥生 補助科目名（→得意先名として使用）</th>
           <th style="width:20%">対象科目</th>
-          <th>partnerタグ（A〜Z）</th>
+          <th>（参考）partnerタグ（A〜Z）</th>
         </tr></thead>
         <tbody id="partner-body"></tbody>
       </table>
@@ -550,13 +554,15 @@ function convertToJSON(){
     if(dKey&&subSet[dKey]){
       const t=subSet[dKey].type, v=subTags[dKey]||"";
       if(t==="bank"   &&v) debitBankTag=v;
-      if(t==="partner"&&v) debitPartner=subTags[dKey]; // partnerはタグではなく名前で保持
+      // ✅ partnerはタグではなく弥生の補助科目名（社名等）をそのまま使う
+      if(t==="partner")    debitPartner=subSet[dKey].sub;
       if(t==="sub"    &&v) debitSubAccount=v;
     }
     if(cKey&&subSet[cKey]){
       const t=subSet[cKey].type, v=subTags[cKey]||"";
       if(t==="bank"   &&v) creditBankTag=v;
-      if(t==="partner"&&v) creditPartner=subTags[cKey];
+      // ✅ partnerはタグではなく弥生の補助科目名（社名等）をそのまま使う
+      if(t==="partner")    creditPartner=subSet[cKey].sub;
       if(t==="sub"    &&v) creditSubAccount=v;
     }
 

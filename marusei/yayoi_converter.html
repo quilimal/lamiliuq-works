@@ -531,12 +531,24 @@ function convertToJSON(){
     const dateISO=`${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}T00:00:00.000+09:00`;
 
     const totalAmount=row.debitAmt||row.creditAmt;
-    const taxAmount=Math.max(row.debitTaxAmt,row.creditTaxAmt);
-    const netAmount=totalAmount-taxAmount;
 
+    // ✅ 消費税計算: TaxManager.splitTax() と同じロジック（割戻し法・切り捨て・事業者有利）
+    //   net = floor(totalAmount / (1 + taxRate))
+    //   tax = totalAmount - net
+    // 弥生CSV側の税額欄は参照せず、totalAmountとtaxRateから再計算する
     const dTax=parseTaxType(row.debitTax);
     const cTax=parseTaxType(row.creditTax);
     const taxInfo=dTax.taxRate>=cTax.taxRate?dTax:cTax;
+
+    let netAmount, taxAmount;
+    if(taxInfo.taxRate>0){
+      // 割戻し法: net = floor(total / (1 + rate))
+      netAmount = Math.floor(totalAmount / (1 + taxInfo.taxRate));
+      taxAmount = totalAmount - netAmount;
+    } else {
+      netAmount = totalAmount;
+      taxAmount = 0;
+    }
 
     const df=debitCode.charAt(0), cf=creditCode.charAt(0);
     let transactionType="";

@@ -6,176 +6,183 @@
 <title>弥生CSV → マルセイ会計 変換ツール</title>
 <style>
   :root {
-    --blue:      #2E6FD9;
-    --blue-dark: #1A4A9A;
-    --blue-pale: #E8F0FB;
-    --gray-bg:   #F6F7F9;
-    --gray-line: #E2E6ED;
-    --text:      #1A1A2E;
-    --muted:     #6B7280;
-    --green:     #16A34A;
-    --orange:    #EA580C;
-    --red:       #DC2626;
-    --mono:      "Fira Code", "Courier New", monospace;
-    --sans:      "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif;
+    --blue:#2E6FD9; --blue-dark:#1A4A9A; --blue-pale:#E8F0FB;
+    --gray-bg:#F6F7F9; --gray-line:#E2E6ED; --text:#1A1A2E;
+    --muted:#6B7280; --green:#16A34A; --orange:#EA580C; --red:#DC2626;
+    --mono:"Fira Code","Courier New",monospace;
+    --sans:"Hiragino Sans","Noto Sans JP",system-ui,sans-serif;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: var(--sans); font-size: 14px; color: var(--text); background: var(--gray-bg); }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--sans);font-size:14px;color:var(--text);background:var(--gray-bg);}
+  .app{max-width:980px;margin:0 auto;padding:32px 20px 80px;}
+  h1{font-size:22px;font-weight:700;color:var(--blue-dark);margin-bottom:4px;}
+  .subtitle{font-size:13px;color:var(--muted);margin-bottom:28px;}
 
-  .app { max-width: 960px; margin: 0 auto; padding: 32px 20px 80px; }
+  .stepper{display:flex;gap:0;margin-bottom:28px;}
+  .step{flex:1;text-align:center;padding:10px 4px;font-size:11px;font-weight:600;color:var(--muted);border-bottom:3px solid var(--gray-line);transition:all .2s;}
+  .step .num{display:block;font-size:17px;margin-bottom:2px;}
+  .step.active{color:var(--blue);border-bottom-color:var(--blue);}
+  .step.done{color:var(--green);border-bottom-color:var(--green);}
+  .stepper-wrap{position:sticky;top:0;background:var(--gray-bg);padding:14px 0 6px;z-index:10;}
 
-  h1 { font-size: 22px; font-weight: 700; color: var(--blue-dark); margin-bottom: 4px; }
-  .subtitle { font-size: 13px; color: var(--muted); margin-bottom: 32px; }
+  .panel{background:#fff;border-radius:12px;padding:24px;margin-bottom:20px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+  .panel-title{font-size:15px;font-weight:700;margin-bottom:16px;color:var(--blue-dark);}
 
-  /* ── ステッパー ── */
-  .stepper { display: flex; gap: 0; margin-bottom: 32px; }
-  .step {
-    flex: 1; text-align: center; padding: 10px 4px;
-    font-size: 12px; font-weight: 600; color: var(--muted);
-    border-bottom: 3px solid var(--gray-line);
-    transition: all 0.2s;
-  }
-  .step.active   { color: var(--blue);   border-bottom-color: var(--blue); }
-  .step.done     { color: var(--green);  border-bottom-color: var(--green); }
-  .step .num { display: block; font-size: 18px; margin-bottom: 2px; }
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;border:none;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;transition:opacity .15s;}
+  .btn:hover{opacity:.85;} .btn:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-primary{background:var(--blue);color:#fff;}
+  .btn-success{background:var(--green);color:#fff;}
+  .btn-outline{background:#fff;color:var(--blue);border:2px solid var(--blue);}
+  .btn-sm{padding:5px 12px;font-size:12px;}
 
-  /* ── パネル ── */
-  .panel { background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
-  .panel-title { font-size: 15px; font-weight: 700; margin-bottom: 16px; color: var(--blue-dark); }
+  #dropzone{border:2px dashed var(--gray-line);border-radius:10px;padding:40px;text-align:center;cursor:pointer;transition:all .2s;color:var(--muted);}
+  #dropzone:hover,#dropzone.drag{border-color:var(--blue);background:var(--blue-pale);}
+  #dropzone .icon{font-size:36px;margin-bottom:8px;}
+  #dropzone input{display:none;}
 
-  /* ── ボタン ── */
-  .btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 10px 20px; border-radius: 8px; border: none;
-    font-family: var(--sans); font-size: 14px; font-weight: 600;
-    cursor: pointer; transition: opacity 0.15s;
-  }
-  .btn:hover { opacity: 0.85; }
-  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-  .btn-primary { background: var(--blue); color: #fff; }
-  .btn-success { background: var(--green); color: #fff; }
-  .btn-outline { background: #fff; color: var(--blue); border: 2px solid var(--blue); }
+  table.tbl{width:100%;border-collapse:collapse;font-size:13px;}
+  table.tbl th{background:var(--blue);color:#fff;padding:8px 10px;text-align:left;font-size:12px;font-weight:600;}
+  table.tbl td{padding:6px 10px;border-bottom:1px solid var(--gray-line);vertical-align:middle;}
+  table.tbl tr:nth-child(even) td{background:var(--gray-bg);}
+  table.tbl tr.warn td{background:#FEF3C7;}
 
-  /* ── ドロップゾーン ── */
-  #dropzone {
-    border: 2px dashed var(--gray-line); border-radius: 10px;
-    padding: 40px; text-align: center; cursor: pointer;
-    transition: all 0.2s; color: var(--muted);
-  }
-  #dropzone:hover, #dropzone.drag { border-color: var(--blue); background: var(--blue-pale); }
-  #dropzone .icon { font-size: 36px; margin-bottom: 8px; }
-  #dropzone p { font-size: 14px; }
-  #dropzone input { display: none; }
+  .badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;}
+  .badge-ok{background:#DCFCE7;color:var(--green);}
+  .badge-warn{background:#FEF3C7;color:#B45309;}
+  .badge-skip{background:#F3F4F6;color:var(--muted);}
 
-  /* ── 科目マッピングテーブル ── */
-  .mapping-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .mapping-table th {
-    background: var(--blue); color: #fff;
-    padding: 8px 12px; text-align: left; font-size: 12px; font-weight: 600;
-  }
-  .mapping-table td { padding: 7px 12px; border-bottom: 1px solid var(--gray-line); vertical-align: middle; }
-  .mapping-table tr:nth-child(even) td { background: var(--gray-bg); }
-  .mapping-table tr.unmapped td { background: #FEF3C7; }
+  select.map-sel{font-family:var(--sans);font-size:13px;padding:4px 7px;border:1px solid var(--gray-line);border-radius:6px;background:#fff;width:100%;max-width:280px;}
+  select.map-sel.unset{border-color:var(--orange);background:#FFF7ED;}
 
-  .badge {
-    display: inline-block; font-size: 10px; font-weight: 700;
-    padding: 2px 7px; border-radius: 10px;
-  }
-  .badge-ok     { background: #DCFCE7; color: var(--green); }
-  .badge-warn   { background: #FEF3C7; color: #B45309; }
-  .badge-skip   { background: #F3F4F6; color: var(--muted); }
+  input.tag-input{font-family:var(--mono);font-size:13px;padding:4px 8px;border:1px solid var(--gray-line);border-radius:6px;width:90px;}
+  input.tag-input.unset{border-color:var(--orange);background:#FFF7ED;}
+  input.tag-input.ok{border-color:var(--green);}
 
-  select.map-select {
-    font-family: var(--sans); font-size: 13px;
-    padding: 5px 8px; border: 1px solid var(--gray-line);
-    border-radius: 6px; background: #fff; width: 100%; max-width: 260px;
-  }
-  select.map-select.unset { border-color: var(--orange); background: #FFF7ED; }
+  #json-output{font-family:var(--mono);font-size:11px;line-height:1.6;white-space:pre;overflow-x:auto;background:#1E2130;color:#CDD6F4;border-radius:8px;padding:16px;max-height:360px;overflow-y:auto;}
 
-  /* ── 結果 ── */
-  #json-output {
-    font-family: var(--mono); font-size: 11px; line-height: 1.6;
-    white-space: pre; overflow-x: auto;
-    background: #1E2130; color: #CDD6F4;
-    border-radius: 8px; padding: 16px; max-height: 360px; overflow-y: auto;
-  }
+  .stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;}
+  .stat-box{flex:1;min-width:110px;border-radius:8px;padding:12px 16px;text-align:center;}
+  .stat-box .n{font-size:24px;font-weight:700;} .stat-box .l{font-size:11px;margin-top:2px;}
+  .box-blue{background:var(--blue-pale);} .box-blue .n,.box-blue .l{color:var(--blue);}
+  .box-green{background:#F0FDF4;} .box-green .n,.box-green .l{color:var(--green);}
+  .box-warn{background:#FFFBEB;} .box-warn .n,.box-warn .l{color:#B45309;}
 
-  .stats { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
-  .stat-box {
-    flex: 1; min-width: 120px;
-    border-radius: 8px; padding: 12px 16px; text-align: center;
-  }
-  .stat-box .n { font-size: 24px; font-weight: 700; }
-  .stat-box .l { font-size: 11px; margin-top: 2px; }
-  .box-blue  { background: var(--blue-pale); }
-  .box-blue .n, .box-blue .l { color: var(--blue); }
-  .box-green { background: #F0FDF4; }
-  .box-green .n, .box-green .l { color: var(--green); }
-  .box-warn  { background: #FFFBEB; }
-  .box-warn .n, .box-warn .l  { color: #B45309; }
-
-  .hidden { display: none; }
-  .notice { font-size: 12px; color: var(--muted); margin-top: 12px; line-height: 1.7; }
-  .notice b { color: var(--text); }
-
-  /* ── スクロール時にStepperを固定 ── */
-  .stepper-wrap {
-    position: sticky; top: 0; background: var(--gray-bg);
-    padding: 16px 0 8px; z-index: 10; margin-bottom: 8px;
-  }
+  .hidden{display:none;}
+  .notice{font-size:12px;color:var(--muted);margin-top:12px;line-height:1.7;}
+  .notice b{color:var(--text);}
+  .section-head{font-size:13px;font-weight:700;color:var(--blue-dark);margin:20px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--gray-line);}
+  .hint{font-size:11px;color:var(--muted);margin-bottom:8px;}
+  .btn-row{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;}
 </style>
 </head>
 <body>
 <div class="app">
-
   <h1>弥生CSV → マルセイ会計 変換ツール</h1>
-  <p class="subtitle">弥生会計の仕訳日記帳CSVをマルセイ会計のインポートJSON（コピー&ペースト用）に変換します。</p>
+  <p class="subtitle">弥生会計の仕訳日記帳CSVをマルセイ会計のインポートJSON（コピー&amp;ペースト用）に変換します。</p>
 
   <div class="stepper-wrap">
     <div class="stepper">
-      <div class="step active" id="step1"><span class="num">①</span>CSVを読み込む</div>
-      <div class="step"        id="step2"><span class="num">②</span>科目をマッピング</div>
-      <div class="step"        id="step3"><span class="num">③</span>JSONをコピー</div>
+      <div class="step active" id="step1"><span class="num">①</span>CSV読み込み</div>
+      <div class="step"        id="step2"><span class="num">②</span>科目マッピング</div>
+      <div class="step"        id="step3"><span class="num">③</span>補助科目・タグ設定</div>
+      <div class="step"        id="step4"><span class="num">④</span>JSONをコピー</div>
     </div>
   </div>
 
-  <!-- Step1: ファイル読み込み -->
+  <!-- ① CSV読み込み -->
   <div id="panel-step1" class="panel">
     <div class="panel-title">弥生仕訳日記帳CSVを選択</div>
     <div id="dropzone">
       <div class="icon">📂</div>
-      <p>ここにファイルをドロップ<br>または クリックして選択</p>
+      <p>ここにファイルをドロップ<br>またはクリックして選択</p>
       <input type="file" id="file-input" accept=".csv,.txt">
     </div>
-    <p class="notice" style="margin-top:12px">
-      対応形式：弥生会計の「仕訳日記帳」汎用形式CSV（.csv / .txt）<br>
-      文字コード Shift-JIS・UTF-8 両対応。ファイルはブラウザ内のみで処理され、外部に送信されません。
+    <p class="notice">
+      対応形式：弥生会計「仕訳日記帳」汎用形式CSV（.csv / .txt）<br>
+      Shift-JIS・UTF-8 両対応。ファイルはブラウザ内のみで処理され外部に送信されません。
     </p>
   </div>
 
-  <!-- Step2: 科目マッピング -->
+  <!-- ② 科目マッピング -->
   <div id="panel-step2" class="panel hidden">
     <div class="panel-title">科目マッピング</div>
-    <p style="font-size:13px; color:var(--muted); margin-bottom:16px">
-      弥生側の科目名をマルセイ会計の科目コードに対応付けてください。<br>
-      <span style="color:var(--orange); font-weight:600">「スキップ」を選んだ科目を含む仕訳は変換対象から除外されます。</span>
-    </p>
-    <table class="mapping-table" id="mapping-table">
+    <p class="hint">弥生側の科目名をマルセイ会計の科目コードに対応付けてください。スキップした科目を含む仕訳は除外されます。</p>
+    <table class="tbl" id="mapping-table">
       <thead><tr>
-        <th style="width:32%">弥生側の科目名</th>
-        <th style="width:15%">状態</th>
+        <th style="width:30%">弥生側の科目名</th>
+        <th style="width:13%">状態</th>
         <th>マルセイ会計の科目</th>
       </tr></thead>
       <tbody id="mapping-body"></tbody>
     </table>
-    <div style="margin-top:20px; display:flex; gap:10px;">
-      <button class="btn btn-primary" id="btn-convert">変換する →</button>
-      <button class="btn btn-outline"  id="btn-back">← 戻る</button>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="btn-to-step3">次へ：補助科目・タグ設定 →</button>
+      <button class="btn btn-outline"  id="btn-back1">← 戻る</button>
     </div>
   </div>
 
-  <!-- Step3: JSON出力 -->
+  <!-- ③ 補助科目・タグ設定 -->
   <div id="panel-step3" class="panel hidden">
+    <div class="panel-title">補助科目・タグ設定</div>
+    <p class="hint">
+      マルセイ会計側であらかじめ設定済みの bank タグ / partner タグ / subAccount コードを入力してください。<br>
+      空欄のままにすると、その補助科目の情報は変換されません（仕訳は変換対象に残ります）。
+    </p>
+
+    <!-- 金融機関（bank） -->
+    <div id="section-bank" class="hidden">
+      <div class="section-head">🏦 金融機関タグ（bankタグ：a〜z）</div>
+      <p class="hint">普通預金・定期預金・当座預金の補助科目（支店名等）をマルセイ会計の金融機関タグに対応付けます。</p>
+      <table class="tbl" id="bank-table">
+        <thead><tr>
+          <th style="width:35%">弥生 補助科目名</th>
+          <th style="width:20%">対象科目</th>
+          <th>bankタグ（a〜z）</th>
+        </tr></thead>
+        <tbody id="bank-body"></tbody>
+      </table>
+    </div>
+
+    <!-- 得意先（partner） -->
+    <div id="section-partner" class="hidden">
+      <div class="section-head">🤝 得意先タグ（partnerタグ：A〜Z）</div>
+      <p class="hint">売掛金・買掛金・仕入高の補助科目（得意先名等）をマルセイ会計の得意先タグに対応付けます。</p>
+      <table class="tbl" id="partner-table">
+        <thead><tr>
+          <th style="width:35%">弥生 補助科目名</th>
+          <th style="width:20%">対象科目</th>
+          <th>partnerタグ（A〜Z）</th>
+        </tr></thead>
+        <tbody id="partner-body"></tbody>
+      </table>
+    </div>
+
+    <!-- 補助科目（subAccount） -->
+    <div id="section-sub" class="hidden">
+      <div class="section-head">📁 補助科目コード（親コード+A〜Z）</div>
+      <p class="hint">費用科目等の補助科目をマルセイ会計の補助科目コードに対応付けます。例：通信費の補助科目「携帯電話」→ 620A</p>
+      <table class="tbl" id="sub-table">
+        <thead><tr>
+          <th style="width:35%">弥生 補助科目名</th>
+          <th style="width:20%">対象科目</th>
+          <th>subAccountコード（例：620A）</th>
+        </tr></thead>
+        <tbody id="sub-body"></tbody>
+      </table>
+    </div>
+
+    <div id="no-sub-msg" class="hidden" style="color:var(--muted);font-size:13px;padding:16px 0;">
+      補助科目・金融機関・得意先のデータは検出されませんでした。
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" id="btn-convert">変換する →</button>
+      <button class="btn btn-outline"  id="btn-back2">← 戻る</button>
+    </div>
+  </div>
+
+  <!-- ④ JSON出力 -->
+  <div id="panel-step4" class="panel hidden">
     <div class="panel-title">変換結果</div>
     <div class="stats" id="stats"></div>
     <button class="btn btn-success" id="btn-copy" style="margin-bottom:16px">📋 JSONをコピー</button>
@@ -184,21 +191,20 @@
       <b>マルセイ会計へのインポート手順：</b><br>
       メニュー「インポート」→「マルセイシリーズの標準インポート形式（JSON）を貼り付け」に上記JSONを貼り付け →「読み取って確認」<br><br>
       <b>注意事項：</b><br>
-      ・補助科目・得意先・金融機関タグは変換対象外です。インポート後に個別で設定してください。<br>
-      ・按分率（家事按分）は1.0（100%事業）として変換されます。<br>
+      ・按分率（家事按分）は1.0（100%事業）として変換されます。インポート後に個別で設定してください。<br>
       ・消費税区分は弥生の税区分文字列から税率のみ抽出しています。正確性をご確認ください。
     </p>
     <div style="margin-top:16px">
       <button class="btn btn-outline" id="btn-restart">最初からやり直す</button>
     </div>
   </div>
-
 </div>
+
 <script>
 // ================================================================
-// マルセイ会計 プリセット科目リスト（コード: 名前）
+// マルセイ プリセット科目
 // ================================================================
-const MARUSEI_ACCOUNTS = {
+const MAR = {
   "100":"現金","110":"普通預金","111":"当座預金","112":"定期預金",
   "116":"有価証券","117":"貸付金","118":"貸倒引当金",
   "120":"売掛金","121":"受取手形","122":"クレジット売掛金",
@@ -227,7 +233,6 @@ const MARUSEI_ACCOUNTS = {
   "900":"消費税等","910":"仮払消費税","920":"仮受消費税","990":"現金過不足"
 };
 
-// 弥生科目名 → マルセイコード 自動マッピング候補
 const AUTO_MAP = {
   "現金":"100","普通預金":"110","当座預金":"111","定期預金":"112",
   "売掛金":"120","受取手形":"121","未収金":"130","仮払金":"140",
@@ -250,341 +255,378 @@ const AUTO_MAP = {
   "新聞図書費":"840","教育研修費":"850","諸会費":"860",
   "雑損失":"870","雑費":"890","消費税等":"900",
   "仮払消費税":"910","仮受消費税":"920","現金過不足":"990",
-  // よくある弥生独自科目の対応
   "ガソリン代":"630","高速道路料金":"630","駐車場代":"630",
   "電気代":"610","水道代":"610","ガス代":"610",
-  "電話代":"620","インターネット料":"620","切手・葉書":"620",
+  "電話代":"620","インターネット料":"620",
   "新聞・雑誌代":"840","図書費":"840","書籍代":"840",
 };
 
-// ================================================================
-// 弥生税区分 → マルセイ taxType / taxRate
-// ================================================================
-function parseTaxType(yayoiTaxStr) {
-  if (!yayoiTaxStr) return { taxType: "", taxRate: 0 };
-  const s = yayoiTaxStr;
-  if (s.includes("対象外") || s.includes("不課税")) return { taxType: "不課税", taxRate: 0 };
-  if (s.includes("非課税")) return { taxType: "非課税", taxRate: 0 };
-  if (s.includes("8%"))  return { taxType: "8%",  taxRate: 0.08 };
-  if (s.includes("10%")) return { taxType: "10%", taxRate: 0.10 };
-  return { taxType: "", taxRate: 0 };
+// 補助科目の種別判定
+const BANK_CODES    = new Set(["110","111","112"]);
+const PARTNER_CODES = new Set(["120","300","500"]);
+function isExpense(code){ const d=parseInt(code); return d>=500&&d<=890; }
+
+function parseTaxType(s){
+  if(!s) return {taxType:"",taxRate:0};
+  if(s.includes("対象外")||s.includes("不課税")) return {taxType:"不課税",taxRate:0};
+  if(s.includes("非課税")) return {taxType:"非課税",taxRate:0};
+  if(s.includes("8%"))  return {taxType:"8%",taxRate:0.08};
+  if(s.includes("10%")) return {taxType:"10%",taxRate:0.10};
+  return {taxType:"",taxRate:0};
 }
 
-// ================================================================
-// CSV パーサー（Shift-JIS対応・ダブルクォート考慮）
-// ================================================================
-function parseCSVLine(line) {
-  const result = [];
-  let cur = "", inQ = false;
-  for (let i = 0; i < line.length; i++) {
-    const c = line[i];
-    if (inQ) {
-      if (c === '"' && line[i+1] === '"') { cur += '"'; i++; }
-      else if (c === '"') inQ = false;
-      else cur += c;
-    } else {
-      if (c === '"') inQ = true;
-      else if (c === ',') { result.push(cur); cur = ""; }
-      else cur += c;
-    }
+function parseCSVLine(line){
+  const r=[];let cur="",inQ=false;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(inQ){if(c==='"'&&line[i+1]==='"'){cur+='"';i++;}else if(c==='"')inQ=false;else cur+=c;}
+    else{if(c==='"')inQ=true;else if(c===','){r.push(cur);cur="";}else cur+=c;}
   }
-  result.push(cur);
-  return result;
+  r.push(cur);return r;
 }
 
-function readFileAsText(file) {
-  return new Promise((resolve) => {
-    // まずShift-JISで試みる
-    const readerSJIS = new FileReader();
-    readerSJIS.onload = (e) => {
-      const text = e.target.result;
-      // 文字化けチェック（置換文字が多い場合はUTF-8として再試行）
-      const badCount = (text.match(/\uFFFD/g) || []).length;
-      if (badCount > 5) {
-        const readerUTF = new FileReader();
-        readerUTF.onload = (e2) => resolve(e2.target.result);
-        readerUTF.readAsText(file, "UTF-8");
-      } else {
-        resolve(text);
-      }
+function readFileAsText(file){
+  return new Promise(res=>{
+    const r=new FileReader();
+    r.onload=e=>{
+      const t=e.target.result;
+      if((t.match(/\uFFFD/g)||[]).length>5){
+        const r2=new FileReader();
+        r2.onload=e2=>res(e2.target.result);
+        r2.readAsText(file,"UTF-8");
+      } else res(t);
     };
-    readerSJIS.readAsText(file, "Shift-JIS");
+    r.readAsText(file,"Shift-JIS");
   });
 }
 
 // ================================================================
 // 状態
 // ================================================================
-let csvRows = [];          // 明細行 [{date, debitName, creditName, ...}]
-let accountSet = new Set();// CSV内の科目名一覧
-let mappings = {};         // { yayoiName: marCode or "SKIP" }
+let csvRows=[];
+let accountSet=new Set(); // {yayoiName}
+let mappings={};          // {yayoiName: marCode|"SKIP"}
+
+// 補助科目集合: { "yayoiSubName|parentYayoiName": {sub, parentYayoi, type:"bank"|"partner"|"sub"} }
+let subSet={};
+let subTags={};  // { "yayoiSubName|parentYayoiName": tagValue }
 
 // ================================================================
-// Step1: ファイル読み込み
+// Step1
 // ================================================================
-const dropzone = document.getElementById("dropzone");
-const fileInput = document.getElementById("file-input");
+const dropzone=document.getElementById("dropzone");
+const fileInput=document.getElementById("file-input");
+dropzone.addEventListener("click",()=>fileInput.click());
+dropzone.addEventListener("dragover",e=>{e.preventDefault();dropzone.classList.add("drag");});
+dropzone.addEventListener("dragleave",()=>dropzone.classList.remove("drag"));
+dropzone.addEventListener("drop",e=>{e.preventDefault();dropzone.classList.remove("drag");handleFile(e.dataTransfer.files[0]);});
+fileInput.addEventListener("change",e=>handleFile(e.target.files[0]));
 
-dropzone.addEventListener("click", () => fileInput.click());
-dropzone.addEventListener("dragover", (e) => { e.preventDefault(); dropzone.classList.add("drag"); });
-dropzone.addEventListener("dragleave", () => dropzone.classList.remove("drag"));
-dropzone.addEventListener("drop", (e) => {
-  e.preventDefault(); dropzone.classList.remove("drag");
-  handleFile(e.dataTransfer.files[0]);
-});
-fileInput.addEventListener("change", (e) => handleFile(e.target.files[0]));
+async function handleFile(file){
+  if(!file) return;
+  const text=await readFileAsText(file);
+  const lines=text.split(/\r?\n/);
+  csvRows=[];accountSet=new Set();subSet={};subTags={};
 
-async function handleFile(file) {
-  if (!file) return;
-  const text = await readFileAsText(file);
-  const lines = text.split(/\r?\n/);
+  let colIdx=null;
+  for(const line of lines){
+    if(!line.trim()) continue;
+    const cols=parseCSVLine(line);
+    if(!cols.length) continue;
+    const rowType=cols[0].replace(/"/g,"").trim();
 
-  csvRows = [];
-  accountSet = new Set();
-
-  // 列インデックスを[表題行]から動的取得
-  let colIdx = null;
-
-  for (const line of lines) {
-    if (!line.trim()) continue;
-    const cols = parseCSVLine(line);
-    if (!cols.length) continue;
-
-    const rowType = cols[0].replace(/"/g, "").trim();
-
-    if (rowType === "[表題行]") {
-      // ヘッダー列インデックスを確定
-      colIdx = {
-        date:       cols.indexOf("日付"),
-        debitName:  cols.indexOf("借方勘定科目"),
-        debitTax:   cols.indexOf("借方税区分"),
-        debitAmt:   cols.indexOf("借方金額"),
+    if(rowType==="[表題行]"){
+      colIdx={
+        date:cols.indexOf("日付"),
+        debitName:cols.indexOf("借方勘定科目"),
+        debitSub:cols.indexOf("借方補助科目"),
+        debitTax:cols.indexOf("借方税区分"),
+        debitAmt:cols.indexOf("借方金額"),
         debitTaxAmt:cols.indexOf("借方税額"),
-        creditName: cols.indexOf("貸方勘定科目"),
-        creditTax:  cols.indexOf("貸方税区分"),
-        creditAmt:  cols.indexOf("貸方金額"),
+        creditName:cols.indexOf("貸方勘定科目"),
+        creditSub:cols.indexOf("貸方補助科目"),
+        creditTax:cols.indexOf("貸方税区分"),
+        creditAmt:cols.indexOf("貸方金額"),
         creditTaxAmt:cols.indexOf("貸方税額"),
-        summary:    cols.indexOf("摘要"),
+        summary:cols.indexOf("摘要"),
       };
       continue;
     }
+    if(rowType!=="[明細行]"||!colIdx) continue;
 
-    if (rowType !== "[明細行]" || !colIdx) continue;
-
-    const get = (i) => (i >= 0 && i < cols.length) ? cols[i].replace(/^"|"$/g, "").trim() : "";
-
-    const dateStr   = get(colIdx.date);
-    const debitName = get(colIdx.debitName);
-    const creditName= get(colIdx.creditName);
-    const debitAmt  = parseInt(get(colIdx.debitAmt).replace(/,/g, "")) || 0;
-    const creditAmt = parseInt(get(colIdx.creditAmt).replace(/,/g, "")) || 0;
-    const debitTaxAmt  = parseInt(get(colIdx.debitTaxAmt).replace(/,/g, "")) || 0;
-    const creditTaxAmt = parseInt(get(colIdx.creditTaxAmt).replace(/,/g, "")) || 0;
-    const debitTax  = get(colIdx.debitTax);
-    const creditTax = get(colIdx.creditTax);
-    const summary   = get(colIdx.summary).slice(0, 32);
-
-    if (!dateStr || !debitName || !creditName) continue;
-
-    csvRows.push({ dateStr, debitName, creditName,
-      debitAmt, creditAmt, debitTaxAmt, creditTaxAmt,
-      debitTax, creditTax, summary });
-
-    if (debitName)  accountSet.add(debitName);
-    if (creditName) accountSet.add(creditName);
+    const get=i=>(i>=0&&i<cols.length)?cols[i].replace(/^"|"$/g,"").trim():"";
+    const row={
+      dateStr:get(colIdx.date),
+      debitName:get(colIdx.debitName), debitSub:get(colIdx.debitSub),
+      debitTax:get(colIdx.debitTax),
+      debitAmt:parseInt(get(colIdx.debitAmt).replace(/,/g,""))||0,
+      debitTaxAmt:parseInt(get(colIdx.debitTaxAmt).replace(/,/g,""))||0,
+      creditName:get(colIdx.creditName), creditSub:get(colIdx.creditSub),
+      creditTax:get(colIdx.creditTax),
+      creditAmt:parseInt(get(colIdx.creditAmt).replace(/,/g,""))||0,
+      creditTaxAmt:parseInt(get(colIdx.creditTaxAmt).replace(/,/g,""))||0,
+      summary:get(colIdx.summary).slice(0,32),
+    };
+    if(!row.dateStr||!row.debitName||!row.creditName) continue;
+    csvRows.push(row);
+    if(row.debitName)  accountSet.add(row.debitName);
+    if(row.creditName) accountSet.add(row.creditName);
   }
 
-  if (csvRows.length === 0) {
-    alert("明細行が見つかりませんでした。弥生の仕訳日記帳（汎用形式）CSVか確認してください。");
-    return;
-  }
-
+  if(!csvRows.length){alert("明細行が見つかりませんでした。");return;}
   buildMappingTable();
   goStep(2);
 }
 
 // ================================================================
-// Step2: 科目マッピング画面
+// Step2: 科目マッピング
 // ================================================================
-// マルセイ科目の選択肢HTML
-const marAccountOptions = Object.entries(MARUSEI_ACCOUNTS)
-  .map(([code, name]) => `<option value="${code}">${code} ${name}</option>`)
-  .join("");
+const marOptions=Object.entries(MAR).map(([c,n])=>`<option value="${c}">${c} ${n}</option>`).join("");
 
-function buildMappingTable() {
-  const tbody = document.getElementById("mapping-body");
-  tbody.innerHTML = "";
-  mappings = {};
-
-  const sorted = [...accountSet].sort();
-
-  for (const yName of sorted) {
-    const autoCode = AUTO_MAP[yName] || null;
-    mappings[yName] = autoCode || "SKIP";
-
-    const isAuto = !!autoCode;
-    const row = document.createElement("tr");
-    if (!isAuto) row.classList.add("unmapped");
-
-    const badge = isAuto
-      ? `<span class="badge badge-ok">自動</span>`
-      : `<span class="badge badge-warn">要確認</span>`;
-
-    const selectVal = autoCode || "";
-    const selectClass = autoCode ? "" : "unset";
-
-    row.innerHTML = `
+function buildMappingTable(){
+  const tbody=document.getElementById("mapping-body");
+  tbody.innerHTML="";mappings={};
+  for(const yName of [...accountSet].sort()){
+    const auto=AUTO_MAP[yName]||null;
+    mappings[yName]=auto||"SKIP";
+    const row=document.createElement("tr");
+    if(!auto) row.classList.add("warn");
+    row.innerHTML=`
       <td><strong>${yName}</strong></td>
-      <td id="badge-${CSS.escape(yName)}">${badge}</td>
-      <td>
-        <select class="map-select ${selectClass}" data-yayoi="${yName}" onchange="onMapChange(this)">
-          <option value="SKIP">── スキップ（変換しない）──</option>
-          ${marAccountOptions}
-        </select>
-      </td>`;
+      <td id="mb-${esc(yName)}">${auto?'<span class="badge badge-ok">自動</span>':'<span class="badge badge-warn">要確認</span>'}</td>
+      <td><select class="map-sel${auto?'':' unset'}" data-y="${yName}" onchange="onMap(this)">
+        <option value="SKIP">── スキップ ──</option>${marOptions}
+      </select></td>`;
     tbody.appendChild(row);
-
-    // セレクトの値を設定
-    const sel = row.querySelector("select");
-    if (autoCode) sel.value = autoCode;
+    if(auto) row.querySelector("select").value=auto;
   }
 }
-
-function onMapChange(sel) {
-  const yName = sel.dataset.yayoi;
-  const val = sel.value;
-  mappings[yName] = val;
-
-  const badgeEl = document.getElementById(`badge-${CSS.escape(yName)}`);
-  if (val === "SKIP") {
-    sel.classList.add("unset");
-    badgeEl.innerHTML = `<span class="badge badge-skip">スキップ</span>`;
-    sel.closest("tr").classList.add("unmapped");
-  } else {
-    sel.classList.remove("unset");
-    badgeEl.innerHTML = `<span class="badge badge-ok">✓</span>`;
-    sel.closest("tr").classList.remove("unmapped");
-  }
+function onMap(sel){
+  const y=sel.dataset.y, v=sel.value;
+  mappings[y]=v;
+  const b=document.getElementById(`mb-${esc(y)}`);
+  if(v==="SKIP"){sel.classList.add("unset");b.innerHTML='<span class="badge badge-skip">スキップ</span>';sel.closest("tr").classList.add("warn");}
+  else{sel.classList.remove("unset");b.innerHTML='<span class="badge badge-ok">✓</span>';sel.closest("tr").classList.remove("warn");}
 }
 
-document.getElementById("btn-convert").addEventListener("click", convertToJSON);
-document.getElementById("btn-back").addEventListener("click", () => goStep(1));
+document.getElementById("btn-to-step3").addEventListener("click",buildSubStep);
+document.getElementById("btn-back1").addEventListener("click",()=>goStep(1));
 
 // ================================================================
-// Step3: JSON変換
+// Step3: 補助科目・タグ設定
 // ================================================================
-function convertToJSON() {
-  const journals = [];
-  let skipped = 0;
+function buildSubStep(){
+  subSet={};subTags={};
 
-  for (const row of csvRows) {
-    const debitCode  = mappings[row.debitName]  || "SKIP";
-    const creditCode = mappings[row.creditName] || "SKIP";
+  for(const row of csvRows){
+    const debitCode=mappings[row.debitName]||"SKIP";
+    const creditCode=mappings[row.creditName]||"SKIP";
+    if(debitCode==="SKIP"||creditCode==="SKIP") continue;
 
-    if (debitCode === "SKIP" || creditCode === "SKIP") {
-      skipped++;
-      continue;
+    // 借方補助科目
+    if(row.debitSub){
+      const key=`${row.debitSub}|${row.debitName}`;
+      if(!subSet[key]){
+        let type="sub";
+        if(BANK_CODES.has(debitCode)) type="bank";
+        else if(PARTNER_CODES.has(debitCode)) type="partner";
+        subSet[key]={sub:row.debitSub, parentYayoi:row.debitName, parentCode:debitCode, type};
+        subTags[key]="";
+      }
     }
-
-    // 日付変換 2026/01/05 → ISO8601
-    const [y, m, d] = row.dateStr.split("/").map(Number);
-    const dateISO = `${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}T15:00:00.000Z`;
-
-    // 金額: 借方金額を totalAmount とする（弥生では借方=貸方のはず）
-    const totalAmount = row.debitAmt || row.creditAmt;
-
-    // 消費税区分: 借方・貸方どちらか課税側を優先
-    const debitTaxInfo  = parseTaxType(row.debitTax);
-    const creditTaxInfo = parseTaxType(row.creditTax);
-    // 税率が高い方を採用（課税 > 非課税・不課税）
-    const taxInfo = debitTaxInfo.taxRate >= creditTaxInfo.taxRate ? debitTaxInfo : creditTaxInfo;
-
-    // 消費税額: 借方税額か貸方税額の大きい方
-    const taxAmount = Math.max(row.debitTaxAmt, row.creditTaxAmt);
-    const netAmount = totalAmount - taxAmount;
-
-    // transactionType: 収益科目(4xx)が貸方 → income, 費用科目(5xx〜8xx)が借方 → expense
-    const debitFirst = debitCode.charAt(0);
-    const creditFirst = creditCode.charAt(0);
-    let transactionType = "";
-    if (["4"].includes(creditFirst)) transactionType = "income";
-    else if (["5","6","7","8"].includes(debitFirst)) transactionType = "expense";
-
-    journals.push({
-      date:              dateISO,
-      transactionType:   transactionType,
-      debitAccountCode:  debitCode,
-      debitAccountName:  MARUSEI_ACCOUNTS[debitCode] || "",
-      creditAccountCode: creditCode,
-      creditAccountName: MARUSEI_ACCOUNTS[creditCode] || "",
-      originalTotalAmount: totalAmount,
-      totalAmount:       totalAmount,
-      netAmount:         netAmount,
-      taxAmount:         taxAmount,
-      taxRate:           taxInfo.taxRate,
-      taxType:           taxInfo.taxType,
-      apportionmentRate: 1,
-      summary:           row.summary,
-      isFiscalAdjustment: false,
-      isSystemGenerated: false,
-    });
+    // 貸方補助科目
+    if(row.creditSub){
+      const key=`${row.creditSub}|${row.creditName}`;
+      if(!subSet[key]){
+        let type="sub";
+        if(BANK_CODES.has(creditCode)) type="bank";
+        else if(PARTNER_CODES.has(creditCode)) type="partner";
+        subSet[key]={sub:row.creditSub, parentYayoi:row.creditName, parentCode:creditCode, type};
+        subTags[key]="";
+      }
+    }
   }
 
-  const output = {
-    version: "1.0",
-    source: "yayoi_csv",
-    processingYear: csvRows.length > 0 ? parseInt(csvRows[0].dateStr.split("/")[0]) : new Date().getFullYear(),
-    journals
-  };
+  const bankItems    = Object.entries(subSet).filter(([,v])=>v.type==="bank");
+  const partnerItems = Object.entries(subSet).filter(([,v])=>v.type==="partner");
+  const subItems     = Object.entries(subSet).filter(([,v])=>v.type==="sub");
+  const hasAny = bankItems.length||partnerItems.length||subItems.length;
 
-  const jsonStr = JSON.stringify(output, null, 2);
-  document.getElementById("json-output").textContent = jsonStr;
+  document.getElementById("no-sub-msg").classList.toggle("hidden",!!hasAny);
 
-  // 統計
-  document.getElementById("stats").innerHTML = `
-    <div class="stat-box box-blue">
-      <div class="n">${csvRows.length}</div>
-      <div class="l">CSV 明細行数</div>
-    </div>
-    <div class="stat-box box-green">
-      <div class="n">${journals.length}</div>
-      <div class="l">変換済み</div>
-    </div>
-    <div class="stat-box box-warn">
-      <div class="n">${skipped}</div>
-      <div class="l">スキップ</div>
-    </div>`;
+  // 金融機関テーブル
+  document.getElementById("section-bank").classList.toggle("hidden",!bankItems.length);
+  if(bankItems.length){
+    const tbody=document.getElementById("bank-body");tbody.innerHTML="";
+    for(const [key,v] of bankItems){
+      const tr=document.createElement("tr");
+      tr.innerHTML=`<td><strong>${v.sub}</strong></td><td>${v.parentYayoi}</td>
+        <td><input class="tag-input unset" type="text" maxlength="1" placeholder="a〜z"
+          data-key="${key}" data-type="bank" oninput="onTag(this)"></td>`;
+      tbody.appendChild(tr);
+    }
+  }
 
-  window._jsonStr = jsonStr;
+  // 得意先テーブル
+  document.getElementById("section-partner").classList.toggle("hidden",!partnerItems.length);
+  if(partnerItems.length){
+    const tbody=document.getElementById("partner-body");tbody.innerHTML="";
+    for(const [key,v] of partnerItems){
+      const tr=document.createElement("tr");
+      tr.innerHTML=`<td><strong>${v.sub}</strong></td><td>${v.parentYayoi}</td>
+        <td><input class="tag-input unset" type="text" maxlength="1" placeholder="A〜Z"
+          data-key="${key}" data-type="partner" oninput="onTag(this)"></td>`;
+      tbody.appendChild(tr);
+    }
+  }
+
+  // 補助科目テーブル
+  document.getElementById("section-sub").classList.toggle("hidden",!subItems.length);
+  if(subItems.length){
+    const tbody=document.getElementById("sub-body");tbody.innerHTML="";
+    for(const [key,v] of subItems){
+      const tr=document.createElement("tr");
+      tr.innerHTML=`<td><strong>${v.sub}</strong></td><td>${v.parentYayoi}（${v.parentCode}）</td>
+        <td><input class="tag-input unset" type="text" maxlength="4" placeholder="${v.parentCode}A"
+          data-key="${key}" data-type="sub" oninput="onTag(this)"></td>`;
+      tbody.appendChild(tr);
+    }
+  }
+
   goStep(3);
 }
 
-document.getElementById("btn-copy").addEventListener("click", () => {
-  navigator.clipboard.writeText(window._jsonStr || "").then(() => {
-    const btn = document.getElementById("btn-copy");
-    btn.textContent = "✅ コピーしました！";
-    setTimeout(() => btn.innerHTML = "📋 JSONをコピー", 2000);
+function onTag(inp){
+  const key=inp.dataset.key, type=inp.dataset.type, val=inp.value.trim();
+  subTags[key]=val;
+  // バリデーション
+  let ok=false;
+  if(type==="bank") ok=/^[a-z]$/.test(val);
+  else if(type==="partner") ok=/^[A-Z]$/.test(val);
+  else ok=/^[0-9]{3}[A-Z]$/.test(val);
+  inp.classList.toggle("ok",ok&&val!=="");
+  inp.classList.toggle("unset",!ok||val==="");
+}
+
+document.getElementById("btn-convert").addEventListener("click",convertToJSON);
+document.getElementById("btn-back2").addEventListener("click",()=>goStep(2));
+
+// ================================================================
+// Step4: JSON変換
+// ================================================================
+function convertToJSON(){
+  const journals=[];let skipped=0;
+
+  for(const row of csvRows){
+    const debitCode=mappings[row.debitName]||"SKIP";
+    const creditCode=mappings[row.creditName]||"SKIP";
+    if(debitCode==="SKIP"||creditCode==="SKIP"){skipped++;continue;}
+
+    // ✅ 日付：T00:00:00.000+09:00（日本時間で正確に）
+    const [y,m,d]=row.dateStr.split("/").map(Number);
+    const dateISO=`${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}T00:00:00.000+09:00`;
+
+    const totalAmount=row.debitAmt||row.creditAmt;
+    const taxAmount=Math.max(row.debitTaxAmt,row.creditTaxAmt);
+    const netAmount=totalAmount-taxAmount;
+
+    const dTax=parseTaxType(row.debitTax);
+    const cTax=parseTaxType(row.creditTax);
+    const taxInfo=dTax.taxRate>=cTax.taxRate?dTax:cTax;
+
+    const df=debitCode.charAt(0), cf=creditCode.charAt(0);
+    let transactionType="";
+    if(["4"].includes(cf)) transactionType="income";
+    else if(["5","6","7","8"].includes(df)) transactionType="expense";
+
+    // 補助科目・タグ解決
+    const dKey=row.debitSub?`${row.debitSub}|${row.debitName}`:"";
+    const cKey=row.creditSub?`${row.creditSub}|${row.creditName}`:"";
+
+    let debitBankTag="", creditBankTag="";
+    let debitPartner="", creditPartner="";
+    let debitSubAccount="", creditSubAccount="";
+
+    if(dKey&&subSet[dKey]){
+      const t=subSet[dKey].type, v=subTags[dKey]||"";
+      if(t==="bank"   &&v) debitBankTag=v;
+      if(t==="partner"&&v) debitPartner=subTags[dKey]; // partnerはタグではなく名前で保持
+      if(t==="sub"    &&v) debitSubAccount=v;
+    }
+    if(cKey&&subSet[cKey]){
+      const t=subSet[cKey].type, v=subTags[cKey]||"";
+      if(t==="bank"   &&v) creditBankTag=v;
+      if(t==="partner"&&v) creditPartner=subTags[cKey];
+      if(t==="sub"    &&v) creditSubAccount=v;
+    }
+
+    journals.push({
+      date:dateISO,
+      transactionType,
+      debitAccountCode:debitCode,
+      debitAccountName:MAR[debitCode]||"",
+      creditAccountCode:creditCode,
+      creditAccountName:MAR[creditCode]||"",
+      originalTotalAmount:totalAmount,
+      totalAmount,
+      netAmount,
+      taxAmount,
+      taxRate:taxInfo.taxRate,
+      taxType:taxInfo.taxType,
+      apportionmentRate:1,
+      summary:row.summary,
+      debitBankTag,
+      creditBankTag,
+      debitPartner,
+      creditPartner,
+      debitSubAccount,
+      creditSubAccount,
+      isFiscalAdjustment:false,
+      isSystemGenerated:false,
+    });
+  }
+
+  const year=csvRows.length?parseInt(csvRows[0].dateStr.split("/")[0]):new Date().getFullYear();
+  const output={version:"1.0",source:"yayoi_csv",processingYear:year,journals};
+  const jsonStr=JSON.stringify(output,null,2);
+
+  document.getElementById("json-output").textContent=jsonStr;
+  document.getElementById("stats").innerHTML=`
+    <div class="stat-box box-blue"><div class="n">${csvRows.length}</div><div class="l">CSV明細行数</div></div>
+    <div class="stat-box box-green"><div class="n">${journals.length}</div><div class="l">変換済み</div></div>
+    <div class="stat-box box-warn"><div class="n">${skipped}</div><div class="l">スキップ</div></div>`;
+
+  window._jsonStr=jsonStr;
+  goStep(4);
+}
+
+document.getElementById("btn-copy").addEventListener("click",()=>{
+  navigator.clipboard.writeText(window._jsonStr||"").then(()=>{
+    const btn=document.getElementById("btn-copy");
+    btn.textContent="✅ コピーしました！";
+    setTimeout(()=>btn.innerHTML="📋 JSONをコピー",2000);
   });
 });
 
-document.getElementById("btn-restart").addEventListener("click", () => {
-  csvRows = []; accountSet = new Set(); mappings = {};
-  document.getElementById("file-input").value = "";
+document.getElementById("btn-restart").addEventListener("click",()=>{
+  csvRows=[];accountSet=new Set();mappings={};subSet={};subTags={};
+  document.getElementById("file-input").value="";
   goStep(1);
 });
 
 // ================================================================
-// ステップ切替
+// ユーティリティ
 // ================================================================
-function goStep(n) {
-  [1,2,3].forEach(i => {
-    document.getElementById(`panel-step${i}`).classList.toggle("hidden", i !== n);
-    const stepEl = document.getElementById(`step${i}`);
-    stepEl.classList.remove("active","done");
-    if (i < n) stepEl.classList.add("done");
-    else if (i === n) stepEl.classList.add("active");
+function esc(s){return s.replace(/[^a-zA-Z0-9]/g,c=>`_${c.charCodeAt(0).toString(16)}`);}
+function goStep(n){
+  [1,2,3,4].forEach(i=>{
+    document.getElementById(`panel-step${i}`).classList.toggle("hidden",i!==n);
+    const el=document.getElementById(`step${i}`);
+    el.classList.remove("active","done");
+    if(i<n) el.classList.add("done");
+    else if(i===n) el.classList.add("active");
   });
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  window.scrollTo({top:0,behavior:"smooth"});
 }
 </script>
 </body>

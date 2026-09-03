@@ -35,7 +35,7 @@
   .btn-outline{background:#fff;color:var(--blue);border:2px solid var(--blue);}
   .btn-sm{padding:5px 12px;font-size:12px;}
 
-  #dropzone{border:2px dashed var(--gray-line);border-radius:10px;padding:40px;texbrt-align:center;cursor:pointer;transition:all .2s;color:var(--muted);}
+  #dropzone{border:2px dashed var(--gray-line);border-radius:10px;padding:40px;text-align:center;cursor:pointer;transition:all .2s;color:var(--muted);}
   #dropzone:hover,#dropzone.drag{border-color:var(--blue);background:var(--blue-pale);}
   #dropzone .icon{font-size:36px;margin-bottom:8px;}
   #dropzone input{display:none;}
@@ -78,7 +78,7 @@
 <body>
 <div class="app">
   <h1>弥生CSV → マルセイ会計 変換ツール</h1>
-  <p class="subtitle">弥生会計の仕訳日記帳CSVをマルセイ会計のインポートJSON（コピー&amp;ペースト用）に変換します。<br>固定資産台帳については別途登録かつ仕訳帳側での重複削除が必要です。<br>安全性についてはソースをご覧ください。このページをローカルに保存してご利用いただくことを推奨します。</p>
+  <p class="subtitle">弥生会計の仕訳日記帳CSVをマルセイ会計のインポートJSON（コピー&amp;ペースト用）に変換します。</p>
 
   <div class="stepper-wrap">
     <div class="stepper">
@@ -163,13 +163,14 @@
 
     <!-- 補助科目（subAccount） -->
     <div id="section-sub" class="hidden">
-      <div class="section-head">📁 補助科目コード（親コード+A〜Z）</div>
-      <p class="hint">費用科目等の補助科目をマルセイ会計の補助科目コードに対応付けます。例：通信費の補助科目「携帯電話」→ 620A</p>
+      <div class="section-head">📁 補助科目コード（親コード+A〜Z）と按分率</div>
+      <p class="hint">費用科目等の補助科目をマルセイ会計の補助科目コードに対応付け、按分率を入力してください。例：通信費の補助科目「携帯電話」→ コード:620A / 按分率:30%</p>
       <table class="tbl" id="sub-table">
         <thead><tr>
-          <th style="width:35%">弥生 補助科目名</th>
-          <th style="width:20%">対象科目</th>
-          <th>subAccountコード（例：620A）</th>
+          <th style="width:30%">弥生 補助科目名</th>
+          <th style="width:18%">対象科目</th>
+          <th style="width:22%">subAccountコード（例：620A）</th>
+          <th>按分率（1〜100%）</th>
         </tr></thead>
         <tbody id="sub-body"></tbody>
       </table>
@@ -195,7 +196,7 @@
       <b>マルセイ会計へのインポート手順：</b><br>
       メニュー「インポート」→「マルセイシリーズの標準インポート形式（JSON）を貼り付け」に上記JSONを貼り付け →「読み取って確認」<br><br>
       <b>注意事項：</b><br>
-      ・按分率（家事按分）は1.0（100%事業）として変換されます。インポート後に個別で設定してください。<br>
+      ・按分率（家事按分）はStep3で入力した値を反映して変換されます。100%は事業100%（按分なし）を意味します。<br>
       ・消費税区分は弥生の税区分文字列から税率のみ抽出しています。正確性をご確認ください。
     </p>
     <div style="margin-top:16px">
@@ -313,7 +314,8 @@ let mappings={};          // {yayoiName: marCode|"SKIP"}
 
 // 補助科目集合: { "yayoiSubName|parentYayoiName": {sub, parentYayoi, type:"bank"|"partner"|"sub"} }
 let subSet={};
-let subTags={};  // { "yayoiSubName|parentYayoiName": tagValue }
+let subTags={};  // { key: tagValue }
+let subRates={};  // { key: apportionmentRate(0〜1のDecimal文字列) }
 
 // ================================================================
 // Step1
@@ -330,7 +332,7 @@ async function handleFile(file){
   if(!file) return;
   const text=await readFileAsText(file);
   const lines=text.split(/\r?\n/);
-  csvRows=[];accountSet=new Set();subSet={};subTags={};
+  csvRows=[];accountSet=new Set();subSet={};subTags={};subRates={};
 
   let colIdx=null;
   for(const line of lines){
@@ -420,7 +422,7 @@ document.getElementById("btn-back1").addEventListener("click",()=>goStep(1));
 // Step3: 補助科目・タグ設定
 // ================================================================
 function buildSubStep(){
-  subSet={};subTags={};
+  subSet={};subTags={};subRates={};
 
   for(const row of csvRows){
     const debitCode=mappings[row.debitName]||"SKIP";
@@ -492,8 +494,12 @@ function buildSubStep(){
       const tr=document.createElement("tr");
       tr.innerHTML=`<td><strong>${v.sub}</strong></td><td>${v.parentYayoi}（${v.parentCode}）</td>
         <td><input class="tag-input unset" type="text" maxlength="4" placeholder="${v.parentCode}A"
-          data-key="${key}" data-type="sub" oninput="onTag(this)"></td>`;
+          data-key="${key}" data-type="sub" oninput="onTag(this)"></td>
+        <td><input class="tag-input unset" type="number" min="1" max="100" placeholder="例：30"
+          data-key="${key}" data-type="rate" oninput="onRate(this)"
+          style="width:80px">%</td>`;
       tbody.appendChild(tr);
+      subRates[key]="";
     }
   }
 
@@ -512,6 +518,15 @@ function onTag(inp){
   inp.classList.toggle("unset",!ok||val==="");
 }
 
+function onRate(inp){
+  const key=inp.dataset.key, val=inp.value.trim();
+  const n=parseInt(val);
+  const ok=!isNaN(n)&&n>=1&&n<=100;
+  subRates[key]=ok?(n/100).toFixed(2):"";
+  inp.classList.toggle("ok",ok);
+  inp.classList.toggle("unset",!ok||val==="");
+}
+
 document.getElementById("btn-convert").addEventListener("click",convertToJSON);
 document.getElementById("btn-back2").addEventListener("click",()=>goStep(2));
 
@@ -519,6 +534,20 @@ document.getElementById("btn-back2").addEventListener("click",()=>goStep(2));
 // Step4: JSON変換
 // ================================================================
 function convertToJSON(){
+  // subAccountを設定した補助科目は、コードと按分率の両方を必須とする。
+  // 弥生CSVに存在しない按分率を100%へ黙って補完しない。
+  for(const [key,v] of Object.entries(subSet)){
+    if(v.type!=="sub") continue;
+    const code=(subTags[key]||"").trim();
+    const rate=subRates[key]||"";
+    const codeOK=/^[0-9]{3}[A-Z]$/.test(code);
+    const rateOK=rate!==""&&Number.isFinite(Number(rate))&&Number(rate)>=0.01&&Number(rate)<=1;
+    if(!codeOK||!rateOK){
+      alert(`補助科目「${v.sub}」の設定が未完了です。\\nsubAccountコードと按分率（1〜100%）を入力してください。`);
+      return;
+    }
+  }
+
   const journals=[];let skipped=0;
 
   for(const row of csvRows){
@@ -562,20 +591,28 @@ function convertToJSON(){
     let debitBankTag="", creditBankTag="";
     let debitPartner="", creditPartner="";
     let debitSubAccount="", creditSubAccount="";
+    let apportionmentRate=1;
 
     if(dKey&&subSet[dKey]){
       const t=subSet[dKey].type, v=subTags[dKey]||"";
       if(t==="bank"   &&v) debitBankTag=v;
-      // ✅ partnerはタグではなく弥生の補助科目名（社名等）をそのまま使う
-      if(t==="partner")    debitPartner=subSet[dKey].sub;
-      if(t==="sub"    &&v) debitSubAccount=v;
+      // partnerはタグではなく弥生の補助科目名（社名等）をそのまま使う
+      if(t==="partner") debitPartner=subSet[dKey].sub;
+      if(t==="sub"&&v){
+        debitSubAccount=v;
+        if(subRates[dKey]!=="") apportionmentRate=Number(subRates[dKey]);
+      }
     }
     if(cKey&&subSet[cKey]){
       const t=subSet[cKey].type, v=subTags[cKey]||"";
       if(t==="bank"   &&v) creditBankTag=v;
-      // ✅ partnerはタグではなく弥生の補助科目名（社名等）をそのまま使う
-      if(t==="partner")    creditPartner=subSet[cKey].sub;
-      if(t==="sub"    &&v) creditSubAccount=v;
+      // partnerはタグではなく弥生の補助科目名（社名等）をそのまま使う
+      if(t==="partner") creditPartner=subSet[cKey].sub;
+      if(t==="sub"&&v){
+        creditSubAccount=v;
+        // 借方にsubAccountがない場合は貸方側の按分率を採用
+        if(!debitSubAccount&&subRates[cKey]!=="") apportionmentRate=Number(subRates[cKey]);
+      }
     }
 
     journals.push({
@@ -591,7 +628,7 @@ function convertToJSON(){
       taxAmount,
       taxRate:taxInfo.taxRate,
       taxType:taxInfo.taxType,
-      apportionmentRate:1,
+      apportionmentRate:apportionmentRate,
       summary:row.summary,
       debitBankTag,
       creditBankTag,
@@ -627,7 +664,7 @@ document.getElementById("btn-copy").addEventListener("click",()=>{
 });
 
 document.getElementById("btn-restart").addEventListener("click",()=>{
-  csvRows=[];accountSet=new Set();mappings={};subSet={};subTags={};
+  csvRows=[];accountSet=new Set();mappings={};subSet={};subTags={};subRates={};
   document.getElementById("file-input").value="";
   goStep(1);
 });

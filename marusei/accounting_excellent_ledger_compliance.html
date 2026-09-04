@@ -583,6 +583,7 @@
 <span class="c-key">sequencePart</span>  <span class="c-arrow">=</span> base62(sequence, <span class="c-str">2桁</span>)    <span class="c-cmt">// 同一秒内の連番（最大3,844件/秒）</span>
 <span class="c-key">id</span> <span class="c-arrow">=</span> timestampPart + sequencePart        <span class="c-cmt">// 例: "1waj7wAB"（8桁）</span></pre></div>
   <p>連続した整数の連番ではないが、生成時刻に基づき時系列順に一意となるIDであり、全仕訳に対して一意性が保証されている。チェックシートが求める「一連番号、伝票番号等」のうち、伝票番号としての役割を果たす設計である。</p>
+  <p>外部データ（マルセイ棚卸・マルセイミニレジ・弥生CSVからの変換等）からのインポート時は、仕訳IDは取込時点で新規発行される。そのため、移行の痕跡として同一秒内の連続IDが並ぶことがある。</p>
 
   <h3>FixedAsset.assetNumber（整数連番）</h3>
   <div class="id-diagram"><pre><span class="c-cmt">// FixedAsset.assetNumber 採番ロジック</span>
@@ -628,6 +629,10 @@
     <div class="changelog-row">
       <span>1.1</span><span>2026-06-21</span>
       <span>「4. 帳簿間の関連性」の集計転記項目を△一部対応→✅対応に更新。ApportionmentEngine・CarryOverEngine・TaxSettlementEngine・DepreciationCalculatorの決算整理仕訳すべてに、摘要欄への集計対象・集計範囲の明記を実装したことを反映。</span>
+    </div>
+    <div class="changelog-row">
+      <span>1.2</span><span>2026-09-04</span>
+      <span>「ID設計の経緯」のJournal.idへインポート時の説明を追記。</span>
     </div>
   </div>
 </section>

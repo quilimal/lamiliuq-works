@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>テンホーチョンボ｜麻雀脳トレ</title>
+<meta name="description" content="配られた14枚の牌が「天和」かどうかを素早く見抜く、麻雀脳トレのiPhoneゲーム「テンホーチョンボ」の公式ページです。">
+<meta property="og:title" content="テンホーチョンボ｜麻雀脳トレ">
+<meta property="og:description" content="配られた14枚の牌が「天和」かどうかを素早く見抜け！">
+<meta property="og:image" content="title_logo.png">
+<style>
+  :root {
+    --felt: #0a3d24;          /* ゲーム画面と同じ背景色 */
+    --card: rgba(255, 255, 255, 0.08);
+    --line: rgba(255, 255, 255, 0.28);
+    --text: #ffffff;
+    --sub: rgba(255, 255, 255, 0.78);
+    --yellow: #ffd84d;
+    --red: #e62e29;
+    --green: #33b859;
+    --link: #8fcbff;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--felt);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+    line-height: 1.8;
+  }
+  a { color: var(--link); }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 20px; }
+
+  /* ヘッダー */
+  header.hero { text-align: center; padding: 28px 0 8px; }
+  header.hero img { width: 100%; max-width: 640px; height: auto; }
+  .catch { font-size: 1.15rem; font-weight: 700; margin: 4px 0 20px; }
+  .btn {
+    display: inline-block;
+    background: var(--red);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 1.1rem;
+    padding: 14px 32px;
+    border-radius: 14px;
+    border: 2px solid rgba(255,255,255,0.7);
+  }
+  .btn:hover { opacity: 0.88; }
+  .note { font-size: 0.85rem; color: var(--sub); margin-top: 8px; }
+
+  nav { text-align: center; margin: 24px 0 8px; }
+  nav a { display: inline-block; margin: 4px 10px; font-size: 0.95rem; }
+
+  /* セクション */
+  section { margin: 36px 0; }
+  h2 {
+    font-size: 1.5rem;
+    margin: 0 0 14px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--line);
+    color: var(--yellow);
+  }
+  h3 { font-size: 1.1rem; margin: 22px 0 6px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin: 12px 0;
+  }
+  .card h3:first-child { margin-top: 0; }
+  ul { margin: 6px 0; padding-left: 1.3em; }
+  li { margin: 4px 0; }
+  .red { color: #ff7a75; font-weight: 700; }
+  .green { color: #6fe08d; font-weight: 700; }
+  .blue { color: #8fc0ff; font-weight: 700; }
+
+  table { width: 100%; border-collapse: collapse; margin: 8px 0; }
+  th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: rgba(255,255,255,0.1); width: 30%; }
+
+  footer { border-top: 1px solid var(--line); margin-top: 48px; padding: 24px 0 40px; text-align: center; color: var(--sub); font-size: 0.9rem; }
+  .small { font-size: 0.9rem; color: var(--sub); }
+  @media (max-width: 560px) {
+    th, td { display: block; width: 100%; }
+    th { border-bottom: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <img src="title_logo.png" alt="テンホーチョンボ 麻雀脳トレ">
+    <p class="catch">配られた14枚の牌が「天和」かどうか、一瞬で見抜け！</p>
+    <!-- TODO: 公開後に、App Store のURLへ差し替える -->
+    <a class="btn" href="#" aria-label="App Storeでダウンロード（準備中）">App Storeでダウンロード（準備中）</a>
+    <p class="note">iPhone用ゲーム（横画面）／基本無料（広告つき）</p>
+  </header>
+
+  <nav>
+    <a href="#howto">遊び方</a>
+    <a href="#paid">有料版のご案内</a>
+    <a href="#privacy">プライバシーポリシー</a>
+    <a href="#legal">特定商取引法に基づく表記</a>
+    <a href="#contact">お問い合わせ</a>
+  </nav>
+
+  <!-- 遊び方 -->
+  <section id="howto">
+    <h2>遊び方</h2>
+
+    <div class="card">
+      <h3>ゲームの目的</h3>
+      <p>出てきた14枚の牌が「天和」かどうかを、できるだけ早く判断します。天和とは、親の配牌14枚がすでに和了形になっていること。役がなくても、和了形なら天和です（七対子・国士無双も含みます）。</p>
+      <p>画面下の、左「not天和」・右「天和」のボタンで答えます。</p>
+    </div>
+
+    <div class="card">
+      <h3>得点とライフ</h3>
+      <ul>
+        <li>正解すると、<b>48,000点</b>から時間とともに<b>1,500点</b>まで減っていく点数がもらえます（10秒で時間切れ）。早く答えるほど高得点です。</li>
+        <li>ライフは各ステージ3つ。不正解と時間切れで1つ減り、0になるとゲームオーバーです。</li>
+        <li>天和ではないのに「天和」を押すと、<span class="blue">「チョンボ！」</span>で<b>12,000点</b>引かれます。</li>
+        <li>「not天和」を押して間違えた場合と時間切れは、<span class="blue">「見逃し！」</span>。点は引かれませんが、ライフは減ります。</li>
+        <li>1ステージは10問。クリアすると、残りライフ1つにつき<b>48,000点</b>のボーナスです。</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>モード</h3>
+      <ul>
+        <li><b>初級・中級・上級</b>：選んだ級だけを遊びます。初級は理牌済み、中級・上級は理牌なし。上級は混一色・七対子・国士無双・清一色など、紛らわしい手が続きます。</li>
+        <li><b>フル</b>：初級→中級→上級の3ステージを通して遊び、最後に合計得点が出ます。</li>
+        <li><b>タイムアタック</b>：90秒の間、問題が出続けます。10問ごとに初級→中級→上級と難しくなります（下で詳しく説明します）。</li>
+      </ul>
+      <p class="small">各モードの上位5件のハイスコアが、自動で記録されます。</p>
+    </div>
+
+    <div class="card">
+      <h3>牌の操作</h3>
+      <ul>
+        <li>牌はドラッグで並べ替えられます（得点や時間には影響しません）。</li>
+        <li>逆さまの牌は、タップかドラッグで正しい向きに直せます。</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>タイムアタックのお楽しみ</h3>
+      <ul>
+        <li><b>赤牌くるくる</b>：手牌に赤牌（赤五）があるとき、タップすると牌がくるっと回ります。2回タップするごとに、その問題の獲得点が3,900点回復し、制限時間も延びます。ただし、全体の時間は進み続けます。</li>
+        <li><b>理牌ボタン</b>：1問に1回だけ使えるヒント。手牌が並べ替わる代わりに、その問題の獲得点が1/4になります。難問を早く片づけて次へ進む、という作戦もあり。</li>
+        <li><b>🀄ビーム（チュンビーム）</b>：逆さまの中（🀄）を直すと、ビームが発射されます。撃った回数×11,600点が、ゲーム終了時にボーナスとして加算されます。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 有料版 -->
+  <section id="paid">
+    <h2>有料版のご案内</h2>
+    <div class="card">
+      <p>ゲームは無料で遊べます。タイトル画面の「ショップ」から、買い切りのアップグレードを購入できます。</p>
+      <table>
+        <tr>
+          <th>無料版</th>
+          <td>
+            <ul>
+              <li>タイトル画面にバナー広告が表示されます</li>
+              <li>タイムアタックは、1日3回まで無料。それ以降は、広告（動画）を最後まで見ると1回遊べます</li>
+              <li>初級・中級・上級・フルは、回数の制限なく遊べます</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <th>広告を外す<br>（買い切り）</th>
+          <td>
+            <ul>
+              <li>バナー広告が消えます</li>
+              <li>タイムアタックの回数制限がなくなります</li>
+              <li>価格：390円（買い切り・予定）</li>
+              <li>機種変更や再インストールのときは、ショップの「購入の復元」で、購入済みの状態に戻せます</li>
+            </ul>
+          </td>
+        </tr>
+      </table>
+      <p class="small">価格は、購入画面（App Store）の表示が正になります。</p>
+    </div>
+  </section>
+
+  <!-- プライバシーポリシー -->
+  <section id="privacy">
+    <h2>プライバシーポリシー</h2>
+    <div class="card">
+      <p>lamiliuq works（以下「当方」）は、iPhone用ゲーム「テンホーチョンボ」（以下「本アプリ」）における、お客様の情報の取り扱いについて、次のとおり定めます。</p>
+
+      <h3>1. 取得する情報</h3>
+      <p>本アプリは、お名前・メールアドレス・位置情報・連絡先など、お客様個人を特定できる情報を、取得しません。</p>
+
+      <h3>2. 通信について</h3>
+      <p>本アプリが外部と通信を行うのは、次の場合だけです。これら以外の通信機能は、ありません。</p>
+      <ul>
+        <li><b>Appleのサービスとの連携</b>：アプリ内の購入（広告を外すアップグレード）や、購入の復元のための、App Storeとの通信</li>
+        <li><b>広告の表示</b>：広告配信サービス「Google AdMob」を利用して、広告を表示するための通信</li>
+      </ul>
+
+      <h3>3. 広告について</h3>
+      <ul>
+        <li>本アプリは、広告配信のために、Google LLC が提供する Google AdMob を利用しています。広告の配信や効果の測定のために、広告識別子（IDFA）などが利用されることがあります。</li>
+        <li>iOSの「トラッキング」の許可の画面で、許可しないを選んだ場合も、本アプリを遊べます（広告は、お客様に合わせない形で表示されます）。許可の設定は、端末の「設定」アプリからいつでも変更できます。</li>
+        <li>欧州経済領域（EEA）・英国などでは、法令に基づき、広告に関する同意をおたずねする画面が表示されることがあります。</li>
+        <li>Googleによる情報の取り扱いについては、<a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener">Googleのポリシー</a>をご確認ください。</li>
+        <li>アプリ内の購入で「広告を外す」を購入すると、バナー広告と、タイムアタックの広告の視聴は、なくなります。</li>
+      </ul>
+
+      <h3>4. 端末内に保存される情報</h3>
+      <p>ハイスコア、音量などの設定、タイムアタックの残り回数、購入の状態は、お客様の端末の中だけに保存されます。当方のサーバーなど、外部には送信されません。</p>
+
+      <h3>5. 第三者への提供</h3>
+      <p>当方は、法令に基づく場合を除き、お客様の情報を第三者に提供しません（そもそも、個人を特定できる情報を取得していません）。</p>
+
+      <h3>6. 改定</h3>
+      <p>本ポリシーの内容は、必要に応じて改定することがあります。改定後の内容は、本ページに掲載した時から、効力を持つものとします。</p>
+
+      <h3>7. お問い合わせ</h3>
+      <p>本ポリシーに関するお問い合わせは、下記の「お問い合わせ」までお願いします。</p>
+
+      <p class="small">制定日：2026年10月16日　　運営：lamiliuq works</p>
+    </div>
+  </section>
+
+  <!-- 特定商取引法 -->
+  <section id="legal">
+    <h2>特定商取引法に基づく表記</h2>
+    <div class="card">
+      <p><a href="https://www.lamiliuq.com/marusei/tokushoho" target="_blank" rel="noopener">特定商取引法に基づく表記はこちら</a></p>
+    </div>
+  </section>
+
+  <!-- お問い合わせ -->
+  <section id="contact">
+    <h2>お問い合わせ</h2>
+    <div class="card">
+      <p>ご質問・ご要望・不具合のご報告は、こちらまでお願いします。</p>
+      <p><a href="mailto:support@lamiliuq.com">support@lamiliuq.com</a></p>
+      <p class="small">不具合のご報告には、機種名とiOSのバージョン、起きたことを書いていただけると助かります。</p>
+    </div>
+  </section>
+
+  <!-- クレジット -->
+  <section id="credits">
+    <h2>クレジット</h2>
+    <div class="card">
+      <ul>
+        <li>麻雀牌：<a href="https://www.pixiv.net/artworks/15787202" target="_blank" rel="noopener">あかがねしゃく 様</a></li>
+        <li>BGM：<a href="https://opengameart.org/content/hungry-dino-9-chiptune-tracks-10-sfx" target="_blank" rel="noopener">SketchyLogic 様</a></li>
+        <li>SE：<a href="https://otologic.jp" target="_blank" rel="noopener">OtoLogic 様</a></li>
+        <li>フォント：<a href="https://kinomimi.booth.pm/items/5777441" target="_blank" rel="noopener">でらすこゴシック　吉川きのみ 様　あらたかな 様</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2026 lamiliuq works</p>
+    <p class="small">App Store は Apple Inc. のサービスマークです。</p>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -81,6 +81,38 @@
   th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
   th { background: rgba(255,255,255,0.1); width: 30%; }
 
+  /* スクリーンショット */
+  .shots { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .shots figure { margin: 0; }
+  .shots img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+  }
+  .shots figcaption { margin-top: 6px; font-size: 0.92rem; color: var(--sub); line-height: 1.6; }
+  .shots figcaption b { color: var(--text); }
+  @media (max-width: 640px) { .shots { grid-template-columns: 1fr; } }
+
+  /* コンボ表 */
+  table.combo { width: auto; min-width: 320px; margin: 10px 0; }
+  table.combo th, table.combo td { width: auto; text-align: right; white-space: nowrap; }
+  table.combo th { text-align: left; }
+
+  /* レインボーに光る文字 */
+  .rainbow {
+    font-weight: 800;
+    background: linear-gradient(90deg, #ff5e5e, #ffb84d, #fff35c, #6fe08d, #5ec8ff, #b58cff, #ff5e5e);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: flow 3s linear infinite;
+  }
+  @keyframes flow { to { background-position: 200% 0; } }
+  @media (prefers-reduced-motion: reduce) { .rainbow { animation: none; } }
+
   footer { border-top: 1px solid var(--line); margin-top: 48px; padding: 24px 0 40px; text-align: center; color: var(--sub); font-size: 0.9rem; }
   .small { font-size: 0.9rem; color: var(--sub); }
   @media (max-width: 560px) {
@@ -97,16 +129,44 @@
     <p class="catch">配られた14枚の牌が「天和」かどうか、一瞬で見抜け！</p>
     <!-- TODO: 公開後に、App Store のURLへ差し替える -->
     <a class="btn" href="https://apps.apple.com/jp/app/%E9%BA%BB%E9%9B%80%E8%84%B3%E3%83%88%E3%83%AC-%E3%83%86%E3%83%B3%E3%83%9B%E3%83%BC%E3%83%81%E3%83%A7%E3%83%B3%E3%83%9C/id6823814552" aria-label="App Storeでダウンロード">App Storeでダウンロード</a>
-    <p class="note">iPhone用ゲーム（横画面）／基本無料（広告つき）</p>
+    <p class="note">iPhone・iPad対応（iPhoneは横画面）／基本無料（広告つき）</p>
   </header>
 
   <nav>
+    <a href="#screens">スクリーンショット</a>
     <a href="#howto">遊び方</a>
     <a href="#paid">有料版のご案内</a>
     <a href="#privacy">プライバシーポリシー</a>
     <a href="#legal">特定商取引法に基づく表記</a>
     <a href="#contact">お問い合わせ</a>
   </nav>
+
+  <!-- スクリーンショット -->
+  <section id="screens">
+    <h2>スクリーンショット</h2>
+    <div class="shots">
+      <figure>
+        <img src="images/shot-title.jpg" width="1600" height="739" loading="lazy"
+             alt="タイトル画面。初級・中級・上級・フル・タイムアタックを選べる">
+        <figcaption><b>タイトル画面</b><br>初級・中級・上級、フル、タイムアタックから選べます。</figcaption>
+      </figure>
+      <figure>
+        <img src="images/shot-beginner.jpg" width="1600" height="739" loading="lazy"
+             alt="初級のゲーム画面。14枚の牌と、天和・not天和の回答ボタン">
+        <figcaption><b>初級のゲーム画面</b><br>右上の点数が減りきる前に、「天和」か「not天和」かを判断！</figcaption>
+      </figure>
+      <figure>
+        <img src="images/shot-beam.jpg" width="1600" height="739" loading="lazy"
+             alt="タイムアタックで、逆さまの中を直すと、牌から上にビームが発射される画面">
+        <figcaption><b>🀄ビーム（タイムアタック）</b><br>逆さまの中を直すと、ビームが発射。撃った回数がボーナス点になります。（Version 1.1〜）</figcaption>
+      </figure>
+      <figure>
+        <img src="images/shot-combo.jpg" width="1600" height="739" loading="lazy"
+             alt="タイムアタックで、8連続の正解でコンボボーナスが加算され、天和と大きく表示される画面">
+        <figcaption><b>連続コンボ（タイムアタック）</b><br>連続で正解するほど、ボーナスが大きくなります。高得点はレインボーに光ります。</figcaption>
+      </figure>
+    </div>
+  </section>
 
   <!-- 遊び方 -->
   <section id="howto">
@@ -126,6 +186,7 @@
         <li>天和ではないのに「天和」を押すと、<span class="blue">「チョンボ！」</span>で<b>12,000点</b>引かれます。</li>
         <li>「not天和」を押して間違えた場合と時間切れは、<span class="blue">「見逃し！」</span>。点は引かれませんが、ライフは減ります。</li>
         <li>1ステージは10問。クリアすると、残りライフ1つにつき<b>48,000点</b>のボーナスです。</li>
+        <li>1問で<b>40,000点以上</b>を取る（約1.7秒以内に正解する）と、加点の表示が<span class="rainbow">レインボー</span>に光ります。</li>
       </ul>
     </div>
 
@@ -134,22 +195,37 @@
       <ul>
         <li><b>初級・中級・上級</b>：選んだ級だけを遊びます。初級は理牌済み、中級・上級は理牌なし。上級は混一色・七対子・国士無双・清一色など、紛らわしい手が続きます。</li>
         <li><b>フル</b>：初級→中級→上級の3ステージを通して遊び、最後に合計得点が出ます。</li>
-        <li><b>タイムアタック</b>：90秒の間、問題が出続けます。10問ごとに初級→中級→上級と難しくなります（下で詳しく説明します）。</li>
+        <li><b>タイムアタック</b>：90秒の間、問題が出続けます。10問ごとに初級→中級→上級と難しくなります。連続正解のコンボボーナスや、赤牌くるくる、🀄ビームなど、タイムアタックだけの仕掛けがあります（下で詳しく説明します）。</li>
       </ul>
       <p class="small">各モードの上位5件のハイスコアが、自動で記録されます。</p>
     </div>
 
     <div class="card">
-      <h3>牌の操作</h3>
+      <h3>牌の操作・サウンド</h3>
       <ul>
         <li>牌はドラッグで並べ替えられます（得点や時間には影響しません）。</li>
         <li>逆さまの牌は、タップかドラッグで正しい向きに直せます。</li>
+        <li>タイトル画面の右上のボタンで、サウンドのオン・オフを切り替えられます。「設定」では、BGMと効果音の音量を調整できます。</li>
       </ul>
     </div>
 
     <div class="card">
       <h3>タイムアタックのお楽しみ</h3>
       <ul>
+        <li><b>連続コンボ</b>：連続で正解すると、2連目から、正解のたびにコンボボーナスが加算されます。間違い・見逃し・時間切れで、連続は途切れます。2〜4連は白、5連以上は<span class="rainbow">レインボー</span>で表示されます。
+          <table class="combo">
+            <tr><th>連続正解</th><th>ボーナス（正解のたび）</th></tr>
+            <tr><td>2連</td><td>+2,900</td></tr>
+            <tr><td>3連</td><td>+5,800</td></tr>
+            <tr><td>4連</td><td>+11,600</td></tr>
+            <tr><td>5連</td><td>+12,000</td></tr>
+            <tr><td>6〜7連</td><td>+18,000</td></tr>
+            <tr><td>8〜10連</td><td>+24,000</td></tr>
+            <tr><td>11〜12連</td><td>+36,000</td></tr>
+            <tr><td>13連以上</td><td>+48,000</td></tr>
+          </table>
+          <span class="small">最初の10問で間違えると、取り返すのは大変。ノーミスで走り切れるか、挑戦してみてください。</span>
+        </li>
         <li><b>赤牌くるくる</b>：手牌に赤牌（赤五）があるとき、タップすると牌がくるっと回ります。2回タップするごとに、その問題の獲得点が3,900点回復し、制限時間も延びます。ただし、全体の時間は進み続けます。</li>
         <li><b>理牌ボタン</b>：1問に1回だけ使えるヒント。手牌が並べ替わる代わりに、その問題の獲得点が1/4になります。難問を早く片づけて次へ進む、という作戦もあり。</li>
         <li><b>🀄ビーム（チュンビーム）</b>：逆さまの中（🀄）を直すと、ビームが発射されます。撃った回数×11,600点が、ゲーム終了時にボーナスとして加算されます。</li>
@@ -201,7 +277,7 @@
       <h3>2. 通信について</h3>
       <p>本アプリが外部と通信を行うのは、次の場合だけです。これら以外の通信機能は、ありません。</p>
       <ul>
-        <li><b>Appleのサービスとの連携</b>：アプリ内の購入（広告を外すアップグレード）や、購入の復元のための、App Storeとの通信。ランキング機能等、Game Centerとの通信。</li>
+        <li><b>Appleのサービスとの連携</b>：アプリ内の購入（広告を外すアップグレード）や、購入の復元のための、App Storeとの通信</li>
         <li><b>広告の表示</b>：広告配信サービス「Google AdMob」を利用して、広告を表示するための通信</li>
       </ul>
 

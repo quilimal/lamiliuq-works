@@ -92,7 +92,7 @@
     background: #000;
   }
   .video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-  
+
   /* スクリーンショット */
   .shots { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .shots figure { margin: 0; }
@@ -140,11 +140,12 @@
     <img src="title_logo.png" alt="テンホーチョンボ 麻雀脳トレ">
     <p class="catch">配られた14枚の牌が「天和」かどうか、一瞬で見抜け！</p>
     <!-- TODO: 公開後に、App Store のURLへ差し替える -->
-    <a class="btn" href="https://apps.apple.com/jp/app/%E9%BA%BB%E9%9B%80%E8%84%B3%E3%83%88%E3%83%AC-%E3%83%86%E3%83%B3%E3%83%9B%E3%83%BC%E3%83%81%E3%83%A7%E3%83%B3%E3%83%9C/id6823814552" aria-label="App Storeでダウンロード">App Storeでダウンロード</a>
+    <a class="btn" href="#" aria-label="App Storeでダウンロード（準備中）">App Storeでダウンロード（準備中）</a>
     <p class="note">iPhone・iPad対応（iPhoneは横画面）／基本無料（広告つき）</p>
   </header>
 
   <nav>
+    <a href="#movie">プレイ動画</a>
     <a href="#screens">スクリーンショット</a>
     <a href="#howto">遊び方</a>
     <a href="#paid">有料版のご案内</a>
@@ -152,6 +153,22 @@
     <a href="#legal">特定商取引法に基づく表記</a>
     <a href="#contact">お問い合わせ</a>
   </nav>
+
+  <!-- プレイ動画 -->
+  <section id="movie">
+    <h2>プレイ動画</h2>
+    <div class="video">
+      <!-- プライバシー強化モード（youtube-nocookie.com）で埋め込み -->
+      <iframe
+        src="https://www.youtube-nocookie.com/embed/r0GzgifeMMg"
+        title="テンホーチョンボ プレイ動画"
+        loading="lazy"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen></iframe>
+    </div>
+    <p class="small">動画は、YouTubeで再生されます。再生できない場合は、<a href="https://www.youtube.com/watch?v=r0GzgifeMMg" target="_blank" rel="noopener">YouTubeで見る</a>から、ご覧ください。</p>
+  </section>
 
   <!-- スクリーンショット -->
   <section id="screens">
@@ -267,7 +284,7 @@
             <ul>
               <li>バナー広告が消えます</li>
               <li>スコアアタックの回数制限がなくなります</li>
-              <li>価格：390円（買い切り）</li>
+              <li>価格：390円（買い切り・予定）</li>
               <li>機種変更や再インストールのときは、ショップの「購入の復元」で、購入済みの状態に戻せます</li>
             </ul>
           </td>
@@ -342,7 +359,7 @@
     <div class="card">
       <ul>
         <li>麻雀牌：<a href="https://www.pixiv.net/artworks/15787202" target="_blank" rel="noopener">あかがねしゃく 様</a></li>
-        <li>BGM：<a href="https://opengameart.org/content/hungry-dino-9-chiptune-tracks-10-sfx" target="_blank" rel="noopener">Hungry Dino　SketchyLogic 様</a></li>
+        <li>BGM：<a href="https://opengameart.org/content/hungry-dino-9-chiptune-tracks-10-sfx" target="_blank" rel="noopener">SketchyLogic 様</a></li>
         <li>SE：<a href="https://otologic.jp" target="_blank" rel="noopener">OtoLogic 様</a></li>
         <li>フォント：<a href="https://kinomimi.booth.pm/items/5777441" target="_blank" rel="noopener">でらすこゴシック　吉川きのみ 様　あらたかな 様</a></li>
       </ul>

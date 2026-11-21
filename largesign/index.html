@@ -429,6 +429,10 @@
       <div class="tip" style="margin-top:8px;">
         アルファベットは自動的に全角に変換されます。「MacBook」は7ページ（M・a・c・B・o・o・k）になります。
       </div>
+
+      <h3>モードの切り替え</h3>
+      <div class="tip">トップバーのモードボタンをタップするたびに、<strong>でか文字 → ぺらイチ → ドでか文字</strong>の順に切り替わります。モードを切り替えると、入力欄はクリアされます。</div>
+      <div class="tip" style="margin-top:8px;"><strong>でか文字</strong>：1文字ずつ、1ページに大きく配置します。<br><strong>ぺらイチ</strong>：A4・1枚に、最大3行の文字を配置します。<br><strong>ドでか文字</strong>：1文字を複数枚に分割して印刷し、貼り合わせて巨大な文字にします。</div>
     </div>
   </section>
 
@@ -498,6 +502,17 @@
     </div>
   </section>
 
+  <section class="section section-alt" id="doodeka-ja">
+    <div class="container">
+      <h2>ドでか文字モード</h2>
+      <p style="margin-bottom:12px;">1文字を複数枚のA4に分割して印刷し、貼り合わせて巨大な文字ポスターにするモードです。</p>
+      <div class="tip"><strong>分割枚数</strong>：×2・×4・×8から選びます。×2はA4横向き2枚（上下に並べる）、×4はA4縦向き4枚（2×2）、×8はA4横向き8枚（縦4×横2）です。</div>
+      <div class="tip">1文字につき、選んだ枚数ぶんのページができます。「受付」を×4で作ると、4枚×2文字＝8ページです。</div>
+      <div class="tip"><strong>囲み枠</strong>（PRO）は、貼り合わせたときに外周に1本の枠が現れるよう、外側の辺にだけ描かれます。</div>
+      <div class="tip">文字の組みは<strong>横書きのみ</strong>です（縦書きは非対応）。用紙の向きは、分割枚数に応じて自動で決まります。文字色・背景色・白抜き・もっと大きくも、でか文字モードと同じように使えます。</div>
+    </div>
+  </section>
+
   <section class="section">
     <div class="container">
       <h2>PRO機能</h2>
@@ -509,7 +524,7 @@
             <li>全フォント利用可</li>
             <li>用紙の向き（縦・横）・縦書き</li>
             <li>合字（税込円・税抜円・AM・PM）</li>
-            <li>ぺらイチモード</li>
+            <li>ぺらイチモード・ドでか文字モード</li>
             <li>テンプレート3種</li>
             <li>黒文字・白背景</li>
           </ul>
@@ -635,6 +650,10 @@
           </div>
         </div>
       </div>
+
+      <h3>切换模式</h3>
+      <div class="tip">每次点击顶部栏的模式按钮，会按<strong>大字 → 单页 → 超大字</strong>的顺序切换。切换模式后，输入框会被清空。</div>
+      <div class="tip" style="margin-top:8px;"><strong>大字</strong>：逐字大幅排版在1页上。<br><strong>单页</strong>：在1张A4纸上最多排列3行文字。<br><strong>超大字</strong>：将1个字符分割成多张A4打印，拼贴成巨大的文字。</div>
     </div>
   </section>
 
@@ -682,13 +701,13 @@
       <h2>连字（AM・PM）</h2>
       <p style="margin-bottom:12px;">将常用于营业时间的词合成为1个字符。点击设置中的「连字」按钮，即可在输入框的光标处插入。</p>
       <div class="tip"><span class="chip chip-orange">AM</span><span class="chip chip-green">PM</span>将「A」「M」（「P」「M」）上下重叠成1个字符。竖排时，2个字母会横向并排显示。</div>
-      <div class="tip">在输入框中，AM显示为橙色，PM显示为黄绿色。这种颜色差异不会反映在打印中。连字按1个字符计算。「大字」模式和「ぺらイチ」模式均可使用。</div>
+      <div class="tip">在输入框中，AM显示为橙色，PM显示为黄绿色。这种颜色差异不会反映在打印中。连字按1个字符计算。「大字」模式和「单页」模式均可使用。</div>
     </div>
   </section>
 
   <section class="section" id="peraichi-zh-hans">
     <div class="container">
-      <h2>ぺらイチ模式</h2>
+      <h2>单页模式</h2>
       <p style="margin-bottom:12px;">在1张A4纸上最多排列3行文字的模式。适合制作「营业中」「今日休息」这类简短告示。</p>
       <div class="tip"><strong>输入</strong>：最多3行。每行可容纳「8单位」。全角字符为1，半角数字・小写字母约0.6，大写字母约0.7，句点・冒号约0.3。</div>
       <div class="tip"><strong>超出8单位的部分不会打印。</strong>输入框中以橙色显示，右侧计数器（例：6.4 / 8.0）可查看。</div>
@@ -698,7 +717,18 @@
       <h3>竖排（A4纵向・竖写）</h3>
       <div class="tip">第1行位于最右列，由右向左排列。每列最多8格。全角字符、半角数字2个字符（纵中横）、连字、空格各占1格。「12/25」「10:30」为3格。</div>
       <div class="tip">半角字母・符号会转换为全角，各占1格。计数器以格数显示（例：6 / 8）。</div>
-      <div class="tip">PRO功能的文字颜色・背景颜色・空心字・边框・表情符号在ぺらイチ模式下也可使用（「更大」仅限「大字」模式）。</div>
+      <div class="tip">PRO功能的文字颜色・背景颜色・空心字・边框・表情符号在单页模式下也可使用（「更大」仅限「大字」模式）。</div>
+    </div>
+  </section>
+
+  <section class="section section-alt" id="doodeka-zh-hans">
+    <div class="container">
+      <h2>超大字模式</h2>
+      <p style="margin-bottom:12px;">将1个字符分割成多张A4打印，拼贴成巨大文字海报的模式。</p>
+      <div class="tip"><strong>分割张数</strong>：可选×2・×4・×8。×2为A4横向2张（上下排列），×4为A4纵向4张（2×2），×8为A4横向8张（纵4×横2）。</div>
+      <div class="tip">每个字符会生成所选张数的页面。用×4制作「受付」，即为4张×2字＝8页。</div>
+      <div class="tip"><strong>边框</strong>（PRO）仅绘制在外侧边缘，拼贴后外围只会出现1条边框。</div>
+      <div class="tip">排版方向<strong>仅支持横排</strong>（不支持竖排）。纸张方向会根据分割张数自动决定。文字颜色・背景颜色・空心字・更大的使用方式与「大字」模式相同。</div>
     </div>
   </section>
 
@@ -713,7 +743,7 @@
             <li>全部字体可用</li>
             <li>纸张方向（纵・横）・竖排</li>
             <li>连字（AM・PM）</li>
-            <li>ぺらイチ模式</li>
+            <li>单页模式・超大字模式</li>
             <li>3种快捷模板</li>
             <li>黑字・白底</li>
           </ul>
@@ -812,6 +842,10 @@
           </div>
         </div>
       </div>
+
+      <h3>切換模式</h3>
+      <div class="tip">每次點選頂部列的模式按鈕，會依<strong>大字 → 單頁 → 超大字</strong>的順序切換。切換模式後，輸入欄會被清空。</div>
+      <div class="tip" style="margin-top:8px;"><strong>大字</strong>：逐字大幅排版在1頁上。<br><strong>單頁</strong>：在1張A4紙上最多排列3行文字。<br><strong>超大字</strong>：將1個字元分割成多張A4列印，拼貼成巨大的文字。</div>
     </div>
   </section>
 
@@ -859,13 +893,13 @@
       <h2>合字（AM・PM）</h2>
       <p style="margin-bottom:12px;">將常用於營業時間的詞合成為1個字元。點選設定中的「合字」按鈕，即可在輸入欄的游標處插入。</p>
       <div class="tip"><span class="chip chip-orange">AM</span><span class="chip chip-green">PM</span>將「A」「M」（「P」「M」）上下重疊成1個字元。直排時，2個字母會橫向並排顯示。</div>
-      <div class="tip">在輸入欄中，AM顯示為橘色，PM顯示為黃綠色。這種顏色差異不會反映在列印中。合字以1個字元計算。「大字」模式和「ぺらイチ」模式均可使用。</div>
+      <div class="tip">在輸入欄中，AM顯示為橘色，PM顯示為黃綠色。這種顏色差異不會反映在列印中。合字以1個字元計算。「大字」模式和「單頁」模式均可使用。</div>
     </div>
   </section>
 
   <section class="section" id="peraichi-zh-hant">
     <div class="container">
-      <h2>ぺらイチ模式</h2>
+      <h2>單頁模式</h2>
       <p style="margin-bottom:12px;">在1張A4紙上最多排列3行文字的模式。適合製作「營業中」「今日公休」這類簡短告示。</p>
       <div class="tip"><strong>輸入</strong>：最多3行。每行可容納「8單位」。全形字元為1，半形數字・小寫字母約0.6，大寫字母約0.7，句點・冒號約0.3。</div>
       <div class="tip"><strong>超出8單位的部分不會列印。</strong>輸入欄中以橘色顯示，右側計數器（例：6.4 / 8.0）可查看。</div>
@@ -875,7 +909,18 @@
       <h3>直排（A4縱向・直寫）</h3>
       <div class="tip">第1行位於最右列，由右向左排列。每列最多8格。全形字元、半形數字2個字元（縱中橫）、合字、空格各占1格。「12/25」「10:30」為3格。</div>
       <div class="tip">半形字母・符號會轉換為全形，各占1格。計數器以格數顯示（例：6 / 8）。</div>
-      <div class="tip">PRO功能的文字顏色・背景顏色・空心字・邊框・表情符號在ぺらイチ模式下也可使用（「更大」僅限「大字」模式）。</div>
+      <div class="tip">PRO功能的文字顏色・背景顏色・空心字・邊框・表情符號在單頁模式下也可使用（「更大」僅限「大字」模式）。</div>
+    </div>
+  </section>
+
+  <section class="section section-alt" id="doodeka-zh-hant">
+    <div class="container">
+      <h2>超大字模式</h2>
+      <p style="margin-bottom:12px;">將1個字元分割成多張A4列印，拼貼成巨大文字海報的模式。</p>
+      <div class="tip"><strong>分割張數</strong>：可選×2・×4・×8。×2為A4橫向2張（上下排列），×4為A4縱向4張（2×2），×8為A4橫向8張（縱4×橫2）。</div>
+      <div class="tip">每個字元會產生所選張數的頁面。用×4製作「受付」，即為4張×2字＝8頁。</div>
+      <div class="tip"><strong>邊框</strong>（PRO）僅繪製在外側邊緣，拼貼後外圍只會出現1條邊框。</div>
+      <div class="tip">排版方向<strong>僅支援橫排</strong>（不支援直排）。紙張方向會依分割張數自動決定。文字顏色・背景顏色・空心字・更大的使用方式與「大字」模式相同。</div>
     </div>
   </section>
 
@@ -890,7 +935,7 @@
             <li>全部字型可用</li>
             <li>紙張方向（縱・橫）・直排</li>
             <li>合字（AM・PM）</li>
-            <li>ぺらイチ模式</li>
+            <li>單頁模式・超大字模式</li>
             <li>3種快速範本</li>
             <li>黑字・白底</li>
           </ul>
@@ -989,6 +1034,10 @@
           </div>
         </div>
       </div>
+
+      <h3>모드 전환</h3>
+      <div class="tip">상단 바의 모드 버튼을 탭할 때마다 <strong>큰글씨 → 한장 → 초대형</strong> 순서로 전환됩니다. 모드를 전환하면 입력창이 지워집니다.</div>
+      <div class="tip" style="margin-top:8px;"><strong>큰글씨</strong>：한 글자씩 한 페이지에 크게 배치합니다.<br><strong>한장</strong>：A4 한 장에 최대 3줄의 글자를 배치합니다.<br><strong>초대형</strong>：한 글자를 여러 장으로 나누어 인쇄하고, 붙여서 거대한 글자로 만듭니다.</div>
     </div>
   </section>
 
@@ -1036,13 +1085,13 @@
       <h2>합자（AM・PM）</h2>
       <p style="margin-bottom:12px;">영업 시간 등에 자주 쓰는 말을 1글자로 합친 글자입니다. 설정의 「합자」 버튼을 누르면 입력창의 커서 위치에 들어갑니다.</p>
       <div class="tip"><span class="chip chip-orange">AM</span><span class="chip chip-green">PM</span>「A」「M」（「P」「M」）을 위아래로 겹친 1글자입니다. 세로쓰기에서는 두 글자를 가로로 나란히 표시합니다.</div>
-      <div class="tip">입력창에서는 AM이 주황색, PM이 연두색으로 표시됩니다. 이 색 차이는 인쇄에 반영되지 않습니다. 합자는 1글자로 계산합니다. 큰글씨 모드와 ぺらイチ 모드 모두에서 사용할 수 있습니다.</div>
+      <div class="tip">입력창에서는 AM이 주황색, PM이 연두색으로 표시됩니다. 이 색 차이는 인쇄에 반영되지 않습니다. 합자는 1글자로 계산합니다. 큰글씨 모드와 한장 모드 모두에서 사용할 수 있습니다.</div>
     </div>
   </section>
 
   <section class="section" id="peraichi-ko">
     <div class="container">
-      <h2>ぺらイチ 모드</h2>
+      <h2>한장 모드</h2>
       <p style="margin-bottom:12px;">A4 한 장에 최대 3줄의 글자를 크게 배치하는 모드입니다. 「영업 중」「오늘 휴무」 같은 짧은 안내문을 한 장으로 만들 수 있습니다.</p>
       <div class="tip"><strong>입력</strong>：최대 3줄. 한 줄에 들어가는 양은 「8유닛」까지입니다. 전각 글자는 1, 반각 숫자·소문자는 약 0.6, 대문자는 약 0.7, 마침표·콜론은 약 0.3입니다.</div>
       <div class="tip"><strong>8유닛을 넘은 부분은 인쇄되지 않습니다.</strong> 입력창에서 주황색으로 표시되며, 오른쪽 카운터（예：6.4 / 8.0）로 확인할 수 있습니다.</div>
@@ -1052,7 +1101,18 @@
       <h3>세로쓰기（A4 세로 방향）</h3>
       <div class="tip">첫 번째 줄이 가장 오른쪽 열이 되어, 오른쪽에서 왼쪽으로 나열됩니다. 한 열은 최대 8칸입니다. 전각 글자, 반각 숫자 2글자（縦中横）, 합자, 공백이 각각 1칸입니다. 「12/25」「10:30」은 3칸이 됩니다.</div>
       <div class="tip">반각 영문자·기호는 전각으로 변환되어 1칸씩 배치됩니다. 카운터는 「6 / 8」처럼 칸 수로 표시됩니다.</div>
-      <div class="tip">PRO 기능인 글자색·배경색·외곽선·테두리·이모지는 ぺらイチ 모드에서도 사용할 수 있습니다（「더 크게」는 큰글씨 모드 전용）.</div>
+      <div class="tip">PRO 기능인 글자색·배경색·외곽선·테두리·이모지는 한장 모드에서도 사용할 수 있습니다（「더 크게」는 큰글씨 모드 전용）.</div>
+    </div>
+  </section>
+
+  <section class="section section-alt" id="doodeka-ko">
+    <div class="container">
+      <h2>초대형 모드</h2>
+      <p style="margin-bottom:12px;">한 글자를 여러 장의 A4로 나누어 인쇄하고, 붙여서 거대한 글자 포스터로 만드는 모드입니다.</p>
+      <div class="tip"><strong>분할 장수</strong>：×2・×4・×8 중에서 선택합니다. ×2는 A4 가로 방향 2장（위아래로 배치）, ×4는 A4 세로 방향 4장（2×2）, ×8은 A4 가로 방향 8장（세로 4×가로 2）입니다.</div>
+      <div class="tip">한 글자당 선택한 장수만큼의 페이지가 만들어집니다. 「안내」를 ×4로 만들면 4장×2글자＝8페이지입니다.</div>
+      <div class="tip"><strong>테두리</strong>（PRO）는 붙였을 때 바깥쪽에 테두리가 한 줄로 나타나도록, 바깥쪽 변에만 그려집니다.</div>
+      <div class="tip">텍스트 방향은 <strong>가로쓰기만</strong> 지원합니다（세로쓰기는 지원하지 않음）. 용지 방향은 분할 장수에 따라 자동으로 정해집니다. 글자 색상·배경 색상·외곽선·더 크게는 큰글씨 모드와 같은 방법으로 사용할 수 있습니다.</div>
     </div>
   </section>
 
@@ -1067,7 +1127,7 @@
             <li>모든 글꼴 사용 가능</li>
             <li>용지 방향（세로·가로）・세로쓰기</li>
             <li>합자（AM・PM）</li>
-            <li>ぺらイチ 모드</li>
+            <li>한장 모드・초대형 모드</li>
             <li>템플릿 3종</li>
             <li>검정 글자・흰 배경</li>
           </ul>

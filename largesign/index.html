@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -87,6 +88,12 @@
 
   /* ── セクション共通 ── */
   .section { padding: var(--section-pad); }
+  .section-alt {
+    background: white;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .section-alt + .section-alt { border-top: none; }
   .container { max-width: 760px; margin: 0 auto; }
 
   /* ── ヒーロー ── */
@@ -283,6 +290,20 @@
   }
   .tip strong { color: var(--accent); }
 
+  /* ── 合字の見本（入力欄での色） ── */
+  .chip {
+    display: inline-block;
+    border-radius: 6px;
+    padding: 0 10px;
+    margin-right: 6px;
+    font-weight: 800;
+    font-size: 14px;
+    color: white;
+    line-height: 1.7;
+  }
+  .chip-orange { background: #ff9500; }
+  .chip-green  { background: #80b800; }
+
   /* ── FAQ ── */
   .faq { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
   .faq-item {
@@ -380,8 +401,9 @@
         <div class="step">
           <div class="step-num">2</div>
           <div class="step-body">
-            <div class="step-title">フォントと用紙サイズを選ぶ</div>
-            <div class="step-desc">ゴシック・POP・明朝の3書体から選択。用紙はB5・A4・B4・A3に対応しています。</div>
+            <div class="step-title">フォントを選ぶ</div>
+            <div class="step-desc">ゴシック・POP・明朝の3書体から選択できます。</div>
+            <span class="step-note">PDFはA4サイズで作成されます。用紙サイズは、印刷時にプリンターアプリ側で選びます</span>
           </div>
         </div>
         <div class="step">
@@ -410,7 +432,7 @@
     </div>
   </section>
 
-  <section class="section" style="background:white; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule);">
+  <section class="section section-alt">
     <div class="container">
       <h2>テンプレート</h2>
       <p style="margin-bottom:12px;">緊急時にお使いください。タップですぐにPDFを作成し、プリンターと共有できます。</p>
@@ -432,6 +454,50 @@
     </div>
   </section>
 
+  <section class="section" id="orientation-ja">
+    <div class="container">
+      <h2>用紙の向きと文字の組み</h2>
+      <p style="margin-bottom:12px;">でか文字モードでは、設定のフォントの下で「用紙の向き」と「文字の組み」を選べます。</p>
+      <div class="tip"><strong>用紙の向き</strong>：縦向き（A4縦）／横向き（A4横）から選びます。</div>
+      <div class="tip"><strong>文字の組み</strong>：横書き／縦書きから選びます。縦書きにすると、縦書きの貼り紙を作れます。</div>
+
+      <h3>縦書きのルール</h3>
+      <div class="tip">半角の<strong>数字・カンマ・ピリオド</strong>は2文字で1ページとして、縦書きの中でも横向きに並びます（縦中横）。「2026」は2ページです。半角数字が1文字だけのときは、左に寄せて表示されます。</div>
+      <div class="tip">括弧類と「－」「＝」「＜」「＞」は、横書きの字形を90°回転して表示します。</div>
+      <div class="tip">囲み枠は、縦に並べて貼る向きに自動で切り替わります。</div>
+
+      <h3>もっと大きく（PRO）</h3>
+      <div class="tip">用紙の向きに合わせて、縦向きなら縦方向に、横向きなら横方向に45%引き伸ばします。</div>
+    </div>
+  </section>
+
+  <section class="section section-alt" id="ligature-ja">
+    <div class="container">
+      <h2>合字（税込円・税抜円・AM・PM）</h2>
+      <p style="margin-bottom:12px;">値札や営業時間でよく使う言葉を、1文字にまとめた合成文字です。設定の「合字」ボタンを押すと、入力欄のカーソル位置に入ります。</p>
+      <div class="tip"><span class="chip chip-orange">税込円</span>「税込」を上に小さく、「円」を下に大きく組んだ1文字です。<strong>日本語のみ</strong>で使えます。</div>
+      <div class="tip"><span class="chip chip-green">税抜円</span>「税抜」を上に小さく、「円」を下に大きく組んだ1文字です。<strong>日本語のみ</strong>で使えます。</div>
+      <div class="tip"><span class="chip chip-orange">AM</span><span class="chip chip-green">PM</span>「A」「M」（「P」「M」）を上下に重ねた1文字です。全言語で使えます。縦書きでは、2文字を横に並べて表示します。</div>
+      <div class="tip">入力欄では、税込円・AMがオレンジ、税抜円・PMが黄緑で表示されます。この色の違いは印刷には反映されません。合字は1文字として数えます。でか文字モード・ぺらイチモードの両方で使えます。</div>
+    </div>
+  </section>
+
+  <section class="section" id="peraichi-ja">
+    <div class="container">
+      <h2>ぺらイチモード</h2>
+      <p style="margin-bottom:12px;">A4・1枚に、最大3行の文字を大きく配置するモードです。「営業中」「本日休業」のような短い掲示を、1枚で作れます。</p>
+      <div class="tip"><strong>入力</strong>：最大3行。1行に入る量は「8ユニット」までです。全角1文字が1、半角の数字・英小文字は約0.6、英大文字は約0.7、ピリオド・コロンは約0.3です。</div>
+      <div class="tip"><strong>8ユニットを超えた分は印刷されません。</strong>入力欄ではオレンジ色で表示され、右のカウンター（例：6.4 / 8.0）で確認できます。</div>
+      <div class="tip"><strong>文字の大きさ</strong>は、行数と文字数に応じて自動で決まります。「文字統一」をオンにすると、文字数に関わらず常に同じ大きさで印刷します。</div>
+      <div class="tip"><strong>横組み／縦組み</strong>：設定のフォントの下で切り替えます。横組みはA4横向きの横書き、縦組みはA4縦向きの縦書きです。</div>
+
+      <h3>縦組み（A4縦向き・縦書き）</h3>
+      <div class="tip">1行目が右端の列になり、右から左へ並びます。1列は最大8マスです。全角1文字、半角数字2文字（縦中横）、合字、スペースが、それぞれ1マスです。「12/25」「10:30」は3マスになります。</div>
+      <div class="tip">半角の英字・記号は全角に変換して、1マスずつ置きます。カウンターは「6 / 8」のようにマス数で表示されます。</div>
+      <div class="tip">PRO機能の文字色・背景色・白抜き・囲み枠・絵文字は、ぺらイチモードでも使えます（「もっと大きく」はでか文字モードのみ）。</div>
+    </div>
+  </section>
+
   <section class="section">
     <div class="container">
       <h2>PRO機能</h2>
@@ -441,7 +507,9 @@
           <ul class="tier-list">
             <li>文字入力・PDF作成</li>
             <li>全フォント利用可</li>
-            <li>B5〜A3 全サイズ</li>
+            <li>用紙の向き（縦・横）・縦書き</li>
+            <li>合字（税込円・税抜円・AM・PM）</li>
+            <li>ぺらイチモード</li>
             <li>テンプレート3種</li>
             <li>黒文字・白背景</li>
           </ul>
@@ -453,7 +521,7 @@
             <li>背景色（8色）</li>
             <li>追加カスタムカラー（4色）</li>
             <li>白抜き文字</li>
-            <li>もっと大きく（縦45%引き伸ばし）</li>
+            <li>もっと大きく（45%引き伸ばし）</li>
             <li>囲み枠（細枠・太枠）</li>
             <li>絵文字対応</li>
             <li>広告非表示</li>
@@ -463,7 +531,7 @@
     </div>
   </section>
 
-  <section class="section" style="background:white; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule);">
+  <section class="section section-alt">
     <div class="container">
       <h2>その他の機能</h2>
       <div class="faq">
@@ -484,7 +552,7 @@
         </div>
         <div class="faq-item">
           <div class="faq-q">🔤 フォントについて</div>
-          <div class="faq-a">使用フォントはすべてSIL OFLライセンスのオープンソースフォントです。M PLUS 1p・Noto Serif JP・Rounded Mplus 1cほか全12書体をアプリに内蔵しています。</div>
+          <div class="faq-a">使用フォントはすべてSIL OFLライセンスのオープンソースフォントです。M PLUS 1p・Noto Serif JP・Rounded Mplus 1cほか全11書体をアプリに内蔵しています。</div>
         </div>
       </div>
     </div>
@@ -547,8 +615,9 @@
         <div class="step">
           <div class="step-num">2</div>
           <div class="step-body">
-            <div class="step-title">选择字体和纸张大小</div>
-            <div class="step-desc">从黑体、POP、宋体三种字体中选择，支持A4、A3纸张尺寸。</div>
+            <div class="step-title">选择字体</div>
+            <div class="step-desc">从黑体、POP、宋体三种字体中选择。</div>
+            <span class="step-note">PDF以A4尺寸生成，纸张大小请在打印时于打印机应用中选择</span>
           </div>
         </div>
         <div class="step">
@@ -569,7 +638,7 @@
     </div>
   </section>
 
-  <section class="section" style="background:white; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule);">
+  <section class="section section-alt">
     <div class="container">
       <h2>快捷模板</h2>
       <p style="margin-bottom:12px;">紧急情况下请使用。轻触即可立即创建PDF并与打印机共享。</p>
@@ -591,6 +660,48 @@
     </div>
   </section>
 
+  <section class="section" id="orientation-zh-hans">
+    <div class="container">
+      <h2>纸张方向与排版方向</h2>
+      <p style="margin-bottom:12px;">在「大字」模式下，可在设置的字体下方选择「纸张方向」和「排版方向」。</p>
+      <div class="tip"><strong>纸张方向</strong>：可选纵向（A4竖放）或横向（A4横放）。</div>
+      <div class="tip"><strong>排版方向</strong>：可选横排或竖排。选择竖排后，可以制作竖排的告示。</div>
+
+      <h3>竖排规则</h3>
+      <div class="tip">半角的<strong>数字・逗号・句点</strong>每2个字符占1页，在竖排中也横向排列（纵中横）。「2026」为2页。半角数字只有1个时，靠左显示。</div>
+      <div class="tip">括号类以及「－」「＝」「＜」「＞」，会将横排字形旋转90°后显示。</div>
+      <div class="tip">边框会自动切换为适合纵向并排粘贴的样式。</div>
+
+      <h3>更大（PRO）</h3>
+      <div class="tip">根据纸张方向，纵向时沿纵方向、横向时沿横方向放大45%。</div>
+    </div>
+  </section>
+
+  <section class="section section-alt" id="ligature-zh-hans">
+    <div class="container">
+      <h2>连字（AM・PM）</h2>
+      <p style="margin-bottom:12px;">将常用于营业时间的词合成为1个字符。点击设置中的「连字」按钮，即可在输入框的光标处插入。</p>
+      <div class="tip"><span class="chip chip-orange">AM</span><span class="chip chip-green">PM</span>将「A」「M」（「P」「M」）上下重叠成1个字符。竖排时，2个字母会横向并排显示。</div>
+      <div class="tip">在输入框中，AM显示为橙色，PM显示为黄绿色。这种颜色差异不会反映在打印中。连字按1个字符计算。「大字」模式和「ぺらイチ」模式均可使用。</div>
+    </div>
+  </section>
+
+  <section class="section" id="peraichi-zh-hans">
+    <div class="container">
+      <h2>ぺらイチ模式</h2>
+      <p style="margin-bottom:12px;">在1张A4纸上最多排列3行文字的模式。适合制作「营业中」「今日休息」这类简短告示。</p>
+      <div class="tip"><strong>输入</strong>：最多3行。每行可容纳「8单位」。全角字符为1，半角数字・小写字母约0.6，大写字母约0.7，句点・冒号约0.3。</div>
+      <div class="tip"><strong>超出8单位的部分不会打印。</strong>输入框中以橙色显示，右侧计数器（例：6.4 / 8.0）可查看。</div>
+      <div class="tip"><strong>字号</strong>会根据行数和字数自动决定。开启「统一字号」后，无论字数多少，都以相同大小打印。</div>
+      <div class="tip"><strong>横排／竖排</strong>：在设置的字体下方切换。横排为A4横向的横写，竖排为A4纵向的竖写。</div>
+
+      <h3>竖排（A4纵向・竖写）</h3>
+      <div class="tip">第1行位于最右列，由右向左排列。每列最多8格。全角字符、半角数字2个字符（纵中横）、连字、空格各占1格。「12/25」「10:30」为3格。</div>
+      <div class="tip">半角字母・符号会转换为全角，各占1格。计数器以格数显示（例：6 / 8）。</div>
+      <div class="tip">PRO功能的文字颜色・背景颜色・空心字・边框・表情符号在ぺらイチ模式下也可使用（「更大」仅限「大字」模式）。</div>
+    </div>
+  </section>
+
   <section class="section">
     <div class="container">
       <h2>PRO功能</h2>
@@ -600,7 +711,9 @@
           <ul class="tier-list">
             <li>文字输入・PDF创建</li>
             <li>全部字体可用</li>
-            <li>A4・A3纸张</li>
+            <li>纸张方向（纵・横）・竖排</li>
+            <li>连字（AM・PM）</li>
+            <li>ぺらイチ模式</li>
             <li>3种快捷模板</li>
             <li>黑字・白底</li>
           </ul>
@@ -612,7 +725,7 @@
             <li>背景颜色（8色）</li>
             <li>自定义颜色（4色）</li>
             <li>空心字</li>
-            <li>更大（纵向45%放大）</li>
+            <li>更大（45%放大）</li>
             <li>边框（细框・粗框）</li>
             <li>表情符号支持</li>
             <li>去除广告</li>
@@ -679,8 +792,9 @@
         <div class="step">
           <div class="step-num">2</div>
           <div class="step-body">
-            <div class="step-title">選擇字型和紙張大小</div>
-            <div class="step-desc">從黑體、POP、明體三種字型中選擇，支援A4、A3紙張尺寸。</div>
+            <div class="step-title">選擇字型</div>
+            <div class="step-desc">從黑體、POP、明體三種字型中選擇。</div>
+            <span class="step-note">PDF以A4尺寸建立，紙張大小請在列印時於印表機應用程式中選擇</span>
           </div>
         </div>
         <div class="step">
@@ -701,7 +815,7 @@
     </div>
   </section>
 
-  <section class="section" style="background:white; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule);">
+  <section class="section section-alt">
     <div class="container">
       <h2>快速範本</h2>
       <p style="margin-bottom:12px;">緊急情況下請使用。輕觸即可立即建立PDF並與印表機共享。</p>
@@ -723,6 +837,48 @@
     </div>
   </section>
 
+  <section class="section" id="orientation-zh-hant">
+    <div class="container">
+      <h2>紙張方向與排版方向</h2>
+      <p style="margin-bottom:12px;">在「大字」模式下，可在設定的字型下方選擇「紙張方向」和「排版方向」。</p>
+      <div class="tip"><strong>紙張方向</strong>：可選縱向（A4直放）或橫向（A4橫放）。</div>
+      <div class="tip"><strong>排版方向</strong>：可選橫排或直排。選擇直排後，可以製作直排的告示。</div>
+
+      <h3>直排規則</h3>
+      <div class="tip">半角的<strong>數字・逗號・句點</strong>每2個字元占1頁，在直排中也橫向排列（縱中橫）。「2026」為2頁。半角數字只有1個時，靠左顯示。</div>
+      <div class="tip">括號類以及「－」「＝」「＜」「＞」，會將橫排字形旋轉90°後顯示。</div>
+      <div class="tip">邊框會自動切換為適合縱向並排黏貼的樣式。</div>
+
+      <h3>更大（PRO）</h3>
+      <div class="tip">依照紙張方向，縱向時沿縱方向、橫向時沿橫方向放大45%。</div>
+    </div>
+  </section>
+
+  <section class="section section-alt" id="ligature-zh-hant">
+    <div class="container">
+      <h2>合字（AM・PM）</h2>
+      <p style="margin-bottom:12px;">將常用於營業時間的詞合成為1個字元。點選設定中的「合字」按鈕，即可在輸入欄的游標處插入。</p>
+      <div class="tip"><span class="chip chip-orange">AM</span><span class="chip chip-green">PM</span>將「A」「M」（「P」「M」）上下重疊成1個字元。直排時，2個字母會橫向並排顯示。</div>
+      <div class="tip">在輸入欄中，AM顯示為橘色，PM顯示為黃綠色。這種顏色差異不會反映在列印中。合字以1個字元計算。「大字」模式和「ぺらイチ」模式均可使用。</div>
+    </div>
+  </section>
+
+  <section class="section" id="peraichi-zh-hant">
+    <div class="container">
+      <h2>ぺらイチ模式</h2>
+      <p style="margin-bottom:12px;">在1張A4紙上最多排列3行文字的模式。適合製作「營業中」「今日公休」這類簡短告示。</p>
+      <div class="tip"><strong>輸入</strong>：最多3行。每行可容納「8單位」。全形字元為1，半形數字・小寫字母約0.6，大寫字母約0.7，句點・冒號約0.3。</div>
+      <div class="tip"><strong>超出8單位的部分不會列印。</strong>輸入欄中以橘色顯示，右側計數器（例：6.4 / 8.0）可查看。</div>
+      <div class="tip"><strong>字號</strong>會依行數和字數自動決定。開啟「統一字號」後，無論字數多少，都以相同大小列印。</div>
+      <div class="tip"><strong>橫排／直排</strong>：在設定的字型下方切換。橫排為A4橫向的橫寫，直排為A4縱向的直寫。</div>
+
+      <h3>直排（A4縱向・直寫）</h3>
+      <div class="tip">第1行位於最右列，由右向左排列。每列最多8格。全形字元、半形數字2個字元（縱中橫）、合字、空格各占1格。「12/25」「10:30」為3格。</div>
+      <div class="tip">半形字母・符號會轉換為全形，各占1格。計數器以格數顯示（例：6 / 8）。</div>
+      <div class="tip">PRO功能的文字顏色・背景顏色・空心字・邊框・表情符號在ぺらイチ模式下也可使用（「更大」僅限「大字」模式）。</div>
+    </div>
+  </section>
+
   <section class="section">
     <div class="container">
       <h2>PRO功能</h2>
@@ -732,7 +888,9 @@
           <ul class="tier-list">
             <li>文字輸入・PDF建立</li>
             <li>全部字型可用</li>
-            <li>A4・A3紙張</li>
+            <li>紙張方向（縱・橫）・直排</li>
+            <li>合字（AM・PM）</li>
+            <li>ぺらイチ模式</li>
             <li>3種快速範本</li>
             <li>黑字・白底</li>
           </ul>
@@ -744,7 +902,7 @@
             <li>背景顏色（8色）</li>
             <li>自訂顏色（4色）</li>
             <li>空心字</li>
-            <li>更大（縱向45%放大）</li>
+            <li>更大（45%放大）</li>
             <li>邊框（細框・粗框）</li>
             <li>表情符號支援</li>
             <li>移除廣告</li>
@@ -811,8 +969,9 @@
         <div class="step">
           <div class="step-num">2</div>
           <div class="step-body">
-            <div class="step-title">글꼴과 용지 크기 선택</div>
-            <div class="step-desc">고딕·POP·명조 세 가지 서체에서 선택. A4·A3 용지 크기를 지원합니다.</div>
+            <div class="step-title">글꼴 선택</div>
+            <div class="step-desc">고딕·POP·명조 세 가지 서체에서 선택합니다.</div>
+            <span class="step-note">PDF는 A4 크기로 생성되며, 용지 크기는 인쇄할 때 프린터 앱에서 선택합니다</span>
           </div>
         </div>
         <div class="step">
@@ -833,7 +992,7 @@
     </div>
   </section>
 
-  <section class="section" style="background:white; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule);">
+  <section class="section section-alt">
     <div class="container">
       <h2>빠른 템플릿</h2>
       <p style="margin-bottom:12px;">긴급 상황에서 사용하세요. 탭 한 번으로 즉시 PDF를 생성하여 프린터와 공유할 수 있습니다.</p>
@@ -855,6 +1014,48 @@
     </div>
   </section>
 
+  <section class="section" id="orientation-ko">
+    <div class="container">
+      <h2>용지 방향과 텍스트 방향</h2>
+      <p style="margin-bottom:12px;">큰글씨 모드에서는 설정의 글꼴 아래에서 「용지 방향」과 「텍스트 방향」을 선택할 수 있습니다.</p>
+      <div class="tip"><strong>용지 방향</strong>：세로（A4 세로）／가로（A4 가로） 중에서 선택합니다.</div>
+      <div class="tip"><strong>텍스트 방향</strong>：가로쓰기／세로쓰기 중에서 선택합니다. 세로쓰기로 하면 세로로 쓴 안내문을 만들 수 있습니다.</div>
+
+      <h3>세로쓰기 규칙</h3>
+      <div class="tip">반각 <strong>숫자·쉼표·마침표</strong>는 2글자가 1페이지로, 세로쓰기 안에서도 가로로 나란히 표시됩니다（縦中横）. 「2026」은 2페이지입니다. 반각 숫자가 1글자일 때는 왼쪽으로 치우쳐 표시됩니다.</div>
+      <div class="tip">괄호류와 「－」「＝」「＜」「＞」는 가로쓰기 글자 모양을 90° 회전하여 표시합니다.</div>
+      <div class="tip">테두리는 세로로 나란히 붙이는 방향으로 자동 전환됩니다.</div>
+
+      <h3>더 크게（PRO）</h3>
+      <div class="tip">용지 방향에 맞춰, 세로 방향이면 세로로, 가로 방향이면 가로로 45% 늘립니다.</div>
+    </div>
+  </section>
+
+  <section class="section section-alt" id="ligature-ko">
+    <div class="container">
+      <h2>합자（AM・PM）</h2>
+      <p style="margin-bottom:12px;">영업 시간 등에 자주 쓰는 말을 1글자로 합친 글자입니다. 설정의 「합자」 버튼을 누르면 입력창의 커서 위치에 들어갑니다.</p>
+      <div class="tip"><span class="chip chip-orange">AM</span><span class="chip chip-green">PM</span>「A」「M」（「P」「M」）을 위아래로 겹친 1글자입니다. 세로쓰기에서는 두 글자를 가로로 나란히 표시합니다.</div>
+      <div class="tip">입력창에서는 AM이 주황색, PM이 연두색으로 표시됩니다. 이 색 차이는 인쇄에 반영되지 않습니다. 합자는 1글자로 계산합니다. 큰글씨 모드와 ぺらイチ 모드 모두에서 사용할 수 있습니다.</div>
+    </div>
+  </section>
+
+  <section class="section" id="peraichi-ko">
+    <div class="container">
+      <h2>ぺらイチ 모드</h2>
+      <p style="margin-bottom:12px;">A4 한 장에 최대 3줄의 글자를 크게 배치하는 모드입니다. 「영업 중」「오늘 휴무」 같은 짧은 안내문을 한 장으로 만들 수 있습니다.</p>
+      <div class="tip"><strong>입력</strong>：최대 3줄. 한 줄에 들어가는 양은 「8유닛」까지입니다. 전각 글자는 1, 반각 숫자·소문자는 약 0.6, 대문자는 약 0.7, 마침표·콜론은 약 0.3입니다.</div>
+      <div class="tip"><strong>8유닛을 넘은 부분은 인쇄되지 않습니다.</strong> 입력창에서 주황색으로 표시되며, 오른쪽 카운터（예：6.4 / 8.0）로 확인할 수 있습니다.</div>
+      <div class="tip"><strong>글자 크기</strong>는 줄 수와 글자 수에 따라 자동으로 정해집니다. 「글자 통일」을 켜면 글자 수와 관계없이 항상 같은 크기로 인쇄됩니다.</div>
+      <div class="tip"><strong>가로쓰기／세로쓰기</strong>：설정의 글꼴 아래에서 전환합니다. 가로쓰기는 A4 가로 방향의 가로쓰기, 세로쓰기는 A4 세로 방향의 세로쓰기입니다.</div>
+
+      <h3>세로쓰기（A4 세로 방향）</h3>
+      <div class="tip">첫 번째 줄이 가장 오른쪽 열이 되어, 오른쪽에서 왼쪽으로 나열됩니다. 한 열은 최대 8칸입니다. 전각 글자, 반각 숫자 2글자（縦中横）, 합자, 공백이 각각 1칸입니다. 「12/25」「10:30」은 3칸이 됩니다.</div>
+      <div class="tip">반각 영문자·기호는 전각으로 변환되어 1칸씩 배치됩니다. 카운터는 「6 / 8」처럼 칸 수로 표시됩니다.</div>
+      <div class="tip">PRO 기능인 글자색·배경색·외곽선·테두리·이모지는 ぺらイチ 모드에서도 사용할 수 있습니다（「더 크게」는 큰글씨 모드 전용）.</div>
+    </div>
+  </section>
+
   <section class="section">
     <div class="container">
       <h2>PRO 기능</h2>
@@ -864,7 +1065,9 @@
           <ul class="tier-list">
             <li>글자 입력・PDF 생성</li>
             <li>모든 글꼴 사용 가능</li>
-            <li>A4・A3 용지</li>
+            <li>용지 방향（세로·가로）・세로쓰기</li>
+            <li>합자（AM・PM）</li>
+            <li>ぺらイチ 모드</li>
             <li>템플릿 3종</li>
             <li>검정 글자・흰 배경</li>
           </ul>
@@ -876,7 +1079,7 @@
             <li>배경 색상（8색）</li>
             <li>사용자 지정 색상（4색）</li>
             <li>외곽선 글자</li>
-            <li>더 크게（세로 45% 늘리기）</li>
+            <li>더 크게（45% 늘리기）</li>
             <li>테두리（가는 선·굵은 선）</li>
             <li>이모지 지원</li>
             <li>광고 제거</li>
